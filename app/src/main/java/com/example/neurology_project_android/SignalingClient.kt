@@ -4,6 +4,7 @@ import androidx.annotation.OptIn
 import androidx.constraintlayout.motion.widget.Debug
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import com.google.android.gms.common.util.JsonUtils
 import com.google.firebase.database.connection.ConnectionContext
 import com.google.firebase.database.tubesock.WebSocket
 import okhttp3.HttpUrl
@@ -12,6 +13,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocketListener
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONStringer
+import org.json.JSONTokener
 
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (url: String) {
@@ -36,6 +41,17 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 override fun onMessage(webSocket: okhttp3.WebSocket, text: String) {
                     super.onMessage(webSocket, text)
                     Log.d("SignalingClient", "Message received: $text")
+                    val jsonMessage = JSONObject(text)
+                    if(text.contains("OFFER")){
+                        Log.d("SignalingClient", "We received an OFFER")
+                        //val messageSplit = text.split(",")
+                        Log.d("Signaling client", jsonMessage.get("payload").toString())
+                        var payload = jsonMessage.get("payload") as JSONObject
+                        val sdpMessage = payload.get("sdp") as JSONObject
+                        val theirSDP = sdpMessage.get("sdp").toString()
+                        Log.d("signaling client", "sdp is: " + theirSDP)
+
+                    }
                 }
 
 
