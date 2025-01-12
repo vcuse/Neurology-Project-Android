@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3489534895638&token=6789&key=peerjs"
-        )
+        , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
         enableEdgeToEdge()
         setContent {
