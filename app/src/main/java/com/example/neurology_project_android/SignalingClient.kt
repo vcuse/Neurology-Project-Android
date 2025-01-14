@@ -2,31 +2,30 @@ package com.example.neurology_project_android
 
 import android.content.Context
 import android.os.Build
-import android.util.JsonWriter
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.constraintlayout.motion.widget.Debug
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.google.android.gms.common.util.JsonUtils
-import com.google.firebase.database.connection.ConnectionContext
-import com.google.firebase.database.tubesock.WebSocket
+import com.google.common.base.Objects
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import okhttp3.internal.http.HttpMethod
-import org.json.JSONArray
+import okio.ByteString
+import okio.IOException
 import org.json.JSONObject
-import org.json.JSONStringer
-import org.json.JSONTokener
+import org.w3c.dom.ls.LSSerializer
 import org.webrtc.DataChannel
 import org.webrtc.IceCandidate
 import org.webrtc.MediaConstraints
@@ -48,38 +47,55 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         lateinit var webSocketListener: WebSocketListener
         lateinit var client: OkHttpClient
         lateinit var mediaID: String
-
-    private val remoteObserver = object: SdpObserver{
+        lateinit var webSocket: WebSocket
+    private var remoteObserver = object: SdpObserver{
             @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             @OptIn(UnstableApi::class)
             override fun onCreateSuccess(sdp: SessionDescription?) {
                 Log.d("RemoteObserver", "Answer SDP was Created")
 
                 var sdpMsg = JSONObject()
-                sdpMsg .append("type", "answer")
-                sdpMsg. append("sdp",
+                sdpMsg .accumulate("type", "answer")
+                sdpMsg. accumulate("sdp",
                     sdp?.description
                 )
 
                 var payload = JSONObject()
-                payload.append("sdp", sdpMsg)
-                payload.append("type", "media")
-                payload.append("browser","firefox")
-                payload.append("connectionId",mediaID)
+                payload.accumulate("sdp", sdpMsg)
+                payload.accumulate("type", "media")
+                payload.accumulate("browser","firefox")
+                payload.accumulate("connectionId",mediaID)
 
                 var msg = JSONObject()
-                msg.append("type", "ANSWER")
-                msg.append("payload", payload)
-                msg.append("dst",theirID)
+                msg.accumulate("type", "ANSWER")
+                msg.accumulate("payload", payload)
+                msg.accumulate("dst",theirID)
+
+                var formBody = FormBody.Builder().add("type", "ANSWER").add("payload", payload.toString()).add("dst",theirID).build()
 
 
-                var request = msg.toString()
-                    .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-                Log.d("Remote Observer", "payload: " + msg.toString())
+                var request = Request.Builder().url(httpUrl).post(formBody).build()
 
-                var newRequest = Request.Builder().url(httpUrl).method("POST", request).build()
-                client.newCall(newRequest)
+                webSocket.send(msg.toString())
+//                val callBack = object :Callback{
+//                    override fun onFailure(call: Call, e: IOException) {
+//                        Log.d("Callback", "Failure")
+//
+//                    }
+//
+//                    override fun onResponse(call: Call, response: Response) {
+//                        Log.d("Callback", "We got a response " + response.code)
+//                    }
+//
+//                }
+//                    var response = client.newCall(request).enqueue(callBack)
+//
+//                Log.d("Remote Observer", "Response code was: " + response)
+
+
+
+
 
             }
 
@@ -96,27 +112,34 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 localPeer.createAnswer(this,mediaConstraints )
             }
 
-            override fun onCreateFailure(error: String?) {
-                TODO("Not yet implemented")
+        @OptIn(UnstableApi::class)
+        override fun onCreateFailure(error: String?) {
+                Log.d("RemoteObserver", "Answer SDP was Created")
             }
 
-            override fun onSetFailure(error: String?) {
-                TODO("Not yet implemented")
+        @OptIn(UnstableApi::class)
+        override fun onSetFailure(error: String?) {
+                Log.d("RemoteObserver", "Answer SDP was Created")
             }
 
         }
 
-    private val peerConnObserver = object : PeerConnection.Observer {
+    var peerConnObserver = object : PeerConnection.Observer {
         @OptIn(UnstableApi::class)
         override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
-            Log.d("Signaling State", "SignalingChange " + p0.toString())
+            if (p0 != null) {
+                Log.d("Signaling State", "SignalingChange " + p0.name)
+            }
 
-            return
+
+
 
         }
 
+        @OptIn(UnstableApi::class)
         override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
-            TODO("Not yet implemented")
+            Log.d("RemoteObserver", "Answer SDP was Created")
+
         }
 
         override fun onIceConnectionReceivingChange(p0: Boolean) {
@@ -145,8 +168,11 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             TODO("Not yet implemented")
         }
 
+        @OptIn(UnstableApi::class)
         override fun onDataChannel(p0: DataChannel?) {
-            TODO("Not yet implemented")
+            Log.d("PeerConnection", "DataChannel added" )
+
+            //TODO("Not yet implemented")
         }
 
         @OptIn(UnstableApi::class)
@@ -166,11 +192,13 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         var factory = PeerConnectionFactory.builder().createPeerConnectionFactory()
         val server = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
         var config = PeerConnection.RTCConfiguration(listOf(server))
+        config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
+        config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
         if(httpUrl != null){
-            Log.d("SignalingClient","URL IS " + httpUrl.host)
+            Log.d("SignalingClient","URL IS " + httpUrl.toString())
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
             var request = Request.Builder().url(httpUrl).build()
             Log.d("SignalingClient",  request.method)
@@ -202,8 +230,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         val theirSDP = sdpMessage.get("sdp").toString()
                         var sessionDescription = SessionDescription(SessionDescription.Type.OFFER, theirSDP)
                         Log.d("signaling client", "sdp is: " + theirSDP)
-                        localPeer?.setRemoteDescription(remoteObserver,sessionDescription)
-                        Log.d("Signaling Client", "set remote SDP " + localPeer?.remoteDescription?.description.toString())
+                        localPeer.setRemoteDescription(remoteObserver, sessionDescription)
+                        //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
                 }
 
@@ -228,7 +256,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     Log.e("SignalingClient", "WebSocket failure: ${t.message}")
                 }
             }
-            client.newWebSocket(request, webSocketListener)
+            webSocket = client.newWebSocket(request, webSocketListener)
 
         }
         else {
