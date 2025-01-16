@@ -1,6 +1,7 @@
 package com.example.neurology_project_android
 
 import android.content.Context
+import android.opengl.GLSurfaceView.EGLContextFactory
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -27,6 +28,10 @@ import okio.IOException
 import org.json.JSONObject
 import org.w3c.dom.ls.LSSerializer
 import org.webrtc.DataChannel
+import org.webrtc.DefaultVideoDecoderFactory
+import org.webrtc.DefaultVideoEncoderFactory
+import org.webrtc.EglBase
+import org.webrtc.HardwareVideoDecoderFactory
 import org.webrtc.IceCandidate
 import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
@@ -34,6 +39,13 @@ import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
+import org.webrtc.VideoCodecInfo
+import org.webrtc.VideoDecoder
+import org.webrtc.VideoDecoderFactory
+import javax.microedition.khronos.egl.EGL10
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.egl.EGLContext
+import javax.microedition.khronos.egl.EGLDisplay
 
 
 data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpValue: String)
@@ -184,12 +196,18 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
 
+
     init {
 
 
+        val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
         var options = PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions()
         var factoryInit = PeerConnectionFactory.initialize(options)
-        var factory = PeerConnectionFactory.builder().createPeerConnectionFactory()
+        val rootEGL = EglBase.create()
+        val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
+        val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
+        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory).setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
+
         val server = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
         var config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
@@ -206,12 +224,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
             // Create the WebSocket listener
             webSocketListener = object : WebSocketListener() {
-                override fun onOpen(webSocket: okhttp3.WebSocket, response: Response) {
+                override fun onOpen(webSocket: WebSocket, response: Response) {
                     super.onOpen(webSocket, response)
                     Log.d("SignalingClient", "WebSocket opened: ${response.message}")
                 }
 
-                override fun onMessage(webSocket: okhttp3.WebSocket, text: String) {
+                override fun onMessage(webSocket: WebSocket, text: String) {
                     super.onMessage(webSocket, text)
                     Log.d("SignalingClient", "Message received: $text")
                     val jsonMessage = JSONObject(text)
@@ -237,18 +255,18 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
 
-                override fun onClosing(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
+                override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                     super.onClosing(webSocket, code, reason)
                     Log.d("SignalingClient", "WebSocket closing: $reason (code $code)")
                 }
 
-                override fun onClosed(webSocket: okhttp3.WebSocket, code: Int, reason: String) {
+                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     super.onClosed(webSocket, code, reason)
                     Log.d("SignalingClient", "WebSocket closed: $reason (code $code)")
                 }
 
                 override fun onFailure(
-                    webSocket: okhttp3.WebSocket,
+                    webSocket: WebSocket,
                     t: Throwable,
                     response: Response?
                 ) {

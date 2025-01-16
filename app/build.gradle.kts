@@ -41,7 +41,7 @@ android {
 
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("io.getstream:stream-webrtc-android:1.3.6")
+    implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
