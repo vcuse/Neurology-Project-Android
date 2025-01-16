@@ -53,43 +53,45 @@ data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpVa
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (url: String, context: Context) {
 
-        lateinit var localPeer : PeerConnection
-        lateinit var httpUrl : HttpUrl
-        lateinit var theirID : String
-        lateinit var webSocketListener: WebSocketListener
-        lateinit var client: OkHttpClient
-        lateinit var mediaID: String
-        lateinit var webSocket: WebSocket
-    private var remoteObserver = object: SdpObserver{
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-            @OptIn(UnstableApi::class)
-            override fun onCreateSuccess(sdp: SessionDescription?) {
-                Log.d("RemoteObserver", "Answer SDP was Created")
+    lateinit var localPeer: PeerConnection
+    lateinit var httpUrl: HttpUrl
+    lateinit var theirID: String
+    lateinit var webSocketListener: WebSocketListener
+    lateinit var client: OkHttpClient
+    lateinit var mediaID: String
+    lateinit var webSocket: WebSocket
+    private var remoteObserver = object : SdpObserver {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        @OptIn(UnstableApi::class)
+        override fun onCreateSuccess(sdp: SessionDescription?) {
+            Log.d("RemoteObserver", "Answer SDP was Created")
 
-                var sdpMsg = JSONObject()
-                sdpMsg .accumulate("type", "answer")
-                sdpMsg. accumulate("sdp",
-                    sdp?.description
-                )
+            var sdpMsg = JSONObject()
+            sdpMsg.accumulate("type", "answer")
+            sdpMsg.accumulate(
+                "sdp",
+                sdp?.description
+            )
 
-                var payload = JSONObject()
-                payload.accumulate("sdp", sdpMsg)
-                payload.accumulate("type", "media")
-                payload.accumulate("browser","firefox")
-                payload.accumulate("connectionId",mediaID)
+            var payload = JSONObject()
+            payload.accumulate("sdp", sdpMsg)
+            payload.accumulate("type", "media")
+            payload.accumulate("browser", "firefox")
+            payload.accumulate("connectionId", mediaID)
 
-                var msg = JSONObject()
-                msg.accumulate("type", "ANSWER")
-                msg.accumulate("payload", payload)
-                msg.accumulate("dst",theirID)
+            var msg = JSONObject()
+            msg.accumulate("type", "ANSWER")
+            msg.accumulate("payload", payload)
+            msg.accumulate("dst", theirID)
 
-                var formBody = FormBody.Builder().add("type", "ANSWER").add("payload", payload.toString()).add("dst",theirID).build()
+            var formBody =
+                FormBody.Builder().add("type", "ANSWER").add("payload", payload.toString())
+                    .add("dst", theirID).build()
 
 
+            var request = Request.Builder().url(httpUrl).post(formBody).build()
 
-                var request = Request.Builder().url(httpUrl).post(formBody).build()
-
-                webSocket.send(msg.toString())
+            webSocket.send(msg.toString())
 //                val callBack = object :Callback{
 //                    override fun onFailure(call: Call, e: IOException) {
 //                        Log.d("Callback", "Failure")
@@ -106,35 +108,41 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 //                Log.d("Remote Observer", "Response code was: " + response)
 
 
+        }
 
-
-
-            }
-
-            @OptIn(UnstableApi::class)
-            override fun onSetSuccess() {
-                Log.d("SignalingClient", "RemoteSDP set succesfully")
-                var mediaConstraints1 = MediaConstraints.KeyValuePair("kRTCMediaConstraintsOfferToReceiveAudio","kRTCMediaConstraintsValueTrue")
-                var mediaConstraints2 = MediaConstraints.KeyValuePair("kRTCMediaConstraintsOfferToReceiveVideo", "kRTCMediaConstraintsValueTrue")
-                var mediaConstraints3 = MediaConstraints.KeyValuePair("kRTCMediaStreamTrackKindVideo", "kRTCMediaConstraintsValueTrue")
-                var mediaConstraints = MediaConstraints()
-                mediaConstraints.mandatory.add(mediaConstraints1)
-                mediaConstraints.mandatory.add(mediaConstraints2)
-                mediaConstraints.mandatory.add(mediaConstraints3)
-                localPeer.createAnswer(this,mediaConstraints )
-            }
+        @OptIn(UnstableApi::class)
+        override fun onSetSuccess() {
+            Log.d("SignalingClient", "RemoteSDP set succesfully")
+            var mediaConstraints1 = MediaConstraints.KeyValuePair(
+                "kRTCMediaConstraintsOfferToReceiveAudio",
+                "kRTCMediaConstraintsValueTrue"
+            )
+            var mediaConstraints2 = MediaConstraints.KeyValuePair(
+                "kRTCMediaConstraintsOfferToReceiveVideo",
+                "kRTCMediaConstraintsValueTrue"
+            )
+            var mediaConstraints3 = MediaConstraints.KeyValuePair(
+                "kRTCMediaStreamTrackKindVideo",
+                "kRTCMediaConstraintsValueTrue"
+            )
+            var mediaConstraints = MediaConstraints()
+            mediaConstraints.mandatory.add(mediaConstraints1)
+            mediaConstraints.mandatory.add(mediaConstraints2)
+            mediaConstraints.mandatory.add(mediaConstraints3)
+            localPeer.createAnswer(this, mediaConstraints)
+        }
 
         @OptIn(UnstableApi::class)
         override fun onCreateFailure(error: String?) {
-                Log.d("RemoteObserver", "Answer SDP was Created")
-            }
+            Log.d("RemoteObserver", "Answer SDP was Created")
+        }
 
         @OptIn(UnstableApi::class)
         override fun onSetFailure(error: String?) {
-                Log.d("RemoteObserver", "Answer SDP was Created")
-            }
-
+            Log.d("RemoteObserver", "Answer SDP was Created")
         }
+
+    }
 
     var peerConnObserver = object : PeerConnection.Observer {
         @OptIn(UnstableApi::class)
@@ -142,8 +150,6 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             if (p0 != null) {
                 Log.d("Signaling State", "SignalingChange " + p0.name)
             }
-
-
 
 
         }
@@ -172,7 +178,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onAddStream(p0: MediaStream?) {
-            Log.d("PeerConnection", "MediaStream added" )
+            Log.d("PeerConnection", "MediaStream added")
 
         }
 
@@ -182,7 +188,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onDataChannel(p0: DataChannel?) {
-            Log.d("PeerConnection", "DataChannel added" )
+            Log.d("PeerConnection", "DataChannel added")
 
             //TODO("Not yet implemented")
         }
@@ -196,30 +202,32 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
 
-
     init {
 
 
         val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
-        var options = PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions()
+        var options = PeerConnectionFactory.InitializationOptions.builder(context)
+            .createInitializationOptions()
         var factoryInit = PeerConnectionFactory.initialize(options)
         val rootEGL = EglBase.create()
         val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
         val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
-        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory).setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
+        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
+            .setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
 
-        val server = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
+        val server =
+            PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
         var config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
-        if(httpUrl != null){
-            Log.d("SignalingClient","URL IS " + httpUrl.toString())
+        if (httpUrl != null) {
+            Log.d("SignalingClient", "URL IS " + httpUrl.toString())
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
             var request = Request.Builder().url(httpUrl).build()
-            Log.d("SignalingClient",  request.method)
+            Log.d("SignalingClient", request.method)
 
 
             // Create the WebSocket listener
@@ -233,7 +241,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     super.onMessage(webSocket, text)
                     Log.d("SignalingClient", "Message received: $text")
                     val jsonMessage = JSONObject(text)
-                    if(text.contains("OFFER") && text.contains("media")){
+                    if (text.contains("OFFER") && text.contains("media")) {
                         Log.d("SignalingClient", "We received an OFFER")
                         //val messageSplit = text.split(",")
                         Log.d("Signaling client", jsonMessage.get("payload").toString())
@@ -246,13 +254,17 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         mediaID = payload.get("connectionId").toString()
                         Log.d("Signaling Client", "mediaID: " + mediaID)
                         val theirSDP = sdpMessage.get("sdp").toString()
-                        var sessionDescription = SessionDescription(SessionDescription.Type.OFFER, theirSDP)
+                        var sessionDescription =
+                            SessionDescription(SessionDescription.Type.OFFER, theirSDP)
                         Log.d("signaling client", "sdp is: " + theirSDP)
                         localPeer.setRemoteDescription(remoteObserver, sessionDescription)
                         //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
-                }
 
+                    if(text.contains("CANDIDATE")){
+
+                    }
+                }
 
 
                 override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -276,8 +288,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             }
             webSocket = client.newWebSocket(request, webSocketListener)
 
-        }
-        else {
+        } else {
             Log.d("Signaling Client", "url is null")
         }
 
