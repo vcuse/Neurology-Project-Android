@@ -46,6 +46,7 @@ import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
 import javax.microedition.khronos.egl.EGLDisplay
+import kotlin.concurrent.thread
 
 
 data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpValue: String)
@@ -60,6 +61,11 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     lateinit var client: OkHttpClient
     lateinit var mediaID: String
     lateinit var webSocket: WebSocket
+    var candidatesList = ArrayList<IceCandidate>()
+    var isReadyToAddIceCandidate: Boolean = false
+    var candidateMessagesToSend = ArrayList<String>()
+
+
     private var remoteObserver = object : SdpObserver {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @OptIn(UnstableApi::class)
@@ -92,6 +98,20 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             var request = Request.Builder().url(httpUrl).post(formBody).build()
 
             webSocket.send(msg.toString())
+
+            for(candidate in candidatesList){
+                var status = localPeer.addIceCandidate(candidate)
+                Log.d("Adding ICE CANDIDATE" , status.toString())
+            }
+
+
+
+
+            isReadyToAddIceCandidate = true
+
+            for(candidate in candidateMessagesToSend){
+                webSocket.send(candidate)
+            }
 //                val callBack = object :Callback{
 //                    override fun onFailure(call: Call, e: IOException) {
 //                        Log.d("Callback", "Failure")
@@ -204,7 +224,6 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     init {
 
-
         val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
         var options = PeerConnectionFactory.InitializationOptions.builder(context)
             .createInitializationOptions()
@@ -241,6 +260,9 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     super.onMessage(webSocket, text)
                     Log.d("SignalingClient", "Message received: $text")
                     val jsonMessage = JSONObject(text)
+                    if (text.contains("OFFER")){
+                        theirID = jsonMessage.get("src").toString()
+                    }
                     if (text.contains("OFFER") && text.contains("media")) {
                         Log.d("SignalingClient", "We received an OFFER")
                         //val messageSplit = text.split(",")
@@ -262,6 +284,34 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     }
 
                     if(text.contains("CANDIDATE")){
+                        var payload = jsonMessage.get("payload") as JSONObject
+                        Log.d("Payload Message", payload.toString())
+                        var candidateMsg = payload.get("candidate") as JSONObject
+                        Log.d("CANDIADTE MESSAGE", "Candidate vairable contains: " + candidateMsg.toString())
+                        var sdpMid = candidateMsg.get("sdpMid").toString()
+                        var sdpMLineIndex = candidateMsg.get("sdpMLineIndex").toString()
+                        var candidate = candidateMsg.get("candidate").toString()
+                        var iceCandidate = IceCandidate(sdpMid, sdpMLineIndex.toInt(), candidate)
+
+                        var msg = JSONObject()
+                        msg.accumulate("type", "CANDIDATE")
+                        msg.accumulate("payload", payload)
+                        msg.accumulate("dst", theirID)
+
+
+
+                        if(!isReadyToAddIceCandidate) {
+                            candidatesList.add(iceCandidate)
+                            candidateMessagesToSend.add(msg.toString())
+                        }
+                        else
+                        {
+                            Log.d("IceCANDIDATE", localPeer.addIceCandidate(iceCandidate).toString())
+                            webSocket.send(msg.toString())
+                        }
+
+
+
 
                     }
                 }
