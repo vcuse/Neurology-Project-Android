@@ -27,6 +27,9 @@ import okio.ByteString
 import okio.IOException
 import org.json.JSONObject
 import org.w3c.dom.ls.LSSerializer
+import org.webrtc.Camera1Capturer
+import org.webrtc.CameraVideoCapturer
+import org.webrtc.CapturerObserver
 import org.webrtc.DataChannel
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
@@ -41,6 +44,7 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.RtpTransceiver
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
+import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoCodecInfo
 import org.webrtc.VideoDecoder
 import org.webrtc.VideoDecoderFactory
@@ -252,6 +256,41 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
+    var cameraVideoCapturer = object: CameraVideoCapturer {
+        @OptIn(UnstableApi::class)
+        override fun initialize(p0: SurfaceTextureHelper?, p1: Context?, p2: CapturerObserver?) {
+            Log.d("Camera Video Capturer", "INITIALIZING")
+        }
+
+        override fun startCapture(p0: Int, p1: Int, p2: Int) {
+            TODO("Not yet implemented")
+        }
+
+        override fun stopCapture() {
+            TODO("Not yet implemented")
+        }
+
+        override fun changeCaptureFormat(p0: Int, p1: Int, p2: Int) {
+            TODO("Not yet implemented")
+        }
+
+        override fun dispose() {
+            TODO("Not yet implemented")
+        }
+
+        override fun isScreencast(): Boolean {
+            TODO("Not yet implemented")
+        }
+
+        override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?) {
+            TODO("Not yet implemented")
+        }
+
+        override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?, p1: String?) {
+            TODO("Not yet implemented")
+        }
+
+    }
 
     init {
 
@@ -281,10 +320,11 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
+        cameraVideoCapturer.initialize(SurfaceTextureHelper.create("test", rootEGL.eglBaseContext),context,null)
 
         val videoSource = factory.createVideoSource(false)
         val track = factory.createVideoTrack("video0", videoSource)
-        //localPeer.addTrack(track)
+        localPeer.addTrack(track)
 
 
         if (httpUrl != null) {
