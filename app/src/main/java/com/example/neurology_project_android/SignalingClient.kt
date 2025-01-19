@@ -35,8 +35,10 @@ import org.webrtc.HardwareVideoDecoderFactory
 import org.webrtc.IceCandidate
 import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
+import org.webrtc.MediaStreamTrack
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
+import org.webrtc.RtpTransceiver
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 import org.webrtc.VideoCodecInfo
@@ -61,17 +63,25 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     lateinit var client: OkHttpClient
     lateinit var mediaID: String
     lateinit var webSocket: WebSocket
+    lateinit var localSDP: SessionDescription
+
     var candidatesList = ArrayList<IceCandidate>()
     var isReadyToAddIceCandidate: Boolean = false
     var candidateMessagesToSend = ArrayList<String>()
 
+    fun setlocalSDP(){
+        localPeer.setLocalDescription(remoteObserver, localSDP)
+    }
 
     private var remoteObserver = object : SdpObserver {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @OptIn(UnstableApi::class)
         override fun onCreateSuccess(sdp: SessionDescription?) {
             Log.d("RemoteObserver", "Answer SDP was Created")
-
+            if (sdp != null) {
+                localSDP = sdp
+                setlocalSDP()
+            }
             var sdpMsg = JSONObject()
             sdpMsg.accumulate("type", "answer")
             sdpMsg.accumulate(
@@ -110,7 +120,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             isReadyToAddIceCandidate = true
 
             for(candidate in candidateMessagesToSend){
-                webSocket.send(candidate)
+                //webSocket.send(candidate)
             }
 //                val callBack = object :Callback{
 //                    override fun onFailure(call: Call, e: IOException) {
@@ -133,6 +143,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         @OptIn(UnstableApi::class)
         override fun onSetSuccess() {
             Log.d("SignalingClient", "RemoteSDP set succesfully")
+
             var mediaConstraints1 = MediaConstraints.KeyValuePair(
                 "kRTCMediaConstraintsOfferToReceiveAudio",
                 "kRTCMediaConstraintsValueTrue"
@@ -145,21 +156,34 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 "kRTCMediaStreamTrackKindVideo",
                 "kRTCMediaConstraintsValueTrue"
             )
+
+            var mediaConstraints4 =  MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "kRTCMediaConstraintsValueTrue")
+
+            var mediaConstraints5 =  MediaConstraints.KeyValuePair("setup", "actpass")
+            var mediaConstraints6 = MediaConstraints.KeyValuePair(
+                "video",
+                "true"
+            )
             var mediaConstraints = MediaConstraints()
+
+
             mediaConstraints.mandatory.add(mediaConstraints1)
             mediaConstraints.mandatory.add(mediaConstraints2)
             mediaConstraints.mandatory.add(mediaConstraints3)
+            mediaConstraints.mandatory.add(mediaConstraints4)
+            mediaConstraints.mandatory.add(mediaConstraints5)
+            mediaConstraints.mandatory.add(mediaConstraints6)
             localPeer.createAnswer(this, mediaConstraints)
         }
 
         @OptIn(UnstableApi::class)
         override fun onCreateFailure(error: String?) {
-            Log.d("RemoteObserver", "Answer SDP was Created")
+            Log.d("OnCreateFailure", error.toString())
         }
 
         @OptIn(UnstableApi::class)
         override fun onSetFailure(error: String?) {
-            Log.d("RemoteObserver", "Answer SDP was Created")
+            Log.d("SDP Observer", error.toString())
         }
 
     }
@@ -176,7 +200,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
-            Log.d("RemoteObserver", "Answer SDP was Created")
+            Log.d("ICE Connection", p0.toString())
 
         }
 
@@ -184,12 +208,14 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             TODO("Not yet implemented")
         }
 
+        @OptIn(UnstableApi::class)
         override fun onIceGatheringChange(p0: PeerConnection.IceGatheringState?) {
-            TODO("Not yet implemented")
+            Log.d("ICEGATHERINGSTATE", p0.toString())
         }
 
+        @OptIn(UnstableApi::class)
         override fun onIceCandidate(p0: IceCandidate?) {
-            TODO("Not yet implemented")
+            Log.d("REC ICECandidate", p0.toString())
         }
 
         override fun onIceCandidatesRemoved(p0: Array<out IceCandidate?>?) {
@@ -198,7 +224,11 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onAddStream(p0: MediaStream?) {
-            Log.d("PeerConnection", "MediaStream added")
+
+
+            var mediaStreamTrack = p0?.audioTracks?.get(0)
+            //val status = localPeer.addTrack(mediaStreamTrack)
+            //Log.d("PeerConnection", "MediaStream added $status")
 
         }
 
@@ -208,6 +238,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onDataChannel(p0: DataChannel?) {
+
             Log.d("PeerConnection", "DataChannel added")
 
             //TODO("Not yet implemented")
@@ -227,8 +258,10 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
         var options = PeerConnectionFactory.InitializationOptions.builder(context)
             .createInitializationOptions()
-        var factoryInit = PeerConnectionFactory.initialize(options)
+
+        PeerConnectionFactory.initialize(options)
         val rootEGL = EglBase.create()
+
         val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
         val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
         var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
@@ -238,10 +271,22 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
         var config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
-        config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
+        config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
+        config.iceTransportsType = PeerConnection.IceTransportsType.ALL
+
+
+
+
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
+
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
+
+        val videoSource = factory.createVideoSource(false)
+        val track = factory.createVideoTrack("video0", videoSource)
+        //localPeer.addTrack(track)
+
+
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS " + httpUrl.toString())
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
@@ -307,7 +352,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         else
                         {
                             Log.d("IceCANDIDATE", localPeer.addIceCandidate(iceCandidate).toString())
-                            webSocket.send(msg.toString())
+                            //webSocket.send(msg.toString())
                         }
 
 
