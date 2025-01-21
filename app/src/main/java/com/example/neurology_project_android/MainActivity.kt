@@ -1,10 +1,12 @@
 package com.example.neurology_project_android
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,16 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 1)
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3489534895638&token=6789&key=peerjs"
         , this)
         Log.d("MainActivitiy", "SignalingClient should be set")

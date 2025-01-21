@@ -1,12 +1,25 @@
 package com.example.neurology_project_android
 
 import android.content.Context
+import android.graphics.Camera
+import android.hardware.Camera.CameraInfo
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.InputConfiguration
+import android.hardware.camera2.params.OutputConfiguration
 import android.opengl.GLSurfaceView.EGLContextFactory
 import android.os.Build
+import android.os.Handler
+import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import androidx.navigation.Navigator
+import androidx.navigation.NavigatorProvider
 import com.google.common.base.Objects
 import okhttp3.Call
 import okhttp3.Callback
@@ -28,7 +41,10 @@ import okio.IOException
 import org.json.JSONObject
 import org.w3c.dom.ls.LSSerializer
 import org.webrtc.Camera1Capturer
+import org.webrtc.Camera2Capturer
+import org.webrtc.Camera2Enumerator
 import org.webrtc.CameraVideoCapturer
+import org.webrtc.CameraVideoCapturer.CameraEventsHandler
 import org.webrtc.CapturerObserver
 import org.webrtc.DataChannel
 import org.webrtc.DefaultVideoDecoderFactory
@@ -48,6 +64,7 @@ import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoCodecInfo
 import org.webrtc.VideoDecoder
 import org.webrtc.VideoDecoderFactory
+import org.webrtc.VideoFrame
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
@@ -57,6 +74,7 @@ import kotlin.concurrent.thread
 
 data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpValue: String)
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (url: String, context: Context) {
 
@@ -292,7 +310,58 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    init {
+    var cameraEventsHandler = object: CameraEventsHandler {
+        @OptIn(UnstableApi::class)
+        override fun onCameraError(p0: String?) {
+            Log.d("CAMERA ERROR" , p0!!)
+            //TODO("Not yet implemented")
+        }
+
+        override fun onCameraDisconnected() {
+            TODO("Not yet implemented")
+        }
+
+        override fun onCameraFreezed(p0: String?) {
+            TODO("Not yet implemented")
+        }
+
+        @OptIn(UnstableApi::class)
+        override fun onCameraOpening(p0: String?) {
+            Log.d("CAMERA EVENTS", "CAMERA OPEN")
+            //TODO("Not yet implemented")
+        }
+
+        @OptIn(UnstableApi::class)
+        override fun onFirstFrameAvailable() {
+            Log.d("CAMERA", "FIRST FRAME")
+        }
+
+        override fun onCameraClosed() {
+            TODO("Not yet implemented")
+        }
+
+    }
+
+    var capturerObserver = object: CapturerObserver {
+        @OptIn(UnstableApi::class)
+        override fun onCapturerStarted(p0: Boolean) {
+            Log.d("CAPTURER OBSERVER", "STARTED")
+        }
+
+        override fun onCapturerStopped() {
+            TODO("Not yet implemented")
+        }
+
+        override fun onFrameCaptured(p0: VideoFrame?) {
+
+        }
+
+    }
+
+
+
+
+init {
 
         val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
         var options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -313,20 +382,21 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
         config.iceTransportsType = PeerConnection.IceTransportsType.ALL
 
-
-
-
+        var cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        Log.d("Cameras", cameraManager.toString())
+        var camera01 = cameraManager.cameraIdList.first()
+        var camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
+        camera1Capturer.initialize(SurfaceTextureHelper.create("test", rootEGL.eglBaseContext),context,capturerObserver)
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-
+        camera1Capturer.startCapture(100, 100, 30)
+        
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
-        cameraVideoCapturer.initialize(SurfaceTextureHelper.create("test", rootEGL.eglBaseContext),context,null)
-
+        //cameraVideoCapturer.initialize()
         val videoSource = factory.createVideoSource(false)
         val track = factory.createVideoTrack("video0", videoSource)
+
         localPeer.addTrack(track)
-
-
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS " + httpUrl.toString())
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
