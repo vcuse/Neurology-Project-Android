@@ -65,6 +65,9 @@ import org.webrtc.VideoCodecInfo
 import org.webrtc.VideoDecoder
 import org.webrtc.VideoDecoderFactory
 import org.webrtc.VideoFrame
+import org.webrtc.VideoProcessor
+import org.webrtc.VideoSink
+import org.webrtc.VideoTrack
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext
@@ -86,6 +89,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     lateinit var mediaID: String
     lateinit var webSocket: WebSocket
     lateinit var localSDP: SessionDescription
+    lateinit var track: VideoTrack
 
     var candidatesList = ArrayList<IceCandidate>()
     var isReadyToAddIceCandidate: Boolean = false
@@ -115,7 +119,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             payload.accumulate("sdp", sdpMsg)
             payload.accumulate("type", "media")
             payload.accumulate("browser", "firefox")
-            payload.accumulate("connectionId", mediaID)
+            payload.accumulate("connectionId", "34324234")
 
             var msg = JSONObject()
             msg.accumulate("type", "ANSWER")
@@ -135,6 +139,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 var status = localPeer.addIceCandidate(candidate)
                 Log.d("Adding ICE CANDIDATE" , status.toString())
             }
+
 
 
 
@@ -382,21 +387,32 @@ init {
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
         config.iceTransportsType = PeerConnection.IceTransportsType.ALL
 
+
         var cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         Log.d("Cameras", cameraManager.toString())
         var camera01 = cameraManager.cameraIdList.first()
         var camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
         camera1Capturer.initialize(SurfaceTextureHelper.create("test", rootEGL.eglBaseContext),context,capturerObserver)
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        camera1Capturer.startCapture(100, 100, 30)
-        
+        camera1Capturer.startCapture(200, 200, 21)
+
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
         //cameraVideoCapturer.initialize()
-        val videoSource = factory.createVideoSource(false)
-        val track = factory.createVideoTrack("video0", videoSource)
 
+        val videoSource = factory.createVideoSource(false)
+        var mediaConstraints = MediaConstraints()
+
+        val audioSource = factory.createAudioSource(mediaConstraints)
+        val audioTrack = factory.createAudioTrack("audio0", audioSource)
+        Log.d("Audio Track", "ID IS " + audioTrack.id())
+        track = factory.createVideoTrack("7427155c-bf4c-45d8-b0f4-e078f4a9d934", videoSource)
+
+    localPeer.addTrack(audioTrack)
         localPeer.addTrack(track)
+
+
+
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS " + httpUrl.toString())
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
@@ -435,6 +451,7 @@ init {
                             SessionDescription(SessionDescription.Type.OFFER, theirSDP)
                         Log.d("signaling client", "sdp is: " + theirSDP)
                         localPeer.setRemoteDescription(remoteObserver, sessionDescription)
+
                         //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
 
