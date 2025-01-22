@@ -90,12 +90,13 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     lateinit var webSocket: WebSocket
     lateinit var localSDP: SessionDescription
     lateinit var track: VideoTrack
-
+    val server =
+        PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
     var candidatesList = ArrayList<IceCandidate>()
     var isReadyToAddIceCandidate: Boolean = false
     var candidateMessagesToSend = ArrayList<String>()
 
-    fun setlocalSDP(){
+    fun setlocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
     }
 
@@ -136,35 +137,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
             webSocket.send(msg.toString())
 
-            for(candidate in candidatesList){
+            for (candidate in candidatesList) {
                 var status = localPeer.addIceCandidate(candidate)
-                Log.d("Adding ICE CANDIDATE" , status.toString())
+                Log.d("Adding ICE CANDIDATE", status.toString())
             }
-
-
-
-
 
             isReadyToAddIceCandidate = true
-
-            for(candidate in candidateMessagesToSend){
-                //webSocket.send(candidate)
-            }
-//                val callBack = object :Callback{
-//                    override fun onFailure(call: Call, e: IOException) {
-//                        Log.d("Callback", "Failure")
-//
-//                    }
-//
-//                    override fun onResponse(call: Call, response: Response) {
-//                        Log.d("Callback", "We got a response " + response.code)
-//                    }
-//
-//                }
-//                    var response = client.newCall(request).enqueue(callBack)
-//
-//                Log.d("Remote Observer", "Response code was: " + response)
-
 
         }
 
@@ -185,9 +163,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 "kRTCMediaConstraintsValueTrue"
             )
 
-            var mediaConstraints4 =  MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "kRTCMediaConstraintsValueTrue")
+            var mediaConstraints4 = MediaConstraints.KeyValuePair(
+                "DtlsSrtpKeyAgreement",
+                "kRTCMediaConstraintsValueTrue"
+            )
 
-            var mediaConstraints5 =  MediaConstraints.KeyValuePair("setup", "actpass")
+            var mediaConstraints5 = MediaConstraints.KeyValuePair("setup", "actpass")
             var mediaConstraints6 = MediaConstraints.KeyValuePair(
                 "video",
                 "true"
@@ -297,46 +278,10 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    var cameraVideoCapturer = object: CameraVideoCapturer {
-        @OptIn(UnstableApi::class)
-        override fun initialize(p0: SurfaceTextureHelper?, p1: Context?, p2: CapturerObserver?) {
-            Log.d("Camera Video Capturer", "INITIALIZING")
-        }
-
-        override fun startCapture(p0: Int, p1: Int, p2: Int) {
-            TODO("Not yet implemented")
-        }
-
-        override fun stopCapture() {
-            TODO("Not yet implemented")
-        }
-
-        override fun changeCaptureFormat(p0: Int, p1: Int, p2: Int) {
-            TODO("Not yet implemented")
-        }
-
-        override fun dispose() {
-            TODO("Not yet implemented")
-        }
-
-        override fun isScreencast(): Boolean {
-            TODO("Not yet implemented")
-        }
-
-        override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?) {
-            TODO("Not yet implemented")
-        }
-
-        override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?, p1: String?) {
-            TODO("Not yet implemented")
-        }
-
-    }
-
-    var cameraEventsHandler = object: CameraEventsHandler {
+    var cameraEventsHandler = object : CameraEventsHandler {
         @OptIn(UnstableApi::class)
         override fun onCameraError(p0: String?) {
-            Log.d("CAMERA ERROR" , p0!!)
+            Log.d("CAMERA ERROR", p0!!)
             //TODO("Not yet implemented")
         }
 
@@ -365,58 +310,44 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    var capturerObserver = object: CapturerObserver {
-        @OptIn(UnstableApi::class)
-        override fun onCapturerStarted(p0: Boolean) {
-            Log.d("CAPTURER OBSERVER", "STARTED")
-        }
-
-        override fun onCapturerStopped() {
-            TODO("Not yet implemented")
-        }
-
-        override fun onFrameCaptured(p0: VideoFrame?) {
-
-        }
-
-    }
 
 
-
-
-init {
-
-        val videoCodecInfo = VideoCodecInfo.H264_LEVEL_3_1
-        var options = PeerConnectionFactory.InitializationOptions.builder(context)
-            .createInitializationOptions()
-
-        PeerConnectionFactory.initialize(options)
-        val rootEGL = EglBase.create()
-
-        val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
-        val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
-        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
-            .setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
-
-        val server =
-            PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
+    private fun generateConfig(): PeerConnection.RTCConfiguration {
         var config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
 
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
         config.iceTransportsType = PeerConnection.IceTransportsType.ALL
+        return config
+    }
 
+    private fun buildFactory(rootEGL: EglBase): PeerConnectionFactory? {
+
+        val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
+        val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
+        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
+            .setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
+        return factory
+    }
+
+    init {
+        var options = PeerConnectionFactory.InitializationOptions.builder(context)
+            .createInitializationOptions()
+        PeerConnectionFactory.initialize(options)
+        val rootEGL = EglBase.create()
+        val factory = buildFactory(rootEGL)
 
         var cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         Log.d("Cameras", cameraManager.toString())
         var camera01 = cameraManager.cameraIdList.first()
         var camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
-        val videoSource = factory.createVideoSource(true)
-
+        val videoSource = factory?.createVideoSource(true)
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
-        camera1Capturer.initialize(surfaceTexture,context,videoSource.capturerObserver)
+
+        camera1Capturer.initialize(surfaceTexture, context, videoSource!!.capturerObserver)
+        val config = generateConfig()
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        camera1Capturer.startCapture(640, 480, 30)
+        camera1Capturer.startCapture(1920, 1080, 30)
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
@@ -432,7 +363,7 @@ init {
 
         //var trackSender = localPeer.addTrack(audioTrack)
         //Log.d("TRACK SENDER", trackSender.track().toString())
-    //we want to add a track with multiple streams
+        //we want to add a track with multiple streams
         //var mediaTracks = factory.createLocalMediaStream("test")
         localPeer.addTrack(track, listOf("track01"))
 
@@ -456,15 +387,15 @@ init {
                     super.onMessage(webSocket, text)
                     Log.d("SignalingClient", "Message received: $text")
                     val jsonMessage = JSONObject(text)
-                    if (text.contains("OFFER")){
+                    if (text.contains("OFFER")) {
                         theirID = jsonMessage.get("src").toString()
                     }
                     if (text.contains("OFFER") && text.contains("media")) {
+
                         Log.d("SignalingClient", "We received an OFFER")
                         //val messageSplit = text.split(",")
                         Log.d("Signaling client", jsonMessage.get("payload").toString())
                         theirID = jsonMessage.get("src").toString()
-
 
                         Log.d("Signaling Client", "TheirID: " + theirID)
                         var payload = jsonMessage.get("payload") as JSONObject
@@ -480,11 +411,14 @@ init {
                         //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
 
-                    if(text.contains("CANDIDATE")){
+                    if (text.contains("CANDIDATE")) {
                         var payload = jsonMessage.get("payload") as JSONObject
                         Log.d("Payload Message", payload.toString())
                         var candidateMsg = payload.get("candidate") as JSONObject
-                        Log.d("CANDIADTE MESSAGE", "Candidate vairable contains: " + candidateMsg.toString())
+                        Log.d(
+                            "CANDIADTE MESSAGE",
+                            "Candidate vairable contains: " + candidateMsg.toString()
+                        )
                         var sdpMid = candidateMsg.get("sdpMid").toString()
                         var sdpMLineIndex = candidateMsg.get("sdpMLineIndex").toString()
                         var candidate = candidateMsg.get("candidate").toString()
@@ -497,17 +431,16 @@ init {
 
 
 
-                        if(!isReadyToAddIceCandidate) {
+                        if (!isReadyToAddIceCandidate) {
                             candidatesList.add(iceCandidate)
                             candidateMessagesToSend.add(msg.toString())
-                        }
-                        else
-                        {
-                            Log.d("IceCANDIDATE", localPeer.addIceCandidate(iceCandidate).toString())
+                        } else {
+                            Log.d(
+                                "IceCANDIDATE",
+                                localPeer.addIceCandidate(iceCandidate).toString()
+                            )
                             //webSocket.send(msg.toString())
                         }
-
-
 
 
                     }
