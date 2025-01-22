@@ -1,78 +1,36 @@
 package com.example.neurology_project_android
 
 import android.content.Context
-import android.graphics.Camera
-import android.hardware.Camera.CameraInfo
-import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.InputConfiguration
-import android.hardware.camera2.params.OutputConfiguration
-import android.opengl.GLSurfaceView.EGLContextFactory
 import android.os.Build
-import android.os.Handler
-import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.Navigator
-import androidx.navigation.NavigatorProvider
-import com.google.common.base.Objects
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Protocol
 import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import okio.ByteString
-import okio.IOException
 import org.json.JSONObject
-import org.w3c.dom.ls.LSSerializer
-import org.webrtc.Camera1Capturer
 import org.webrtc.Camera2Capturer
-import org.webrtc.Camera2Enumerator
-import org.webrtc.CameraVideoCapturer
 import org.webrtc.CameraVideoCapturer.CameraEventsHandler
-import org.webrtc.CapturerObserver
 import org.webrtc.DataChannel
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
-import org.webrtc.HardwareVideoDecoderFactory
 import org.webrtc.IceCandidate
 import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
-import org.webrtc.MediaStreamTrack
 import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
-import org.webrtc.RtpTransceiver
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceTextureHelper
-import org.webrtc.VideoCodecInfo
-import org.webrtc.VideoDecoder
-import org.webrtc.VideoDecoderFactory
-import org.webrtc.VideoFrame
-import org.webrtc.VideoProcessor
-import org.webrtc.VideoSink
 import org.webrtc.VideoTrack
-import javax.microedition.khronos.egl.EGL10
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.egl.EGLContext
-import javax.microedition.khronos.egl.EGLDisplay
-import kotlin.concurrent.thread
 
 
 data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpValue: String)
@@ -330,7 +288,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         return factory
     }
 
-    init {
+    @OptIn(UnstableApi::class)
+    private fun buildVideoSenders(context: Context, url: String) {
         var options = PeerConnectionFactory.InitializationOptions.builder(context)
             .createInitializationOptions()
         PeerConnectionFactory.initialize(options)
@@ -366,8 +325,11 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         //we want to add a track with multiple streams
         //var mediaTracks = factory.createLocalMediaStream("test")
         localPeer.addTrack(track, listOf("track01"))
+    }
 
+    init {
 
+        buildVideoSenders(context, url)
 
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS " + httpUrl.toString())
