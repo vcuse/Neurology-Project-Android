@@ -52,7 +52,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private var isReadyToAddIceCandidate: Boolean = false
     private var candidateMessagesToSend = ArrayList<String>()
 
-    fun setlocalSDP() {
+    fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
     }
 
@@ -62,7 +62,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             Log.d("RemoteObserver", "Answer SDP was Created")
             if (sdp != null) {
                 localSDP = sdp
-                setlocalSDP()
+                setLocalSDP()
             }
             val sdpMsg = JSONObject()
             sdpMsg.accumulate("type", "answer")
@@ -103,7 +103,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onSetSuccess() {
-            Log.d("SignalingClient", "RemoteSDP set succesfully")
+            Log.d("SignalingClient", "RemoteSDP set successfully")
 
             val mediaConstraints1 = MediaConstraints.KeyValuePair(
                 "kRTCMediaConstraintsOfferToReceiveAudio",
@@ -181,8 +181,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         override fun onIceCandidate(p0: IceCandidate?) {
             val candidate = JSONObject()
             candidate.accumulate("candidate", p0!!.sdp)
-            candidate.accumulate("sdpMLineIndex", p0!!.sdpMLineIndex)
-            candidate.accumulate("sdpMid", p0!!.sdpMid)
+            candidate.accumulate("sdpMLineIndex", p0.sdpMLineIndex)
+            candidate.accumulate("sdpMid", p0.sdpMid)
 
             val payload = JSONObject()
             payload.accumulate("candidate", candidate)
@@ -375,8 +375,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         Log.d("Payload Message", payload.toString())
                         val candidateMsg = payload.get("candidate") as JSONObject
                         Log.d(
-                            "CANDIADTE MESSAGE",
-                            "Candidate vairable contains: $candidateMsg"
+                            "CANDIDATE MESSAGE",
+                            "Candidate variable contains: $candidateMsg"
                         )
                         val sdpMid = candidateMsg.get("sdpMid").toString()
                         val sdpMLineIndex = candidateMsg.get("sdpMLineIndex").toString()
