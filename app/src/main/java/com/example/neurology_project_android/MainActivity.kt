@@ -20,6 +20,7 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import okhttp3.Request
 import java.util.jar.Manifest
 
 class MainActivity : ComponentActivity() {
@@ -28,8 +29,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 1)
-        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3489534895638&token=6789&key=peerjs"
+        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3339534895638&token=6789&key=peerjs"
         , this)
+        val getPeers = GetPeers()
         Log.d("MainActivitiy", "SignalingClient should be set")
         enableEdgeToEdge()
         setContent {
