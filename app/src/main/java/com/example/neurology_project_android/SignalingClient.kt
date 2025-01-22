@@ -115,11 +115,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 sdp?.description
             )
 
+
             var payload = JSONObject()
             payload.accumulate("sdp", sdpMsg)
             payload.accumulate("type", "media")
             payload.accumulate("browser", "firefox")
-            payload.accumulate("connectionId", "34324234")
+            payload.accumulate("connectionId", mediaID)
 
             var msg = JSONObject()
             msg.accumulate("type", "ANSWER")
@@ -242,6 +243,23 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onIceCandidate(p0: IceCandidate?) {
+            var candidate = JSONObject()
+            candidate.accumulate("candidate", p0!!.sdp)
+            candidate.accumulate("sdpMLineIndex", p0!!.sdpMLineIndex)
+            candidate.accumulate("sdpMid", p0!!.sdpMid)
+
+            var payload = JSONObject()
+            payload.accumulate("candidate", candidate)
+            payload.accumulate("connectionId", mediaID)
+            payload.accumulate("type", "media")
+
+            var message = JSONObject()
+            message.accumulate("payload", payload)
+            message.accumulate("type", "CANDIDATE")
+            message.accumulate("dst", theirID)
+
+            webSocket.send(message.toString())
+
             Log.d("REC ICECandidate", p0.toString())
         }
 
@@ -384,6 +402,7 @@ init {
             PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
         var config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
+
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
         config.iceTransportsType = PeerConnection.IceTransportsType.ALL
 
@@ -392,24 +411,30 @@ init {
         Log.d("Cameras", cameraManager.toString())
         var camera01 = cameraManager.cameraIdList.first()
         var camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
-        camera1Capturer.initialize(SurfaceTextureHelper.create("test", rootEGL.eglBaseContext),context,capturerObserver)
+        val videoSource = factory.createVideoSource(true)
+
+        val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
+        camera1Capturer.initialize(surfaceTexture,context,videoSource.capturerObserver)
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        camera1Capturer.startCapture(200, 200, 21)
+        camera1Capturer.startCapture(640, 480, 30)
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
         //cameraVideoCapturer.initialize()
 
-        val videoSource = factory.createVideoSource(false)
+
         var mediaConstraints = MediaConstraints()
 
         val audioSource = factory.createAudioSource(mediaConstraints)
         val audioTrack = factory.createAudioTrack("audio0", audioSource)
         Log.d("Audio Track", "ID IS " + audioTrack.id())
-        track = factory.createVideoTrack("7427155c-bf4c-45d8-b0f4-e078f4a9d934", videoSource)
+        track = factory.createVideoTrack("0001", videoSource)
 
-    localPeer.addTrack(audioTrack)
-        localPeer.addTrack(track)
+        //var trackSender = localPeer.addTrack(audioTrack)
+        //Log.d("TRACK SENDER", trackSender.track().toString())
+    //we want to add a track with multiple streams
+        //var mediaTracks = factory.createLocalMediaStream("test")
+        localPeer.addTrack(track, listOf("track01"))
 
 
 
