@@ -33,33 +33,30 @@ import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoTrack
 
 
-data class SDP(val type: String, val typeAns: String, val sdp: String, val sdpValue: String)
-
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (url: String, context: Context) {
 
-    lateinit var localPeer: PeerConnection
-    lateinit var httpUrl: HttpUrl
-    lateinit var theirID: String
-    lateinit var webSocketListener: WebSocketListener
-    lateinit var client: OkHttpClient
-    lateinit var mediaID: String
-    lateinit var webSocket: WebSocket
-    lateinit var localSDP: SessionDescription
-    lateinit var track: VideoTrack
-    val server =
+    private lateinit var localPeer: PeerConnection
+    private lateinit var httpUrl: HttpUrl
+    private lateinit var theirID: String
+    private lateinit var webSocketListener: WebSocketListener
+    private lateinit var client: OkHttpClient
+    private lateinit var mediaID: String
+    private lateinit var webSocket: WebSocket
+    private lateinit var localSDP: SessionDescription
+    private lateinit var track: VideoTrack
+    private val server =
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
-    var candidatesList = ArrayList<IceCandidate>()
-    var isReadyToAddIceCandidate: Boolean = false
-    var candidateMessagesToSend = ArrayList<String>()
+    private var candidatesList = ArrayList<IceCandidate>()
+    private var isReadyToAddIceCandidate: Boolean = false
+    private var candidateMessagesToSend = ArrayList<String>()
 
     fun setlocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
     }
 
     private var remoteObserver = object : SdpObserver {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @OptIn(UnstableApi::class)
         override fun onCreateSuccess(sdp: SessionDescription?) {
             Log.d("RemoteObserver", "Answer SDP was Created")
@@ -67,7 +64,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 localSDP = sdp
                 setlocalSDP()
             }
-            var sdpMsg = JSONObject()
+            val sdpMsg = JSONObject()
             sdpMsg.accumulate("type", "answer")
             sdpMsg.accumulate(
                 "sdp",
@@ -75,18 +72,18 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             )
 
 
-            var payload = JSONObject()
+            val payload = JSONObject()
             payload.accumulate("sdp", sdpMsg)
             payload.accumulate("type", "media")
             payload.accumulate("browser", "firefox")
             payload.accumulate("connectionId", mediaID)
 
-            var msg = JSONObject()
+            val msg = JSONObject()
             msg.accumulate("type", "ANSWER")
             msg.accumulate("payload", payload)
             msg.accumulate("dst", theirID)
 
-            var formBody =
+            val formBody =
                 FormBody.Builder().add("type", "ANSWER").add("payload", payload.toString())
                     .add("dst", theirID).build()
 
@@ -96,7 +93,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             webSocket.send(msg.toString())
 
             for (candidate in candidatesList) {
-                var status = localPeer.addIceCandidate(candidate)
+                val status = localPeer.addIceCandidate(candidate)
                 Log.d("Adding ICE CANDIDATE", status.toString())
             }
 
@@ -108,30 +105,30 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         override fun onSetSuccess() {
             Log.d("SignalingClient", "RemoteSDP set succesfully")
 
-            var mediaConstraints1 = MediaConstraints.KeyValuePair(
+            val mediaConstraints1 = MediaConstraints.KeyValuePair(
                 "kRTCMediaConstraintsOfferToReceiveAudio",
                 "kRTCMediaConstraintsValueTrue"
             )
-            var mediaConstraints2 = MediaConstraints.KeyValuePair(
+            val mediaConstraints2 = MediaConstraints.KeyValuePair(
                 "kRTCMediaConstraintsOfferToReceiveVideo",
                 "kRTCMediaConstraintsValueTrue"
             )
-            var mediaConstraints3 = MediaConstraints.KeyValuePair(
+            val mediaConstraints3 = MediaConstraints.KeyValuePair(
                 "kRTCMediaStreamTrackKindVideo",
                 "kRTCMediaConstraintsValueTrue"
             )
 
-            var mediaConstraints4 = MediaConstraints.KeyValuePair(
+            val mediaConstraints4 = MediaConstraints.KeyValuePair(
                 "DtlsSrtpKeyAgreement",
                 "kRTCMediaConstraintsValueTrue"
             )
 
-            var mediaConstraints5 = MediaConstraints.KeyValuePair("setup", "actpass")
-            var mediaConstraints6 = MediaConstraints.KeyValuePair(
+            val mediaConstraints5 = MediaConstraints.KeyValuePair("setup", "actpass")
+            val mediaConstraints6 = MediaConstraints.KeyValuePair(
                 "video",
                 "true"
             )
-            var mediaConstraints = MediaConstraints()
+            val mediaConstraints = MediaConstraints()
 
 
             mediaConstraints.mandatory.add(mediaConstraints1)
@@ -155,7 +152,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    var peerConnObserver = object : PeerConnection.Observer {
+    private var peerConnObserver = object : PeerConnection.Observer {
         @OptIn(UnstableApi::class)
         override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
             if (p0 != null) {
@@ -182,17 +179,17 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         @OptIn(UnstableApi::class)
         override fun onIceCandidate(p0: IceCandidate?) {
-            var candidate = JSONObject()
+            val candidate = JSONObject()
             candidate.accumulate("candidate", p0!!.sdp)
             candidate.accumulate("sdpMLineIndex", p0!!.sdpMLineIndex)
             candidate.accumulate("sdpMid", p0!!.sdpMid)
 
-            var payload = JSONObject()
+            val payload = JSONObject()
             payload.accumulate("candidate", candidate)
             payload.accumulate("connectionId", mediaID)
             payload.accumulate("type", "media")
 
-            var message = JSONObject()
+            val message = JSONObject()
             message.accumulate("payload", payload)
             message.accumulate("type", "CANDIDATE")
             message.accumulate("dst", theirID)
@@ -236,7 +233,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    var cameraEventsHandler = object : CameraEventsHandler {
+    private var cameraEventsHandler = object : CameraEventsHandler {
         @OptIn(UnstableApi::class)
         override fun onCameraError(p0: String?) {
             Log.d("CAMERA ERROR", p0!!)
@@ -271,7 +268,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
     private fun generateConfig(): PeerConnection.RTCConfiguration {
-        var config = PeerConnection.RTCConfiguration(listOf(server))
+        val config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
 
         config.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_ONCE
@@ -283,23 +280,23 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         val encoderFactory = DefaultVideoEncoderFactory(rootEGL.eglBaseContext, true, true)
         val decoderFactory = DefaultVideoDecoderFactory(rootEGL.eglBaseContext)
-        var factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
+        val factory = PeerConnectionFactory.builder().setVideoDecoderFactory(decoderFactory)
             .setVideoEncoderFactory(encoderFactory).createPeerConnectionFactory()
         return factory
     }
 
     @OptIn(UnstableApi::class)
     private fun buildVideoSenders(context: Context, url: String) {
-        var options = PeerConnectionFactory.InitializationOptions.builder(context)
+        val options = PeerConnectionFactory.InitializationOptions.builder(context)
             .createInitializationOptions()
         PeerConnectionFactory.initialize(options)
         val rootEGL = EglBase.create()
         val factory = buildFactory(rootEGL)
 
-        var cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         Log.d("Cameras", cameraManager.toString())
-        var camera01 = cameraManager.cameraIdList.first()
-        var camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
+        val camera01 = cameraManager.cameraIdList.first()
+        val camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
         val videoSource = factory?.createVideoSource(true)
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
 
@@ -313,7 +310,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         //cameraVideoCapturer.initialize()
 
 
-        var mediaConstraints = MediaConstraints()
+        val mediaConstraints = MediaConstraints()
 
         val audioSource = factory.createAudioSource(mediaConstraints)
         val audioTrack = factory.createAudioTrack("audio0", audioSource)
@@ -332,9 +329,9 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         buildVideoSenders(context, url)
 
         if (httpUrl != null) {
-            Log.d("SignalingClient", "URL IS " + httpUrl.toString())
+            Log.d("SignalingClient", "URL IS $httpUrl")
             Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
-            var request = Request.Builder().url(httpUrl).build()
+            val request = Request.Builder().url(httpUrl).build()
             Log.d("SignalingClient", request.method)
 
 
@@ -359,34 +356,34 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         Log.d("Signaling client", jsonMessage.get("payload").toString())
                         theirID = jsonMessage.get("src").toString()
 
-                        Log.d("Signaling Client", "TheirID: " + theirID)
-                        var payload = jsonMessage.get("payload") as JSONObject
+                        Log.d("Signaling Client", "TheirID: $theirID")
+                        val payload = jsonMessage.get("payload") as JSONObject
                         val sdpMessage = payload.get("sdp") as JSONObject
                         mediaID = payload.get("connectionId").toString()
-                        Log.d("Signaling Client", "mediaID: " + mediaID)
+                        Log.d("Signaling Client", "mediaID: $mediaID")
                         val theirSDP = sdpMessage.get("sdp").toString()
-                        var sessionDescription =
+                        val sessionDescription =
                             SessionDescription(SessionDescription.Type.OFFER, theirSDP)
-                        Log.d("signaling client", "sdp is: " + theirSDP)
+                        Log.d("signaling client", "sdp is: $theirSDP")
                         localPeer.setRemoteDescription(remoteObserver, sessionDescription)
 
                         //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
 
                     if (text.contains("CANDIDATE")) {
-                        var payload = jsonMessage.get("payload") as JSONObject
+                        val payload = jsonMessage.get("payload") as JSONObject
                         Log.d("Payload Message", payload.toString())
-                        var candidateMsg = payload.get("candidate") as JSONObject
+                        val candidateMsg = payload.get("candidate") as JSONObject
                         Log.d(
                             "CANDIADTE MESSAGE",
-                            "Candidate vairable contains: " + candidateMsg.toString()
+                            "Candidate vairable contains: $candidateMsg"
                         )
-                        var sdpMid = candidateMsg.get("sdpMid").toString()
-                        var sdpMLineIndex = candidateMsg.get("sdpMLineIndex").toString()
-                        var candidate = candidateMsg.get("candidate").toString()
-                        var iceCandidate = IceCandidate(sdpMid, sdpMLineIndex.toInt(), candidate)
+                        val sdpMid = candidateMsg.get("sdpMid").toString()
+                        val sdpMLineIndex = candidateMsg.get("sdpMLineIndex").toString()
+                        val candidate = candidateMsg.get("candidate").toString()
+                        val iceCandidate = IceCandidate(sdpMid, sdpMLineIndex.toInt(), candidate)
 
-                        var msg = JSONObject()
+                        val msg = JSONObject()
                         msg.accumulate("type", "CANDIDATE")
                         msg.accumulate("payload", payload)
                         msg.accumulate("dst", theirID)
