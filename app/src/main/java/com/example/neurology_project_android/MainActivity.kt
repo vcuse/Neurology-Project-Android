@@ -28,6 +28,9 @@ import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
@@ -55,64 +58,158 @@ class MainActivity : ComponentActivity() {
                         val usbInterface = device.getInterface(i)
 
                         // Claim the interface to establish communication
-                        if (connection.claimInterface(usbInterface, true)) {
-                            Log.d("USBDevice", "Interface claimed: ${usbInterface.id}")
 
+                            //connection.setInterface(usbInterface)
+                            Log.d("USBDevice", "Interface claimed: ${usbInterface.id}")
+                            Log.d("USBDEVICE", "Inteface Class: ${usbInterface.interfaceClass}")
                             // Check if the interface is for video
                             if (usbInterface.interfaceClass == 14 && usbInterface.endpointCount > 0) {
 
                                 for (i in 0 until usbInterface.endpointCount) {
                                     Log.d("USB INTERFACE" , "Interface Type " + usbInterface.getEndpoint(0).type.toString())
-                                    Log.d("USB INTERFACE", "DIRECTION " + usbInterface.getEndpoint(0).direction)
-                                    Log.d("USB INTERFACE" ,"END POINT TYPE" + usbInterface.getEndpoint(0).type)
 
-                                    if(usbInterface.getEndpoint(0).type != 1){
-                                        break
-                                    }
-                                    var videoEndPoint = usbInterface.getEndpoint(0)
-                                    val buffer = ByteArray(1024 * 1024) // Buffer size large enough for video packets
-                                    val request = UsbRequest()
-                                    if (request.initialize(connection, videoEndPoint)) {
-                                        val buffer = ByteBuffer.allocate(1024) // Allocate a buffer for video data
 
-                                        try {
-                                            // Queue the request
-                                            if (request.queue(buffer, buffer.capacity())) {
-                                                // Wait for the request to complete
-                                                val result = connection.requestWait()
-                                                if (result != null) {
-                                                    Log.d("USBData", "Received video data")
 
-                                                    // Inspect the first few bytes of the buffer
-                                                    val receivedData = ByteArray(buffer.position())
-                                                    buffer.flip() // Prepare the buffer for reading
-                                                    buffer.get(receivedData)
 
-                                                    Log.d(
-                                                        "USBVideo",
-                                                        receivedData.joinToString(", ", limit = 10) { it.toString(16) }
-                                                    )
+                                    for (j in 0 until usbInterface.endpointCount) {
+                                        val endpoint = usbInterface.getEndpoint(j)
+                                        Log.d("USBEndpoint", "Endpoint $j: Type=${endpoint.type}, Direction=${endpoint.direction}, MaxPacket=${endpoint.maxPacketSize}, Number=${endpoint.endpointNumber}")
+                                        val interfaceClass = usbInterface.interfaceClass
+                                        val interfaceSubclass = usbInterface.interfaceSubclass
+                                        Log.d("USBDevice", "Interface Class: $interfaceClass, Subclass: $interfaceSubclass")
+                                        if(endpoint.type == UsbConstants.USB_ENDPOINT_XFER_ISOC or UsbConstants.USB_ENDPOINT_XFER_BULK){
+                                            Log.d("USBEndpoint", "Address: ${endpoint.address}, Type: ${endpoint.type}, Direction: ${endpoint.direction}")
+                                            val request = UsbRequest()
+                                            connection.claimInterface(usbInterface, true)
+                                            val byteArray = ByteArray(64)
 
-                                                    // Process the video frame (e.g., decode it)
-                                                    // processVideoFrame(receivedData)
-                                                } else {
-                                                    Log.e("USBRequest", "Failed to receive video data")
-                                                }
+                                            val bytesRead = connection.bulkTransfer(endpoint, byteArray, byteArray.size, 1000)
+                                            if (bytesRead >= 0) {
+                                                Log.d("USBTransfer", "Received $bytesRead bytes: ${byteArray.take(bytesRead).joinToString(", ")}")
                                             } else {
-                                                Log.e("USBRequest", "Failed to queue request")
+                                                Log.e("USBTransfer", "Failed to receive data")
                                             }
-                                        } catch (e: Exception) {
-                                            Log.e("USBError", "Error while processing USB request: ${e.message}")
-                                        } finally {
-                                            // Clean up resources
-                                            request.close()
-                                            connection.releaseInterface(usbInterface)
-                                            connection.close()
-                                            Log.d("USBRequest", "Resources released")
+
+                                            //connection.claimInterface(usbInterface, true)
+                                            if (request.initialize(connection, endpoint)) {
+                                                val buffer = ByteBuffer.allocate(endpoint.maxPacketSize)
+
+                                                CoroutineScope(Dispatchers.IO).launch {
+                                                    try {
+                                                        while (true) {
+                                                            Log.d("USBData", "WE ARE IN USBDATA")
+                                                            if (request.queue(buffer)) {
+                                                                Log.d("USBDATA", "WE Are QUEUING DATA")
+                                                                val result = connection.requestWait()
+                                                                if (result != null) {
+                                                                    Log.d("USBDATA", "WE GOT A RESULT")
+                                                                    // Process the received data
+                                                                    Log.d("USBData", "Received video data: ${buffer.position()} bytes")
+                                                                    val receivedData = ByteArray(buffer.position())
+                                                                    buffer.flip()
+                                                                    buffer.get(receivedData)
+
+                                                                    // Inspect the first few bytes
+                                                                    Log.d("USBData", receivedData.joinToString(", ", limit = 10) { it.toString(16) })
+
+                                                                    // Decode the video data (MJPEG, H.264, etc.)
+                                                                    // decodeVideoFrame(receivedData)
+                                                                } else {
+                                                                    Log.e("USBData", "Failed to receive data")
+                                                                }
+                                                            }
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        Log.e("USBError", "Error: ${e.message}")
+                                                    } finally {
+                                                        request.close()
+                                                        connection.releaseInterface(usbInterface)
+                                                        connection.close()
+                                                    }
+                                                }.start()
+                                            } else {
+                                                Log.e("USBRequest", "Failed to initialize UsbRequest")
+                                            }
                                         }
-                                    } else {
-                                        Log.e("USBRequest", "Failed to initialize request")
+                                        else {
+                                            if(endpoint.type == UsbConstants.USB_ENDPOINT_XFER_INT || endpoint.type == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                                                val buffer = ByteArray(256)
+                                                connection.claimInterface(usbInterface, true)
+                                                val result = connection.controlTransfer(
+                                                    UsbConstants.USB_DIR_IN or UsbConstants.USB_TYPE_STANDARD ,
+                                                    0x01, // Example request code
+                                                    0x0100, // Example value (e.g., resolution ID)
+                                                    usbInterface.id, // Interface ID
+                                                    buffer, // Optional data buffer (if no additional data, pass null)
+                                                    256, // Data length (0 if no data buffer)
+                                                    1000 // Timeout in milliseconds
+                                                )
+
+                                                if (result >= 0) {
+                                                    var newString = java.lang.String(
+                                                        buffer,
+                                                        2,
+                                                        result - 2,
+                                                        "UTF-16LE"
+                                                    )
+                                                    Log.d("USBControl", "Control transfer successful ${newString}" )
+                                                } else {
+                                                    Log.e("USBControl", "Control transfer failed")
+                                                }
+
+                                            }
+
+                                        //
+                                        //
+                                        //                                            Log.e("USBRequest", "Starting in the else (for non type == 1)")
+//                                            var videoEndPoint = usbInterface.getEndpoint(0)
+//                                            val buffer = ByteArray(1024 * 1024) // Buffer size large enough for video packets
+//                                            val request = UsbRequest()
+//                                            if (request.initialize(connection, videoEndPoint)) {
+//                                                val buffer = ByteBuffer.allocate(1024) // Allocate a buffer for video data
+//
+//                                                try {
+//                                                    // Queue the request
+//                                                    if (request.queue(buffer, buffer.capacity())) {
+//                                                        // Wait for the request to complete
+//                                                        val result = connection.requestWait()
+//                                                        if (result != null) {
+//                                                            Log.d("USBData", "Received video data")
+//
+//                                                            // Inspect the first few bytes of the buffer
+//                                                            val receivedData = ByteArray(buffer.position())
+//                                                            buffer.flip() // Prepare the buffer for reading
+//                                                            buffer.get(receivedData)
+//
+//                                                            Log.d(
+//                                                                "USBVideo",
+//                                                                receivedData.joinToString(", ", limit = 10) { it.toString(16) }
+//                                                            )
+//
+//                                                            // Process the video frame (e.g., decode it)
+//                                                            // processVideoFrame(receivedData)
+//                                                        } else {
+//                                                            Log.e("USBRequest", "Failed to receive video data")
+//                                                        }
+//                                                    } else {
+//                                                        Log.e("USBRequest", "Failed to queue request")
+//                                                    }
+//                                                } catch (e: Exception) {
+//                                                    Log.e("USBError", "Error while processing USB request: ${e.message}")
+//                                                } finally {
+//                                                    // Clean up resources
+//                                                    request.close()
+//                                                    connection.releaseInterface(usbInterface)
+//                                                    connection.close()
+//                                                    Log.d("USBRequest", "Resources released")
+//                                                }
+//                                            } else {
+//                                                Log.e("USBRequest", "Failed to initialize request")
+//                                            }
+                                        }
                                     }
+
+
 
                                 }
                                 Log.d("USBDevice", "Found a video interface")
@@ -121,14 +218,15 @@ class MainActivity : ComponentActivity() {
                                 // you use a library like UVCCamera to capture the feed.
                                 //initializeUVCCamera(device, connection, usbInterface)
                             }
-                        } else {
-                            Log.e("USBDevice", "Failed to claim interface: ${usbInterface.id}")
 
-                        }
+
+
                     }
                 } else {
                     Log.e("USBDevice", "Failed to open connection for device: ${device.deviceName}")
                 }
+
+
             }
         }
 
