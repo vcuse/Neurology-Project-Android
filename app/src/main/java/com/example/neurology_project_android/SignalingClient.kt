@@ -7,6 +7,8 @@ import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import com.jiangdg.ausbc.base.CameraActivity
+import com.jiangdg.uvc.UVCCamera
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -51,6 +53,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private var candidatesList = ArrayList<IceCandidate>()
     private var isReadyToAddIceCandidate: Boolean = false
     private var candidateMessagesToSend = ArrayList<String>()
+    private lateinit var camera1Capturer: Camera2Capturer
 
     fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
@@ -259,8 +262,9 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             Log.d("CAMERA", "FIRST FRAME")
         }
 
+        @OptIn(UnstableApi::class)
         override fun onCameraClosed() {
-            TODO("Not yet implemented")
+            Log.d("CAMERA","Camera Closed")
         }
 
     }
@@ -285,6 +289,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         return factory
     }
 
+
+
     @OptIn(UnstableApi::class)
     private fun buildVideoSenders(context: Context, url: String) {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -294,9 +300,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val factory = buildFactory(rootEGL)
 
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
         Log.d("Cameras", cameraManager.toString())
+        val cameraList = cameraManager.cameraIdList
         val camera01 = cameraManager.cameraIdList.first()
-        val camera1Capturer = Camera2Capturer(context, camera01, cameraEventsHandler)
+        val camera02 = cameraManager.cameraIdList.last()
+        camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
         val videoSource = factory?.createVideoSource(true)
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
 
@@ -324,9 +333,15 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         localPeer.addTrack(track, listOf("track01"))
     }
 
+    fun changeCamera(){
+        camera1Capturer.switchCamera(null)
+    }
+
     init {
 
         buildVideoSenders(context, url)
+        var uvcCamera = UVCCamera()
+        uvcCamera.deviceName
 
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS $httpUrl")
