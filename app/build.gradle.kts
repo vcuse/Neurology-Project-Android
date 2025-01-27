@@ -45,7 +45,6 @@ dependencies {
     implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation ("com.github.bumptech.glide:okhttp3-integration:4.16.0")
     implementation ("com.github.zjupure:webpdecoder:2.6.4.16.0")
-    implementation ("com.github.jiangdongguo:AndroidUSBCamera:3.3.3")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -2,13 +2,15 @@ package com.example.neurology_project_android
 
 import android.content.Context
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraManager.AvailabilityCallback
+import android.hardware.usb.UsbManager
 import android.os.Build
+import android.os.Handler
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.jiangdg.ausbc.base.CameraActivity
-import com.jiangdg.uvc.UVCCamera
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -269,6 +271,23 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
+    val availabilityCallback = object : CameraManager.AvailabilityCallback() {
+        @OptIn(UnstableApi::class)
+        override fun onCameraAvailable(cameraId: String) {
+            super.onCameraAvailable(cameraId)
+            Log.d("CameraManager", "Camera available: $cameraId")
+            // Perform actions when a camera becomes available (e.g., USB camera is connected)
+        }
+
+        @OptIn(UnstableApi::class)
+        override fun onCameraUnavailable(cameraId: String) {
+            super.onCameraUnavailable(cameraId)
+            Log.d("CameraManager", "Camera unavailable: $cameraId")
+            // Perform actions when a camera becomes unavailable (e.g., USB camera is disconnected)
+        }
+    }
+
+
 
 
     private fun generateConfig(): PeerConnection.RTCConfiguration {
@@ -291,6 +310,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
 
+
     @OptIn(UnstableApi::class)
     private fun buildVideoSenders(context: Context, url: String) {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -300,6 +320,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val factory = buildFactory(rootEGL)
 
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        cameraManager.registerAvailabilityCallback(availabilityCallback, null)
 
         Log.d("Cameras", cameraManager.toString())
         val cameraList = cameraManager.cameraIdList
@@ -340,8 +361,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     init {
 
         buildVideoSenders(context, url)
-        var uvcCamera = UVCCamera()
-        uvcCamera.deviceName
+
+
 
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS $httpUrl")
