@@ -20,12 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -189,19 +184,7 @@ fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int
 class NIHFormViewModel : ViewModel() {
 
     fun saveForm(context: Context, patientName: String, selectedOptions: List<Int?>) {
-        val dao = NIHDatabase.getDatabase(context).nihFormDao()
-        val selectedOptionsJson = Gson().toJson(selectedOptions) // Convert selected options to JSON string
 
-        val form = NIHFormEntity(
-            patientName = patientName,
-            date = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(Date()),
-            selectedOptions = selectedOptionsJson
-        )
-
-        // Perform database operation in IO thread
-        viewModelScope.launch(Dispatchers.IO) {
-            dao.insertForm(form)
-        }
     }
 }
 
