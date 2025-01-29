@@ -92,14 +92,14 @@ class MainActivity : ComponentActivity() {
 
                                             while(true){
                                                   connection.bulkTransfer(videoEndPoint, frameBuffer,PACKETSIZE, 1000 )
-                                                    Log.d("HEADER", frameBuffer.get(0).toString()   )
+                                                    //Log.d("HEADER", frameBuffer.get(0).toString()   )
 
                                                 // Extract first 12 bytes as header
                                                 val header = frameBuffer.copyOfRange(0, 12)
-                                                Log.d("Header", "Header: ${header.joinToString(", ")}")
+                                                //Log.d("Header", "Header: ${header.joinToString(", ")}")
 
 // Extract buffer data from byte 12 to 50
-                                                val bufferData = frameBuffer.copyOfRange(12, 50)
+                                                val bufferData = frameBuffer.copyOfRange(0, 50)
                                                  Log.d("BUFFER", "Buffer data: ${bufferData.joinToString(", ")} ...")
                                                 }
 
