@@ -37,6 +37,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Dispatcher
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -47,7 +57,14 @@ class MainActivity : ComponentActivity() {
         val peerIdState = mutableStateOf<String?>(null)
         val peersState = mutableStateOf<List<String>>(emptyList())
 
-        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3489534895638&token=6789&key=peerjs"
+
+        var userId = "123"
+        CoroutineScope(Dispatchers.Main).launch {
+            userId = fetchUserId()
+            Log.d("USER ID", userId)
+        }
+
+        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
         , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
         enableEdgeToEdge()
@@ -72,7 +89,7 @@ class MainActivity : ComponentActivity() {
                         content = { innerPadding ->
                             HomeScreen(
                                 modifier = Modifier.padding(innerPadding),
-                                peerId = peerIdState.value ?: "Fetching...",
+                                peerId = peerIdState.value ?: userId,
                                 peers = peersState.value
                             )                        }
                     )
@@ -93,6 +110,31 @@ class MainActivity : ComponentActivity() {
 
 
     }
+}
+
+fun fetchUserId(): String {
+    val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+    val client = OkHttpClient()
+    var id = "123"
+
+    val request = Request.Builder().url(idUrl).build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            android.util.Log.d("Request", "Request failed: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (response.isSuccessful) {
+                response.body?.string()?.let { body ->
+                    id = body
+                }
+            } else {
+                android.util.Log.d("Response", "Request failed: ${response.code}")
+            }
+        }
+    })
+    return id
 }
 
 @Composable
