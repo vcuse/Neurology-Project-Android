@@ -56,11 +56,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val peerIdState = mutableStateOf<String?>(null)
-        val peersState = mutableStateOf<List<String>>(emptyList())
-
-
         val userId = fetchUserId()
+        val peerIdState = mutableStateOf<String?>(userId)
+        val peersState = mutableStateOf<List<String>>(emptyList())
 
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
         , this)
@@ -135,7 +133,7 @@ fun fetchUserId(): String {
     })
     while(!requestReceived){
         /* Unsure how to make program wait until id is received
-           This seems like a good temporary solution
+           This works for now, but I am sure there are better ways
          */
     }
     return id
