@@ -6,6 +6,7 @@ import android.content.Intent
 import android.hardware.usb.UsbConfiguration
 import android.hardware.usb.UsbManager
 import android.hardware.usb.UsbRequest
+import android.media.MediaCodec
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,7 +34,10 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
+
 
         val usbManager = getSystemService(Context.USB_SERVICE) as UsbManager
         var deviceList  = usbManager.deviceList
@@ -41,10 +45,10 @@ class MainActivity : ComponentActivity() {
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
         for ((_, device) in deviceList) {
-            Log.d("USBDevice", "Device: ${device.deviceName}, Vendor ID: ${device.vendorId}, Product ID: ${device.productId} \n")
-            usbManager.requestPermission(device, intent)
-            if(device.productName == "USB Camera-OV580"){
 
+            if(device.productName == "USB Camera"){
+                Log.d("USBDevice", "Device: ${device.deviceName}, Vendor ID: ${device.vendorId}, Product ID: ${device.productId} \n")
+                usbManager.requestPermission(device, intent)
                 val connection = usbManager.openDevice(device)
                 if (connection != null) {
                     val interfaceCount = device.interfaceCount
@@ -68,30 +72,32 @@ class MainActivity : ComponentActivity() {
                                     var number = videoEndPoint.address
                                     val request = UsbRequest()
 
-                                    if (number == 129) {
+                                    if (number == 131) {
                                         val buffer = ByteBuffer.allocate(videoEndPoint.maxPacketSize) // Allocate a buffer for video data
                                         val bufferForTransfer = ByteArray(videoEndPoint.maxPacketSize) // Buffer size large enough for video packets
                                         val STREAM_ENABLE = ubyteArrayOf(
-                                            0x1u, 0x0u, 0x1u, 0x1u, 0x15u, 0x16u, 0x5u,
-                                            0x0u, 0x0u, 0x0u, 0x0u, 0x0u, 0x0u, 0x0u, 0x0u, 0x0u,0x0u,0x0u,0x0u, // <repeats 12 times>
-                                            0x65u, 0x9u, 0x0u, 0x0u, 0x80u, 0x0u, 0x0u, 0x80u,
-                                            0xd1u, 0xf0u, 0x8u, 0x0u, 0x0u, 0x0u, 0x0u
+                                            0x01u, 0x00u, 0x01u, 0x01u, 0x15u, 0x16u, 0x05u, 0x00u,
+                                            0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u,
+                                            0x20u, 0x00u, 0x00u, 0x60u, 0x09u, 0x00u, 0xd0u, 0x0fu, 0x00u, 0x00u
                                         )
+                                        //val STREAM_ENABLE = ubyteArrayOf(0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,)
+
 
                                         try {
                                             // Queue the request
 
                                             // Wait for the request to complete
                                             Log.d("USBData", "WE QUEUED DATA")
-                                            val result = connection.controlTransfer(0x21, 1,
-                                                2 shl 8, 1, STREAM_ENABLE.asByteArray(), STREAM_ENABLE.size, 1000)
+
+                                            val result = connection.controlTransfer(0x01, 1,
+                                                1 shl 8, 1, STREAM_ENABLE.asByteArray(), 26, 0)
 
                                             Log.d("Result", "Result $result")
                                             var PACKETSIZE = videoEndPoint.maxPacketSize
                                             var frameBuffer = ByteArray(videoEndPoint.maxPacketSize)
 
                                             while(true){
-                                                  connection.bulkTransfer(videoEndPoint, frameBuffer,PACKETSIZE, 1000 )
+                                                connection.bulkTransfer(videoEndPoint, frameBuffer,PACKETSIZE, 1000 )
                                                     //Log.d("HEADER", frameBuffer.get(0).toString()   )
 
                                                 // Extract first 12 bytes as header
@@ -99,8 +105,8 @@ class MainActivity : ComponentActivity() {
                                                 //Log.d("Header", "Header: ${header.joinToString(", ")}")
 
 // Extract buffer data from byte 12 to 50
-                                                val bufferData = frameBuffer.copyOfRange(0, 50)
-                                                 Log.d("BUFFER", "Buffer data: ${bufferData.joinToString(", ")} ...")
+                                                val bufferData = frameBuffer
+                                                 //Log.d("BUFFER", "Buffer data: ${bufferData.joinToString(", ")} ...")
                                                 }
 
                                         } catch (e: Exception) {
@@ -112,7 +118,6 @@ class MainActivity : ComponentActivity() {
                                             connection.close()
                                             Log.d("USBRequest", "Resources released")
                                         }
-
 
                                     }
                                     else{
