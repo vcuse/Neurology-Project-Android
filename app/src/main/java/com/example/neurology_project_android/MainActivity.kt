@@ -39,7 +39,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Dispatcher
@@ -58,11 +60,7 @@ class MainActivity : ComponentActivity() {
         val peersState = mutableStateOf<List<String>>(emptyList())
 
 
-        var userId = "123"
-        CoroutineScope(Dispatchers.Main).launch {
-            userId = fetchUserId()
-            Log.d("USER ID", userId)
-        }
+        val userId = fetchUserId()
 
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
         , this)
@@ -116,9 +114,9 @@ fun fetchUserId(): String {
     val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
     val client = OkHttpClient()
     var id = "123"
+    var requestReceived = false
 
     val request = Request.Builder().url(idUrl).build()
-
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
             android.util.Log.d("Request", "Request failed: ${e.message}")
@@ -128,12 +126,18 @@ fun fetchUserId(): String {
             if (response.isSuccessful) {
                 response.body?.string()?.let { body ->
                     id = body
+                    requestReceived = true
                 }
             } else {
                 android.util.Log.d("Response", "Request failed: ${response.code}")
             }
         }
     })
+    while(!requestReceived){
+        /* Unsure how to make program wait until id is received
+           This seems like a good temporary solution
+         */
+    }
     return id
 }
 
