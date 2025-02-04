@@ -1,0 +1,157 @@
+[
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\VbrTag.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\VbrTag.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\VbrTag.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\bitstream.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\bitstream.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\bitstream.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\encoder.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\encoder.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\encoder.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\fft.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\fft.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\fft.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\gain_analysis.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\gain_analysis.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\gain_analysis.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\id3tag.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\id3tag.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\id3tag.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\lame.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\lame.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\lame.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\mpglib_interface.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\mpglib_interface.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\mpglib_interface.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\newmdct.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\newmdct.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\newmdct.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\presets.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\presets.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\presets.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\psymodel.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\psymodel.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\psymodel.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\quantize.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\quantize.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\quantize.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\quantize_pvt.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\quantize_pvt.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\quantize_pvt.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\reservoir.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\reservoir.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\reservoir.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\set_get.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\set_get.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\set_get.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\tables.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\tables.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\tables.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\takehiro.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\takehiro.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\takehiro.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\util.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\util.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\util.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\vbrquantize.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\vbrquantize.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\vbrquantize.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\lame\\version.c.o   -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\version.c",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\lame\\version.c"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\utils\\logger.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\utils\\logger.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\utils\\logger.cpp"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\yuv\\yuv.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\yuv\\yuv.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\yuv\\yuv.cpp"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\module\\mp3\\mp3.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\mp3.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\module\\mp3\\mp3.cpp"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\proxy\\proxy_yuv.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\proxy\\proxy_yuv.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\proxy\\proxy_yuv.cpp"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\proxy\\proxy_mp3.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\proxy\\proxy_mp3.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\proxy\\proxy_mp3.cpp"
+},
+
+{
+  "directory": "C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/arm64-v8a",
+  "command": "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\27.0.12077973\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=aarch64-none-linux-android21 --sysroot=C:/Users/david/AppData/Local/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnativelib_EXPORTS -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles\\nativelib.dir\\nativelib.cpp.o -c C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\nativelib.cpp",
+  "file": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\nativelib.cpp"
+}
+]

@@ -1,0 +1,4 @@
+# ninja log v5
+62	103	760352481	CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o	5cf84a85a873fc32
+12	110	760352481	CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o	f11d4d71094a2b4a
+16	128	760352481	CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o	e61e84cd08e2cea4
