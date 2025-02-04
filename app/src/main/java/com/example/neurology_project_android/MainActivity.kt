@@ -40,10 +40,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
 import com.jiangdg.ausbc.MultiCameraClient
 import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
+import com.jiangdg.ausbc.callback.IEncodeDataCallBack
 import com.jiangdg.ausbc.camera.CameraUVC
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
 import com.jiangdg.uvc.UVCCamera
+import org.webrtc.CameraVideoCapturer
+import org.webrtc.CapturerObserver
+import org.webrtc.PeerConnectionFactory
+import org.webrtc.SurfaceTextureHelper
+import org.webrtc.VideoCapturer
+import org.webrtc.VideoCodecInfo
+import org.webrtc.VideoEncoder
+import org.webrtc.VideoEncoderFactory
+import org.webrtc.VideoFrame
+import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
 
@@ -66,7 +77,54 @@ class MainActivity : ComponentActivity() {
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
 
+        val videoCapturerObserver = object: CapturerObserver {
+            override fun onCapturerStarted(p0: Boolean) {
+                TODO("Not yet implemented")
+            }
 
+            override fun onCapturerStopped() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onFrameCaptured(p0: VideoFrame?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+        val videoCapturer = object: VideoCapturer {
+            override fun initialize(
+                p0: SurfaceTextureHelper?,
+                p1: Context?,
+                p2: CapturerObserver?
+            ) {
+                TODO("Not yet implemented")
+            }
+
+            override fun startCapture(p0: Int, p1: Int, p2: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun stopCapture() {
+                TODO("Not yet implemented")
+            }
+
+            override fun changeCaptureFormat(
+                p0: Int,
+                p1: Int,
+                p2: Int
+            ) {
+                TODO("Not yet implemented")
+            }
+
+            override fun dispose() {
+                TODO("Not yet implemented")
+            }
+
+            override fun isScreencast(): Boolean {
+                TODO("Not yet implemented")
+            }
+
+        }
 
 
 
@@ -76,6 +134,19 @@ class MainActivity : ComponentActivity() {
         , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
 
+        val iEncodeDataCallback = object: IEncodeDataCallBack {
+            override fun onEncodeData(
+                type: IEncodeDataCallBack.DataType,
+                buffer: ByteBuffer,
+                offset: Int,
+                size: Int,
+                timestamp: Long
+            ) {
+
+            }
+
+        }
+
         val iDeviceCallback = object: IDeviceConnectCallBack {
 
             override fun onAttachDev(device: UsbDevice?) {
@@ -84,11 +155,13 @@ class MainActivity : ComponentActivity() {
 
                     multiCameraClient.requestPermission(device)
                     camera = CameraUVC(this@MainActivity, device)
-                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).create()
+                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).setAudioSource(
+                        CameraRequest.AudioSource.SOURCE_AUTO).setCaptureRawImage(true).setRawPreviewData(true).setPreviewFormat(
+                        CameraRequest.PreviewFormat.FORMAT_YUYV).create()
 
                     cameraInitialized = true
 
-
+                    val cameraTest = UVCCamera()
 
 
 
@@ -109,6 +182,14 @@ class MainActivity : ComponentActivity() {
                 Log.d("CONNECT", "camera connection. pid: ${device!!.productId}, vid: ${device.vendorId}")
                 camera.setUsbControlBlock(ctrlBlock)
                 camera.openCamera(this@MainActivity, cameraRequest)
+                // var cameraTest = UVCCamera()
+                camera.setEncodeDataCallBack(iEncodeDataCallback)
+
+                camera.captureStreamStart()
+
+
+                //Log.d("CAMERA TEST DEVICE NAME", " " + cameraTest.deviceName)
+
             }
 
             override fun onDisConnectDec(
