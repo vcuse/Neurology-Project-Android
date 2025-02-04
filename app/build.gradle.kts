@@ -8,6 +8,7 @@ android {
     namespace = "com.example.neurology_project_android"
     compileSdk = 35
 
+
     defaultConfig {
         applicationId = "com.example.neurology_project_android"
         minSdk = 24
@@ -37,6 +38,7 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
@@ -57,6 +59,9 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(project(":libnative"))
+    implementation(project(":libausbc"))
+    implementation(project(":libuvc"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,11 +1,14 @@
 package com.example.neurology_project_android
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraManager.AvailabilityCallback
+import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
 import android.os.Handler
+import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
@@ -35,12 +38,14 @@ import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoTrack
-
+import com.jiangdg.ausbc.MultiCameraClient
+import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
+import com.jiangdg.ausbc.camera.bean.CameraRequest
+import com.jiangdg.usb.USBMonitor
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (url: String, context: Context) {
-
     private lateinit var localPeer: PeerConnection
     private lateinit var httpUrl: HttpUrl
     private lateinit var theirID: String
@@ -290,6 +295,9 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
 
+
+
+
     private fun generateConfig(): PeerConnection.RTCConfiguration {
         val config = PeerConnection.RTCConfiguration(listOf(server))
         config.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
@@ -329,15 +337,16 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
         val videoSource = factory?.createVideoSource(true)
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
-
+        //var test = MultiMediaClient()
         camera1Capturer.initialize(surfaceTexture, context, videoSource!!.capturerObserver)
         val config = generateConfig()
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        camera1Capturer.startCapture(1920, 1080, 30)
+        //camera1Capturer.startCapture(1920, 1080, 30)
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
         //cameraVideoCapturer.initialize()
+
 
 
         val mediaConstraints = MediaConstraints()
