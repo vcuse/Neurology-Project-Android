@@ -72,13 +72,13 @@ class MainActivity : ComponentActivity() {
                                     var number = videoEndPoint.address
                                     val request = UsbRequest()
 
-                                    if (number == 131) {
+                                    if (number == 129) {
                                         val buffer = ByteBuffer.allocate(videoEndPoint.maxPacketSize) // Allocate a buffer for video data
                                         val bufferForTransfer = ByteArray(videoEndPoint.maxPacketSize) // Buffer size large enough for video packets
                                         val STREAM_ENABLE = ubyteArrayOf(
                                             0x01u, 0x00u, 0x01u, 0x01u, 0x15u, 0x16u, 0x05u, 0x00u,
                                             0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u,
-                                            0x20u, 0x00u, 0x00u, 0x60u, 0x09u, 0x00u, 0xd0u, 0x0fu, 0x00u, 0x00u
+                                            0x20u, 0x00u, 0x00u, 0x20u, 0x1cu, 0x00u, 0x00u, 0x09u, 0x00u, 0x00u, 0xc0u, 0xe1u, 0xe4u, 0x00u,0x00u,0x00u,0x00u
                                         )
                                         //val STREAM_ENABLE = ubyteArrayOf(0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,0x00u,)
 
@@ -89,14 +89,16 @@ class MainActivity : ComponentActivity() {
                                             // Wait for the request to complete
                                             Log.d("USBData", "WE QUEUED DATA")
 
-                                            val result = connection.controlTransfer(0x01, 1,
-                                                1 shl 8, 1, STREAM_ENABLE.asByteArray(), 26, 0)
+                                            val result = connection.controlTransfer(0x21, 1,
+                                                2 shl 8, 1, STREAM_ENABLE.asByteArray(), STREAM_ENABLE.size, 1000)
 
                                             Log.d("Result", "Result $result")
                                             var PACKETSIZE = videoEndPoint.maxPacketSize
                                             var frameBuffer = ByteArray(videoEndPoint.maxPacketSize)
 
                                             while(true){
+
+
                                                 connection.bulkTransfer(videoEndPoint, frameBuffer,PACKETSIZE, 1000 )
                                                     //Log.d("HEADER", frameBuffer.get(0).toString()   )
 
@@ -106,7 +108,7 @@ class MainActivity : ComponentActivity() {
 
 // Extract buffer data from byte 12 to 50
                                                 val bufferData = frameBuffer
-                                                 //Log.d("BUFFER", "Buffer data: ${bufferData.joinToString(", ")} ...")
+                                                 Log.d("BUFFER", "Buffer data: ${bufferData.joinToString(", ")} ...")
                                                 }
 
                                         } catch (e: Exception) {
