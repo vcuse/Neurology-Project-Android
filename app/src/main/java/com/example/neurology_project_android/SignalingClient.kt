@@ -44,8 +44,11 @@ import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
 import org.webrtc.Camera1Capturer
 import org.webrtc.CameraVideoCapturer
+import org.webrtc.CapturerObserver
+import org.webrtc.VideoCapturer
 import org.webrtc.VideoFrame
 import org.webrtc.VideoProcessor
+import org.webrtc.VideoSink
 import org.webrtc.VideoSource
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -67,6 +70,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private var candidateMessagesToSend = ArrayList<String>()
     private lateinit var camera1Capturer: Camera2Capturer
     private lateinit var videoSource: VideoSource
+    private lateinit var factory: PeerConnectionFactory
 
     fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
@@ -261,7 +265,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         }
 
         override fun onCameraFreezed(p0: String?) {
-            TODO("Not yet implemented")
+
         }
 
         @OptIn(UnstableApi::class)
@@ -331,7 +335,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             .createInitializationOptions()
         PeerConnectionFactory.initialize(options)
         val rootEGL = EglBase.create()
-        val factory = buildFactory(rootEGL)
+        factory = buildFactory(rootEGL)!!
 
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         cameraManager.registerAvailabilityCallback(availabilityCallback, null)
@@ -344,13 +348,14 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         videoSource = factory?.createVideoSource(true)!!
 
 
+
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
         //var test = MultiMediaClient()
         camera1Capturer.initialize(surfaceTexture, context, videoSource!!.capturerObserver)
         val config = generateConfig()
 
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        camera1Capturer.startCapture(1920, 1080, 30)
+        //camera1Capturer.startCapture(1920, 1080, 30)
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
@@ -371,7 +376,25 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         //Log.d("TRACK SENDER", trackSender.track().toString())
         //we want to add a track with multiple streams
         //var mediaTracks = factory.createLocalMediaStream("test")
-        localPeer.addTrack(track, listOf("track01"))
+        //localPeer.addTrack(track, listOf("track01"))
+    }
+
+    fun sendVideoCapturer(capturer: VideoCapturer, context: Context, capturerObserver: CapturerObserver, videoProcessor: VideoProcessor) {
+        val config = generateConfig()
+        val videoSource2 = factory.createVideoSource(true)
+        localPeer = factory.createPeerConnection(config, peerConnObserver)!!
+
+        val rootEGL = EglBase.create()
+        val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
+        capturerObserver.onCapturerStarted(true)
+        capturer.initialize(surfaceTexture,context , capturerObserver)
+
+        videoSource2.setVideoProcessor(videoProcessor)
+        capturer.startCapture(1080, 720, 30)
+
+        var videoTrack = factory.createVideoTrack("0001", videoSource2)
+
+        localPeer.addTrack(videoTrack, listOf("track01"))
     }
 
     fun changeCamera(){
@@ -382,7 +405,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     fun changeVideoSource(videoProcessor: VideoProcessor){
         //var frame = VideoFrame()
         videoSource.capturerObserver.onCapturerStarted(true)
-        videoSource.capturerObserver
+
+
     }
 
     fun getVideoSource(): VideoSource {

@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
 
         val videoCapturerObserver = object: CapturerObserver {
             override fun onCapturerStarted(p0: Boolean) {
-                TODO("Not yet implemented")
+               Log.e("Capturer Observer", "Capture Started")
             }
 
             override fun onCapturerStopped() {
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
 
             override fun onFrameCaptured(p0: VideoFrame?) {
 
-                //videoProcessor.onFrameCaptured(p0)
+                videoProcessor.onFrameCaptured(p0)
                 Log.e("Capturer Observer", "Frame Captured")
             }
 
@@ -136,6 +136,7 @@ class MainActivity : ComponentActivity() {
 
             override fun startCapture(p0: Int, p1: Int, p2: Int) {
                 Log.e("VIDEO CAPTURER" , "Start Capture")
+
             }
 
             override fun stopCapture() {
@@ -160,7 +161,7 @@ class MainActivity : ComponentActivity() {
 
         }
 
-        videoCapturer.initialize(null, this@MainActivity, videoCapturerObserver)
+
 
 
 
@@ -176,7 +177,7 @@ class MainActivity : ComponentActivity() {
 
                 var videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
 
-                capturerObserver.onFrameCaptured(videoFrame)
+                videoCapturerObserver.onFrameCaptured(videoFrame)
                 //videoFrame.release()
                 //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
             }
@@ -189,9 +190,10 @@ class MainActivity : ComponentActivity() {
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3da89534895638&token=6789&key=peerjs"
         , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
-        videoSource = signalingClient.getVideoSource()
-        videoSource.setVideoProcessor(videoProcessor)
-        capturerObserver = videoSource.capturerObserver
+        //videoSource = signalingClient.getVideoSource()
+        signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
+        signalingClient.changeVideoSource(videoProcessor)
+       // capturerObserver = videoSource.capturerObserver
 
 
         val iEncodeDataCallback = object: IEncodeDataCallBack {
@@ -293,6 +295,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 
 
