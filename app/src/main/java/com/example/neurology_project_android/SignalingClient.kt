@@ -16,7 +16,11 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
+import org.webrtc.Camera1Enumerator
 import org.webrtc.Camera2Capturer
+import org.webrtc.CameraEnumerationAndroid
+import org.webrtc.CameraEnumerator
+import org.webrtc.CameraVideoCapturer
 import org.webrtc.CameraVideoCapturer.CameraEventsHandler
 import org.webrtc.DataChannel
 import org.webrtc.DefaultVideoDecoderFactory
@@ -373,24 +377,102 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 //        //localPeer.addTrack(track, listOf("track01"))
     }
 
-    fun sendVideoCapturer(capturer: VideoCapturer, context: Context, capturerObserver: CapturerObserver, videoProcessor: VideoProcessor) {
+    fun sendVideoCapturer(capturer: VideoCapturer, context: Context, capturerObserver: CapturerObserver) {
         val config = generateConfig()
         val videoSource2 = factory.createVideoSource(true)
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
 
         val rootEGL = EglBase.create()
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
-        capturerObserver.onCapturerStarted(true)
-        capturer.initialize(surfaceTexture,context , capturerObserver)
+        //capturerObserver.onCapturerStarted(true)
+        //capturer.initialize(surfaceTexture,context , capturerObserver)
 
 
         //videoSource2.setVideoProcessor(videoProcessor)
-        videoProcessor.onCapturerStarted(true)
-        capturer.startCapture(1080, 720, 30)
+        //videoProcessor.onCapturerStarted(true)
+        //capturer.startCapture(1080, 720, 30)
 
         var videoTrack = factory.createVideoTrack("0001", videoSource2)
-
+        videoSource = videoSource2
         localPeer.addTrack(videoTrack, listOf("track01"))
+
+        var camera = object:  CameraVideoCapturer{
+            override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun switchCamera(
+                p0: CameraVideoCapturer.CameraSwitchHandler?,
+                p1: String?
+            ) {
+                TODO("Not yet implemented")
+            }
+
+            override fun initialize(
+                p0: SurfaceTextureHelper?,
+                p1: Context?,
+                p2: CapturerObserver?
+            ) {
+
+            }
+
+            override fun startCapture(p0: Int, p1: Int, p2: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun stopCapture() {
+                TODO("Not yet implemented")
+            }
+
+            override fun changeCaptureFormat(p0: Int, p1: Int, p2: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun dispose() {
+                TODO("Not yet implemented")
+            }
+
+            override fun isScreencast(): Boolean {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+        camera.initialize(surfaceTexture,context , capturerObserver)
+        var cameraEvents = object : CameraVideoCapturer.CameraEventsHandler {
+            override fun onCameraError(p0: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCameraDisconnected() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCameraFreezed(p0: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCameraOpening(p0: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onFirstFrameAvailable() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCameraClosed() {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+
+
+
+
+
+
+
     }
 
     fun changeCamera(){
@@ -412,7 +494,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     init {
         buildVideoSenders(context, url)
 
-        sendVideoCapturer(videoCapturer, context, videoCapturerObserver, videoProcessor)
+        sendVideoCapturer(videoCapturer, context, videoCapturerObserver)
 
 
 

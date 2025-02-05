@@ -44,6 +44,8 @@ import com.jiangdg.ausbc.callback.IPreviewDataCallBack
 import com.jiangdg.ausbc.camera.CameraUVC
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
+import org.webrtc.Camera1Enumerator
+import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
 import org.webrtc.NV21Buffer
 import org.webrtc.SurfaceTextureHelper
@@ -78,30 +80,11 @@ class MainActivity : ComponentActivity() {
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
 
-       videoProcessor = object : VideoProcessor {
-            override fun onCapturerStarted(p0: Boolean) {
-                Log.e("VideoProcessor", "Capture Started")
-                //capturerObserver.onCapturerStarted(p0)
-            }
 
-            override fun onCapturerStopped() {
-                Log.e("Video Processor", "Capture Stopped")
-            }
-
-            override fun onFrameCaptured(p0: VideoFrame?) {
-               //Log.d("Video Processor", "Frame Captured")
-                //capturerObserver.onFrameCaptured(p0)
-                //p0!!.release()
-            }
-
-            override fun setSink(p0: VideoSink?) {
-                //this.setSink(p0)
-            }
-
-        }
 
         val videoCapturerObserver = object: CapturerObserver {
             override fun onCapturerStarted(p0: Boolean) {
+
                Log.e("Capturer Observer", "Capture Started")
             }
 
@@ -111,11 +94,14 @@ class MainActivity : ComponentActivity() {
 
             override fun onFrameCaptured(p0: VideoFrame?) {
 
-                videoProcessor.onFrameCaptured(p0)
-                //Log.e("Capturer Observer", "Frame Captured")
+
+                Log.e("Capturer Observer", "Frame Captured")
             }
 
         }
+
+
+
 
         val videoCapturer = object: VideoCapturer {
             override fun initialize(
@@ -153,6 +139,26 @@ class MainActivity : ComponentActivity() {
 
         }
 
+        videoProcessor = object: VideoProcessor {
+            override fun onCapturerStarted(p0: Boolean) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCapturerStopped() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onFrameCaptured(p0: VideoFrame?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun setSink(p0: VideoSink?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+
 
 
 
@@ -164,12 +170,12 @@ class MainActivity : ComponentActivity() {
                 height: Int,
                 format: IPreviewDataCallBack.DataFormat
             ) {
-                var timeStampNS = System.nanoTime()
+                var timeStampNS = System.currentTimeMillis()
                 var n21Buffer = NV21Buffer(data, width, height, null)
 
                 var videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
 
-                videoCapturerObserver.onFrameCaptured(videoFrame)
+                videoSource.capturerObserver.onFrameCaptured(videoFrame)
                 //videoFrame.release()
                 //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
             }
@@ -182,7 +188,7 @@ class MainActivity : ComponentActivity() {
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3da89534895638&token=6789&key=peerjs"
         , this, videoCapturer, videoCapturerObserver, videoProcessor)
         Log.d("MainActivitiy", "SignalingClient should be set")
-        //videoSource = signalingClient.getVideoSource()
+        videoSource = signalingClient.getVideoSource()
         //signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
         //signalingClient.changeVideoSource(videoProcessor)
        // capturerObserver = videoSource.capturerObserver
