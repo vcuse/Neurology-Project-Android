@@ -42,6 +42,11 @@ import com.jiangdg.ausbc.MultiCameraClient
 import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
+import org.webrtc.Camera1Capturer
+import org.webrtc.CameraVideoCapturer
+import org.webrtc.VideoFrame
+import org.webrtc.VideoProcessor
+import org.webrtc.VideoSource
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class SignalingClient @OptIn(UnstableApi::class) constructor
@@ -61,6 +66,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private var isReadyToAddIceCandidate: Boolean = false
     private var candidateMessagesToSend = ArrayList<String>()
     private lateinit var camera1Capturer: Camera2Capturer
+    private lateinit var videoSource: VideoSource
 
     fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
@@ -335,13 +341,16 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val camera01 = cameraManager.cameraIdList.first()
         val camera02 = cameraManager.cameraIdList.last()
         camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
-        val videoSource = factory?.createVideoSource(true)
+        videoSource = factory?.createVideoSource(true)!!
+
+
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
         //var test = MultiMediaClient()
         camera1Capturer.initialize(surfaceTexture, context, videoSource!!.capturerObserver)
         val config = generateConfig()
+
         localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-        //camera1Capturer.startCapture(1920, 1080, 30)
+        camera1Capturer.startCapture(1920, 1080, 30)
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
@@ -356,6 +365,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         Log.d("Audio Track", "ID IS " + audioTrack.id())
         track = factory.createVideoTrack("0001", videoSource)
 
+
+
         //var trackSender = localPeer.addTrack(audioTrack)
         //Log.d("TRACK SENDER", trackSender.track().toString())
         //we want to add a track with multiple streams
@@ -365,6 +376,17 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     fun changeCamera(){
         camera1Capturer.switchCamera(null)
+    }
+
+    @OptIn(UnstableApi::class)
+    fun changeVideoSource(videoProcessor: VideoProcessor){
+        //var frame = VideoFrame()
+        videoSource.capturerObserver.onCapturerStarted(true)
+        videoSource.capturerObserver
+    }
+
+    fun getVideoSource(): VideoSource {
+        return videoSource
     }
 
     init {

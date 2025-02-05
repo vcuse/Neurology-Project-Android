@@ -41,12 +41,15 @@ import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidThe
 import com.jiangdg.ausbc.MultiCameraClient
 import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
 import com.jiangdg.ausbc.callback.IEncodeDataCallBack
+import com.jiangdg.ausbc.callback.IPreviewDataCallBack
 import com.jiangdg.ausbc.camera.CameraUVC
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
 import com.jiangdg.uvc.UVCCamera
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
+import org.webrtc.MediaSource
+import org.webrtc.NV21Buffer
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoCapturer
@@ -54,6 +57,9 @@ import org.webrtc.VideoCodecInfo
 import org.webrtc.VideoEncoder
 import org.webrtc.VideoEncoderFactory
 import org.webrtc.VideoFrame
+import org.webrtc.VideoProcessor
+import org.webrtc.VideoSink
+import org.webrtc.VideoSource
 import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +67,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var multiCameraClient: MultiCameraClient
     private lateinit var camera: CameraUVC
     private lateinit var cameraRequest: CameraRequest
+    private lateinit var videoProcessor: VideoProcessor
+    private lateinit var videoSource: VideoSource
+    private lateinit var capturerObserver: CapturerObserver
     private var cameraInitialized by mutableStateOf(false)
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -77,6 +86,28 @@ class MainActivity : ComponentActivity() {
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
 
+       videoProcessor = object : VideoProcessor {
+            override fun onCapturerStarted(p0: Boolean) {
+                Log.e("VideoProcessor", "Capture Started")
+                //capturerObserver.onCapturerStarted(p0)
+            }
+
+            override fun onCapturerStopped() {
+                Log.e("Video Processor", "Capture Stopped")
+            }
+
+            override fun onFrameCaptured(p0: VideoFrame?) {
+               // Log.d("Video Processor", "Frame Captured")
+                //capturerObserver.onFrameCaptured(p0)
+                //p0!!.release()
+            }
+
+            override fun setSink(p0: VideoSink?) {
+                //this.setSink(p0)
+            }
+
+        }
+
         val videoCapturerObserver = object: CapturerObserver {
             override fun onCapturerStarted(p0: Boolean) {
                 TODO("Not yet implemented")
@@ -87,21 +118,24 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onFrameCaptured(p0: VideoFrame?) {
-                TODO("Not yet implemented")
+
+                //videoProcessor.onFrameCaptured(p0)
+                Log.e("Capturer Observer", "Frame Captured")
             }
 
         }
+
         val videoCapturer = object: VideoCapturer {
             override fun initialize(
                 p0: SurfaceTextureHelper?,
                 p1: Context?,
                 p2: CapturerObserver?
             ) {
-                TODO("Not yet implemented")
+                Log.e("Video Capturer", "Initialized")
             }
 
             override fun startCapture(p0: Int, p1: Int, p2: Int) {
-                TODO("Not yet implemented")
+                Log.e("VIDEO CAPTURER" , "Start Capture")
             }
 
             override fun stopCapture() {
@@ -126,6 +160,28 @@ class MainActivity : ComponentActivity() {
 
         }
 
+        videoCapturer.initialize(null, this@MainActivity, videoCapturerObserver)
+
+
+
+        val previewCallback = object: IPreviewDataCallBack {
+            override fun onPreviewData(
+                data: ByteArray?,
+                width: Int,
+                height: Int,
+                format: IPreviewDataCallBack.DataFormat
+            ) {
+                var timeStampNS = System.nanoTime()
+                var n21Buffer = NV21Buffer(data, width, height, null)
+
+                var videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
+
+                capturerObserver.onFrameCaptured(videoFrame)
+                //videoFrame.release()
+                //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
+            }
+
+        }
 
 
 
@@ -133,6 +189,10 @@ class MainActivity : ComponentActivity() {
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3da89534895638&token=6789&key=peerjs"
         , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
+        videoSource = signalingClient.getVideoSource()
+        videoSource.setVideoProcessor(videoProcessor)
+        capturerObserver = videoSource.capturerObserver
+
 
         val iEncodeDataCallback = object: IEncodeDataCallBack {
             override fun onEncodeData(
@@ -142,6 +202,9 @@ class MainActivity : ComponentActivity() {
                 size: Int,
                 timestamp: Long
             ) {
+
+
+
 
             }
 
@@ -155,13 +218,13 @@ class MainActivity : ComponentActivity() {
 
                     multiCameraClient.requestPermission(device)
                     camera = CameraUVC(this@MainActivity, device)
-                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).setAudioSource(
-                        CameraRequest.AudioSource.SOURCE_AUTO).setCaptureRawImage(true).setRawPreviewData(true).setPreviewFormat(
-                        CameraRequest.PreviewFormat.FORMAT_YUYV).create()
-
+                    camera.addPreviewDataCallBack(previewCallback)
+                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).setPreviewFormat(
+                        CameraRequest.PreviewFormat.FORMAT_MJPEG).setRawPreviewData(true).create()
+                    //videoCapturer.startCapture(0, 0, 0)
                     cameraInitialized = true
+                    //signalingClient.changeVideoSource(videoProcessor)
 
-                    val cameraTest = UVCCamera()
 
 
 
