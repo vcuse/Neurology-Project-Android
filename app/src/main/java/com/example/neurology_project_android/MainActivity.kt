@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.SurfaceTexture
 import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbManager
 import android.os.Build
 import android.os.Bundle
 import android.view.Surface
@@ -45,17 +44,10 @@ import com.jiangdg.ausbc.callback.IPreviewDataCallBack
 import com.jiangdg.ausbc.camera.CameraUVC
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
-import com.jiangdg.uvc.UVCCamera
-import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
-import org.webrtc.MediaSource
 import org.webrtc.NV21Buffer
-import org.webrtc.PeerConnectionFactory
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoCapturer
-import org.webrtc.VideoCodecInfo
-import org.webrtc.VideoEncoder
-import org.webrtc.VideoEncoderFactory
 import org.webrtc.VideoFrame
 import org.webrtc.VideoProcessor
 import org.webrtc.VideoSink
@@ -97,7 +89,7 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onFrameCaptured(p0: VideoFrame?) {
-               // Log.d("Video Processor", "Frame Captured")
+               //Log.d("Video Processor", "Frame Captured")
                 //capturerObserver.onFrameCaptured(p0)
                 //p0!!.release()
             }
@@ -120,7 +112,7 @@ class MainActivity : ComponentActivity() {
             override fun onFrameCaptured(p0: VideoFrame?) {
 
                 videoProcessor.onFrameCaptured(p0)
-                Log.e("Capturer Observer", "Frame Captured")
+                //Log.e("Capturer Observer", "Frame Captured")
             }
 
         }
@@ -188,11 +180,11 @@ class MainActivity : ComponentActivity() {
 
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3da89534895638&token=6789&key=peerjs"
-        , this)
+        , this, videoCapturer, videoCapturerObserver, videoProcessor)
         Log.d("MainActivitiy", "SignalingClient should be set")
         //videoSource = signalingClient.getVideoSource()
-        signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
-        signalingClient.changeVideoSource(videoProcessor)
+        //signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
+        //signalingClient.changeVideoSource(videoProcessor)
        // capturerObserver = videoSource.capturerObserver
 
 
