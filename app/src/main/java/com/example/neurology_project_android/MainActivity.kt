@@ -85,105 +85,6 @@ class MainActivity : ComponentActivity() {
 
 
 
-        val videoCapturerObserver = object: CapturerObserver {
-            override fun onCapturerStarted(p0: Boolean) {
-
-               Log.e("Capturer Observer", "Capture Started")
-            }
-
-            override fun onCapturerStopped() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onFrameCaptured(p0: VideoFrame?) {
-
-
-                //Log.e("Capturer Observer", "Frame Captured")
-            }
-
-        }
-
-
-        val videoCapturer = object: VideoCapturer {
-            override fun initialize(
-                p0: SurfaceTextureHelper?,
-                p1: Context?,
-                p2: CapturerObserver?
-            ) {
-                Log.e("Video Capturer", "Initialized")
-            }
-
-            override fun startCapture(p0: Int, p1: Int, p2: Int) {
-                Log.e("VIDEO CAPTURER" , "Start Capture")
-
-            }
-
-            override fun stopCapture() {
-                TODO("Not yet implemented")
-            }
-
-            override fun changeCaptureFormat(
-                p0: Int,
-                p1: Int,
-                p2: Int
-            ) {
-                TODO("Not yet implemented")
-            }
-
-            override fun dispose() {
-                TODO("Not yet implemented")
-            }
-
-            override fun isScreencast(): Boolean {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        videoProcessor = object: VideoProcessor {
-            override fun onCapturerStarted(p0: Boolean) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onCapturerStopped() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onFrameCaptured(p0: VideoFrame?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun setSink(p0: VideoSink?) {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-
-
-
-
-
-        val previewCallback = object: IPreviewDataCallBack {
-            override fun onPreviewData(
-                data: ByteArray?,
-                width: Int,
-                height: Int,
-                format: IPreviewDataCallBack.DataFormat
-            ) {
-                var timeStampNS = System.currentTimeMillis()
-                var n21Buffer = NV21Buffer(data, width, height, null)
-
-                var videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
-
-                videoSource.capturerObserver.onFrameCaptured(videoFrame)
-                //videoFrame.release()
-                //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
-            }
-
-        }
-
-
 
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
 
@@ -192,9 +93,9 @@ class MainActivity : ComponentActivity() {
         val peersState = mutableStateOf<List<String>>(emptyList())
 
         val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
-        , this, videoCapturer, videoCapturerObserver, videoProcessor)
+        , this)
         Log.d("MainActivitiy", "SignalingClient should be set")
-        videoSource = signalingClient.getVideoSource()
+        //videoSource = signalingClient.getVideoSource()
 
         // Fetch peers and update state (excluding own peer ID)
         GetPeers { peers ->
@@ -206,89 +107,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        //signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
-        //signalingClient.changeVideoSource(videoProcessor)
-       // capturerObserver = videoSource.capturerObserver
-
-
-        val iEncodeDataCallback = object: IEncodeDataCallBack {
-            override fun onEncodeData(
-                type: IEncodeDataCallBack.DataType,
-                buffer: ByteBuffer,
-                offset: Int,
-                size: Int,
-                timestamp: Long
-            ) {
-
-
-
-
-            }
-
-        }
-
-        val iDeviceCallback = object: IDeviceConnectCallBack {
-
-            override fun onAttachDev(device: UsbDevice?) {
-
-                if(device!!.productName == "USB Camera"){
-
-                    multiCameraClient.requestPermission(device)
-                    camera = CameraUVC(this@MainActivity, device)
-                    camera.addPreviewDataCallBack(previewCallback)
-                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).setPreviewFormat(
-                        CameraRequest.PreviewFormat.FORMAT_MJPEG).setRawPreviewData(true).create()
-                    //videoCapturer.startCapture(0, 0, 0)
-                    cameraInitialized = true
-                    //signalingClient.changeVideoSource(videoProcessor)
-
-
-
-
-
-                }
-
-            }
-
-            override fun onDetachDec(device: UsbDevice?) {
-
-            }
-
-            @OptIn(UnstableApi::class)
-            override fun onConnectDev(
-                device: UsbDevice?,
-                ctrlBlock: USBMonitor.UsbControlBlock?
-            ) {
-                Log.d("CONNECT", "camera connection. pid: ${device!!.productId}, vid: ${device.vendorId}")
-                camera.setUsbControlBlock(ctrlBlock)
-                camera.openCamera(this@MainActivity, cameraRequest)
-                // var cameraTest = UVCCamera()
-                camera.setEncodeDataCallBack(iEncodeDataCallback)
-
-                camera.captureStreamStart()
-
-
-                //Log.d("CAMERA TEST DEVICE NAME", " " + cameraTest.deviceName)
-
-            }
-
-            override fun onDisConnectDec(
-                device: UsbDevice?,
-                ctrlBlock: USBMonitor.UsbControlBlock?
-            ) {
-
-            }
-
-            override fun onCancelDev(device: UsbDevice?) {
-
-            }
-
-        }
-
-
-        multiCameraClient = MultiCameraClient(this@MainActivity, iDeviceCallback)
-        multiCameraClient.register()
 
 
         enableEdgeToEdge()
