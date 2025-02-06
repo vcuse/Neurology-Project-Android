@@ -44,6 +44,12 @@ import com.jiangdg.ausbc.callback.IPreviewDataCallBack
 import com.jiangdg.ausbc.camera.CameraUVC
 import com.jiangdg.ausbc.camera.bean.CameraRequest
 import com.jiangdg.usb.USBMonitor
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okio.IOException
 import org.webrtc.Camera1Enumerator
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
@@ -73,9 +79,6 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-
-
-
         val intent = PendingIntent.getBroadcast(
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
@@ -95,12 +98,10 @@ class MainActivity : ComponentActivity() {
             override fun onFrameCaptured(p0: VideoFrame?) {
 
 
-                Log.e("Capturer Observer", "Frame Captured")
+                //Log.e("Capturer Observer", "Frame Captured")
             }
 
         }
-
-
 
 
         val videoCapturer = object: VideoCapturer {
@@ -185,10 +186,27 @@ class MainActivity : ComponentActivity() {
 
 
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
-        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=3da89534895638&token=6789&key=peerjs"
+
+        val userId = fetchUserId()
+        val peerIdState = mutableStateOf<String?>(userId)
+        val peersState = mutableStateOf<List<String>>(emptyList())
+
+        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
         , this, videoCapturer, videoCapturerObserver, videoProcessor)
         Log.d("MainActivitiy", "SignalingClient should be set")
         videoSource = signalingClient.getVideoSource()
+
+        // Fetch peers and update state (excluding own peer ID)
+        GetPeers { peers ->
+            runOnUiThread {
+                peerIdState.value?.let { id ->
+                    peersState.value = peers.filter { it != id }
+                } ?: run {
+                    peersState.value = peers
+                }
+            }
+        }
+
         //signalingClient.sendVideoCapturer(videoCapturer, this, videoCapturerObserver, videoProcessor )
         //signalingClient.changeVideoSource(videoProcessor)
        // capturerObserver = videoSource.capturerObserver
@@ -294,6 +312,36 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun fetchUserId(): String {
+    val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+    val client = OkHttpClient()
+    var id = "123"
+    var requestReceived = false
+
+    val request = Request.Builder().url(idUrl).build()
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            android.util.Log.d("Request", "Request failed: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (response.isSuccessful) {
+                response.body?.string()?.let { body ->
+                    id = body
+                    requestReceived = true
+                }
+            } else {
+                android.util.Log.d("Response", "Request failed: ${response.code}")
+            }
+        }
+    })
+    while(!requestReceived){
+        /* Unsure how to make program wait until id is received
+           This works for now, but I am sure there are better ways
+         */
+    }
+    return id
+}
 
 
 
