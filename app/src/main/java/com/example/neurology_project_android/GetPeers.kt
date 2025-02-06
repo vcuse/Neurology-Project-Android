@@ -3,12 +3,23 @@ package com.example.neurology_project_android
 import android.util.Log
 import okhttp3.*
 import okio.IOException
+import kotlin.concurrent.fixedRateTimer
 
-class GetPeers {
+class GetPeers(private val onPeersFetched: (List<String>) -> Unit) {
     private val url = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers"
-    var peers = ""
-    init{
-        val client = OkHttpClient()
+    private val client = OkHttpClient()
+
+    init {
+        // Fetch peers immediately
+        fetchPeers()
+
+        // Start a timer to fetch peers every 2 seconds
+        fixedRateTimer("fetchPeersTimer", false, 0L, 2000L) {
+            fetchPeers()
+        }
+    }
+
+    private fun fetchPeers() {
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -18,10 +29,17 @@ class GetPeers {
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    peers = response.body.string()
-                    Log.d("Response", "Response: $peers")
+                    response.body?.string()?.let { body ->
+                        val peerList = body
+                            .trim()
+                            .removeSurrounding("[", "]") // Remove JSON array brackets
+                            .split(",")
+                            .map { it.trim().removeSurrounding("\"") } // Remove extra quotes
+
+                        onPeersFetched(peerList)
+                    }
                 } else {
-                    Log.d("Response", "Request failed: ${response.code}");
+                    Log.d("Response", "Request failed: ${response.code}")
                 }
             }
         })
