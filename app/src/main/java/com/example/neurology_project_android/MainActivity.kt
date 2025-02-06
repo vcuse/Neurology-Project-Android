@@ -75,16 +75,14 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
 
         val intent = PendingIntent.getBroadcast(
-            this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
+            this,
+            0,
+            Intent("${applicationContext.packageName}.USB_PERMISSION"),
+            PendingIntent.FLAG_IMMUTABLE
         )
-
-
-
 
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
 
@@ -92,8 +90,10 @@ class MainActivity : ComponentActivity() {
         val peerIdState = mutableStateOf<String?>(userId)
         val peersState = mutableStateOf<List<String>>(emptyList())
 
-        val signalingClient = SignalingClient("https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs"
-        , this)
+        val signalingClient = SignalingClient(
+            "https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs",
+            this
+        )
         Log.d("MainActivitiy", "SignalingClient should be set")
         //videoSource = signalingClient.getVideoSource()
 
@@ -153,65 +153,13 @@ fun fetchUserId(): String {
             }
         }
     })
-    while(!requestReceived){
+    while (!requestReceived) {
         /* Unsure how to make program wait until id is received
            This works for now, but I am sure there are better ways
          */
     }
     return id
 }
-
-
-
-@Composable
-fun UsbCameraPreview(
-    modifier: Modifier = Modifier,
-    camera: CameraUVC,
-    cameraRequest: CameraRequest
-) {
-
-   // val navController = rememberNavController()
-
-
-    AndroidView(
-        modifier = modifier,
-        factory = { ctx: Context ->
-            TextureView(ctx).apply {
-                surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                    override fun onSurfaceTextureAvailable(
-                        surfaceTexture: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) {
-                        // 1) Wrap the TextureView's SurfaceTexture in a Surface
-                        val previewSurface = Surface(surfaceTexture)
-
-                        // 2) Open the camera, providing the real Surface
-                        //    The library will render frames onto this Surface
-
-
-
-
-                    }
-
-                    override fun onSurfaceTextureSizeChanged(
-                        surfaceTexture: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) = Unit
-
-                    override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
-                        // Return true to let the system release the SurfaceTexture automatically
-                        return true
-                    }
-
-                    override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) = Unit
-                }
-            }
-        }
-    )
-}
-
 
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -250,13 +198,7 @@ fun Greeting(
             // A simple loading/home screen
             //Greeting()
         }
-        composable("preview") {
-            // Our camera preview screen
-            UsbCameraPreview(
-                camera = camera(),
-                cameraRequest = cameraRequest()
-            )
-        }
+
     }
 }
 
