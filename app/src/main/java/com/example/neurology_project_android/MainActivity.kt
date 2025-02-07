@@ -1,6 +1,5 @@
 package com.example.neurology_project_android
 
-
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
@@ -16,10 +15,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +39,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
@@ -63,7 +77,6 @@ import org.webrtc.VideoSource
 import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
-
     private lateinit var multiCameraClient: MultiCameraClient
     private lateinit var camera: CameraUVC
     private lateinit var cameraRequest: CameraRequest
@@ -75,15 +88,11 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
 
         val intent = PendingIntent.getBroadcast(
             this, 0, Intent("${applicationContext.packageName}.USB_PERMISSION"), PendingIntent.FLAG_IMMUTABLE
         )
-
-
 
         val videoCapturerObserver = object: CapturerObserver {
             override fun onCapturerStarted(p0: Boolean) {
@@ -103,7 +112,6 @@ class MainActivity : ComponentActivity() {
 
         }
 
-
         val videoCapturer = object: VideoCapturer {
             override fun initialize(
                 p0: SurfaceTextureHelper?,
@@ -115,7 +123,6 @@ class MainActivity : ComponentActivity() {
 
             override fun startCapture(p0: Int, p1: Int, p2: Int) {
                 Log.e("VIDEO CAPTURER" , "Start Capture")
-
             }
 
             override fun stopCapture() {
@@ -156,13 +163,7 @@ class MainActivity : ComponentActivity() {
             override fun setSink(p0: VideoSink?) {
                 TODO("Not yet implemented")
             }
-
         }
-
-
-
-
-
 
         val previewCallback = object: IPreviewDataCallBack {
             override fun onPreviewData(
@@ -182,8 +183,6 @@ class MainActivity : ComponentActivity() {
             }
 
         }
-
-
 
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
 
@@ -221,9 +220,6 @@ class MainActivity : ComponentActivity() {
                 timestamp: Long
             ) {
 
-
-
-
             }
 
         }
@@ -242,11 +238,6 @@ class MainActivity : ComponentActivity() {
                     //videoCapturer.startCapture(0, 0, 0)
                     cameraInitialized = true
                     //signalingClient.changeVideoSource(videoProcessor)
-
-
-
-
-
                 }
 
             }
@@ -286,27 +277,31 @@ class MainActivity : ComponentActivity() {
 
         }
 
-
         multiCameraClient = MultiCameraClient(this@MainActivity, iDeviceCallback)
         multiCameraClient.register()
-
 
         enableEdgeToEdge()
         setContent {
             NeurologyProjectAndroidTheme {
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent, // Make the Scaffold background transparent
+                    content = { innerPadding ->
                     // Suppose you have the camera & request object set up
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding),
-                        signalingClient = signalingClient,
-                        cameraInitialized = cameraInitialized,
-                        camera = { camera }, cameraRequest = { cameraRequest }
-
-                    )
-
-                }
+                        HomeScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            peerId = peerIdState.value ?: userId,
+                            peers = peersState.value
+                        )
+                            Greeting(
+                            name = "Android",
+                            modifier = Modifier.padding(innerPadding),
+                            signalingClient = signalingClient,
+                            cameraInitialized = cameraInitialized,
+                            camera = { camera }, cameraRequest = { cameraRequest }
+                        )
+                })
             }
         }
     }
@@ -439,6 +434,121 @@ fun Greeting(
                 cameraRequest = cameraRequest()
             )
         }
+    }
+}
+@Composable
+fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
+    // Refresh UI every 3 seconds
+    LaunchedEffect(peers) {
+        // This will trigger recomposition whenever peers update
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PeerIdSection(peerId) // Displays the correct Peer ID
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OnlineNowSection(peers) // No need for additional state
+        }
+
+        NIHFormsButton()
+    }
+}
+
+@Composable
+fun PeerIdSection(peerId: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Your Peer ID:", fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = peerId) // Display dynamic peer ID
+        }
+    }
+}
+
+
+@Composable
+fun OnlineNowSection(peers: List<String>) {
+    Text(
+        text = "Online Now:",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (peers.isEmpty()) {
+            Text(text = "No peers online", modifier = Modifier.padding(16.dp))
+        } else {
+            peers.forEach { userId ->
+                OnlineUserCard(userId)
+            }
+        }
+    }
+}
+
+@Composable
+fun OnlineUserCard(userId: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = userId,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp)
+            )
+            Button(
+                onClick = { /* Placeholder for Call button */ },
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text(text = "Call")
+            }
+        }
+    }
+}
+
+@Composable
+fun NIHFormsButton() {
+    Button(
+        onClick = { /* Placeholder for NIH Forms action */ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(text = "NIH Forms")
     }
 }
 
