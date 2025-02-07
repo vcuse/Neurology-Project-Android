@@ -197,18 +197,7 @@ fun Greeting(
         }
     }
 
-    Box(
 
-
-        modifier = Modifier.fillMaxSize(), // Make the Box take up the entire screen
-        contentAlignment = Alignment.Center // Center its content
-    ) {
-        Button(
-            onClick = { signalingClient.changeCamera() } // Wrap the function call in a lambda
-        ) {
-            Text("Change Camera")
-        }
-    }
 
 
     NavHost(navController, startDestination = "home") {
