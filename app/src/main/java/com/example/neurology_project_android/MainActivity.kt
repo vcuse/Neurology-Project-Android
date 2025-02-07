@@ -1,6 +1,8 @@
 package com.example.neurology_project_android
 
 
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
@@ -312,8 +314,13 @@ fun OnlineUserCard(userId: String) {
 
 @Composable
 fun NIHFormsButton() {
+    val context = LocalContext.current
+
     Button(
-        onClick = { /* Placeholder for NIH Forms action */ },
+        onClick = {
+            val intent = Intent(context, ListNIHFormActivity::class.java)
+            context.startActivity(intent)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),

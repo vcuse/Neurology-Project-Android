@@ -1,7 +1,6 @@
 package com.example.neurology_project_android
 
-import android.app.Activity
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,8 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,13 +32,11 @@ class NewNIHFormActivity : ComponentActivity() {
 
 @Composable
 fun NewNIHFormScreen() {
-    val viewModel: NIHFormViewModel = viewModel()
-    val context = LocalContext.current // Get context for Room and other operations
+    val context = LocalContext.current
     var patientName by remember { mutableStateOf("") }
     val questions = remember { StrokeScaleQuestions.questions }
     val selectedOptions = remember { mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } } }
 
-    // Current date
     val date = remember {
         SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(Date())
     }
@@ -49,11 +44,9 @@ fun NewNIHFormScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF3E5F5)) // Light purple background
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+            .background(Color(0xFFF3E5F5))
+            .padding(16.dp)
     ) {
-        // Title and Patient Name Input
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -84,9 +77,6 @@ fun NewNIHFormScreen() {
             )
         }
 
-
-
-        // Questions List
         LazyColumn(
             modifier = Modifier.weight(1f)
         ) {
@@ -95,43 +85,37 @@ fun NewNIHFormScreen() {
             }
         }
 
-
-
-        // Save and Cancel Buttons
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
         ) {
             Button(
                 onClick = {
-                    viewModel.saveForm(context, patientName, selectedOptions) // Save form
-
-                    // Navigate back to the ListNIHFormActivity
-                    (context as? Activity)?.finish()
+                    // TODO: RoomDB save form
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Save", color = Color.White)
             }
 
-
             Button(
                 onClick = {
-
+                    val intent = Intent(context, ListNIHFormActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Cancel", color = Color.White)
             }
         }
     }
 }
+
 
 @Composable
 fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int?>) {
@@ -178,13 +162,6 @@ fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int
                 Text(text = if (option.score > 0) "+${option.score}" else "${option.score}")
             }
         }
-    }
-}
-
-class NIHFormViewModel : ViewModel() {
-
-    fun saveForm(context: Context, patientName: String, selectedOptions: List<Int?>) {
-
     }
 }
 
