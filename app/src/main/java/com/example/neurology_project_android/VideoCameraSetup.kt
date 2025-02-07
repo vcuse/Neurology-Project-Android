@@ -29,13 +29,20 @@ import org.webrtc.VideoSink
 import org.webrtc.VideoSource
 import java.nio.ByteBuffer
 
-class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, factory: PeerConnectionFactory){
+class VideoCameraSetup constructor(
+    context: Context,
+    localPeer: PeerConnection,
+    factory: PeerConnectionFactory,
+    rootEGL1: EglBase
+){
 
     private lateinit var multiCameraClient: MultiCameraClient
     private lateinit var camera: CameraUVC
     private lateinit var cameraRequest: CameraRequest
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var videoSource: VideoSource
+    private lateinit var capturerObserver: CapturerObserver
+    private var rootEGL = rootEGL1
 
     private var localPeer = localPeer
     private var factory = factory
@@ -49,6 +56,7 @@ class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, 
     }
 
     fun prepareVideoDevices(context: Context){
+
         val videoCapturerObserver = object: CapturerObserver {
             @OptIn(UnstableApi::class)
             override fun onCapturerStarted(p0: Boolean) {
@@ -127,16 +135,17 @@ class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, 
         }
 
         val previewCallback = object: IPreviewDataCallBack {
+            @OptIn(UnstableApi::class)
             override fun onPreviewData(
                 data: ByteArray?,
                 width: Int,
                 height: Int,
                 format: IPreviewDataCallBack.DataFormat
             ) {
-                var timeStampNS = System.currentTimeMillis()
-                var n21Buffer = NV21Buffer(data, width, height, null)
+                val timeStampNS = System.currentTimeMillis()
+                val n21Buffer = NV21Buffer(data, width, height, null)
 
-                var videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
+                val videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
 
                 videoSource.capturerObserver.onFrameCaptured(videoFrame)
                 //videoFrame.release()
@@ -168,7 +177,7 @@ class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, 
                     multiCameraClient.requestPermission(device)
                     camera = CameraUVC(context, device)
                     camera.addPreviewDataCallBack(previewCallback)
-                    cameraRequest = CameraRequest.Builder().setPreviewWidth(1280).setPreviewHeight(720).setPreviewFormat(
+                    cameraRequest = CameraRequest.Builder().setPreviewWidth(848).setPreviewHeight(480).setPreviewFormat(
                         CameraRequest.PreviewFormat.FORMAT_MJPEG).setRawPreviewData(true).create()
                     //videoCapturer.startCapture(0, 0, 0)
                     cameraInitialized = true
@@ -229,7 +238,7 @@ class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, 
 
         //localPeer = factory.createPeerConnection(config, peerConnObserver)!!
 
-        val rootEGL = EglBase.create()
+
         val videoSource2 = factory.createVideoSource(true)
         val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
         //capturerObserver.onCapturerStarted(true)
@@ -242,76 +251,12 @@ class VideoCameraSetup constructor(context: Context, localPeer: PeerConnection, 
 
         var videoTrack = factory.createVideoTrack("0001", videoSource2)
         videoSource = videoSource2
+
         localPeer.addTrack(videoTrack, listOf("track01"))
 
-        var camera = object:  CameraVideoCapturer{
-            override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?) {
-                TODO("Not yet implemented")
-            }
 
-            override fun switchCamera(
-                p0: CameraVideoCapturer.CameraSwitchHandler?,
-                p1: String?
-            ) {
-                TODO("Not yet implemented")
-            }
 
-            override fun initialize(
-                p0: SurfaceTextureHelper?,
-                p1: Context?,
-                p2: CapturerObserver?
-            ) {
+        //camera.initialize(surfaceTexture,context , capturerObserver)
 
-            }
-
-            override fun startCapture(p0: Int, p1: Int, p2: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun stopCapture() {
-                TODO("Not yet implemented")
-            }
-
-            override fun changeCaptureFormat(p0: Int, p1: Int, p2: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun dispose() {
-                TODO("Not yet implemented")
-            }
-
-            override fun isScreencast(): Boolean {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        camera.initialize(surfaceTexture,context , capturerObserver)
-        var cameraEvents = object : CameraVideoCapturer.CameraEventsHandler {
-            override fun onCameraError(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onCameraDisconnected() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onCameraFreezed(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onCameraOpening(p0: String?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onFirstFrameAvailable() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onCameraClosed() {
-                TODO("Not yet implemented")
-            }
-
-        }
     }
 }
