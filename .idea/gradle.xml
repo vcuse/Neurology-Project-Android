@@ -11,9 +11,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/libausbc" />
+            <option value="$PROJECT_DIR$/libnative" />
+            <option value="$PROJECT_DIR$/libuvc" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

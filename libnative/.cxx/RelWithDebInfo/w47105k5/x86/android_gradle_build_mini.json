@@ -1,0 +1,33 @@
+{
+  "buildFiles": [
+    "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\src\\main\\cpp\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\.cxx\\RelWithDebInfo\\w47105k5\\x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\.cxx\\RelWithDebInfo\\w47105k5\\x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "nativelib-RelWithDebInfo-x86": {
+      "artifactName": "nativelib",
+      "buildCommandComponents": [
+        "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\.cxx\\RelWithDebInfo\\w47105k5\\x86",
+        "nativelib"
+      ],
+      "abi": "x86",
+      "output": "C:\\Users\\david\\AndroidStudioProjects\\Neurology-Project-Android\\libnative\\build\\intermediates\\cxx\\RelWithDebInfo\\w47105k5\\obj\\x86\\libnativelib.so",
+      "runtimeFiles": []
+    }
+  }
+}

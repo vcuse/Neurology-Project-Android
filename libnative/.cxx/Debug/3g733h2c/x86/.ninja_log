@@ -1,0 +1,5 @@
+# ninja log v5
+47	285	760352479	CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o	c7f686e2bd42e764
+31	299	760352479	CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o	87b899e6de14fad1
+44	300	760352479	CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o	8e48541118bbc63c
+28	314	760352479	CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o	ba1c36c892761cf7
