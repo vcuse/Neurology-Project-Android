@@ -64,6 +64,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private lateinit var camera1Capturer: Camera2Capturer
     private lateinit var videoSource: VideoSource
     private lateinit var factory: PeerConnectionFactory
+    private lateinit var rootEGL: EglBase
 
     fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
@@ -329,7 +330,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
             .createInitializationOptions()
         PeerConnectionFactory.initialize(options)
-        val rootEGL = EglBase.create()
+        rootEGL = EglBase.create()
         factory = buildFactory(rootEGL)!!
 //
 //        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -486,7 +487,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     init {
         buildVideoSenders(context, url)
 
-        var videoCamera = VideoCameraSetup(context, localPeer, factory)
+        var videoCamera = VideoCameraSetup(context, localPeer, factory, rootEGL)
 
 
 
