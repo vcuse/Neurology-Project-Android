@@ -198,8 +198,6 @@ fun Greeting(
     }
 
 
-
-
     NavHost(navController, startDestination = "home") {
         composable("home") {
             // A simple loading/home screen
