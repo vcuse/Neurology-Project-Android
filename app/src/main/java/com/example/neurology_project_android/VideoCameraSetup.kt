@@ -134,6 +134,10 @@ class VideoCameraSetup constructor(
 
         }
 
+        var timeStampNS: Long
+        var n21Buffer: NV21Buffer
+        var videoFrame: VideoFrame
+
         val previewCallback = object: IPreviewDataCallBack {
             @OptIn(UnstableApi::class)
             override fun onPreviewData(
@@ -142,27 +146,14 @@ class VideoCameraSetup constructor(
                 height: Int,
                 format: IPreviewDataCallBack.DataFormat
             ) {
-                val timeStampNS = System.currentTimeMillis()
-                val n21Buffer = NV21Buffer(data, width, height, null)
+                timeStampNS = System.currentTimeMillis()
+                n21Buffer = NV21Buffer(data, width, height, null)
 
-                val videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
+                videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
 
                 videoSource.capturerObserver.onFrameCaptured(videoFrame)
                 //videoFrame.release()
                 //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
-            }
-
-        }
-
-        val iEncodeDataCallback = object: IEncodeDataCallBack {
-            override fun onEncodeData(
-                type: IEncodeDataCallBack.DataType,
-                buffer: ByteBuffer,
-                offset: Int,
-                size: Int,
-                timestamp: Long
-            ) {
-
             }
 
         }
@@ -204,9 +195,9 @@ class VideoCameraSetup constructor(
                 camera.setUsbControlBlock(ctrlBlock)
                 camera.openCamera(this, cameraRequest)
                 // var cameraTest = UVCCamera()
-                camera.setEncodeDataCallBack(iEncodeDataCallback)
+                //camera.setEncodeDataCallBack(iEncodeDataCallback)
 
-                camera.captureStreamStart()
+                //camera.captureStreamStart()
 
 
                 //Log.d("CAMERA TEST DEVICE NAME", " " + cameraTest.deviceName)
