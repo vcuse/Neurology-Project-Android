@@ -7,6 +7,7 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
+        maven { url = uri("https://jitpack.io") }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -16,8 +17,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
+
+
 rootProject.name = "Neurology-Project-Android"
 include(":app")
+include (":libausbc")
+include (":libuvc")
+include (":libnative")

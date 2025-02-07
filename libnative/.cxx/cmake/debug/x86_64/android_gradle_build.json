@@ -1,0 +1,42 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libnative\\src\\main\\cpp\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libnative\\.cxx\\cmake\\debug\\x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libnative\\.cxx\\cmake\\debug\\x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "nativelib-Debug-x86_64": {
+      "buildCommandComponents": [
+        "C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libnative\\.cxx\\cmake\\debug\\x86_64",
+        "nativelib"
+      ],
+      "buildType": "debug",
+      "abi": "x86_64",
+      "artifactName": "nativelib",
+      "output": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libnative\\build\\intermediates\\cmake\\debug\\obj\\x86_64\\libnativelib.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {},
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

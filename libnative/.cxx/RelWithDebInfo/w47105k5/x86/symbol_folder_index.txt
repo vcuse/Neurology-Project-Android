@@ -1,0 +1,1 @@
+C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\RelWithDebInfo\w47105k5\obj\x86

@@ -1,0 +1,3 @@
+C:/Users/david/StudioProjects/AndroidUSBCameraFork/libnative/.cxx/cmake/release/x86/CMakeFiles/nativelib.dir
+C:/Users/david/StudioProjects/AndroidUSBCameraFork/libnative/.cxx/cmake/release/x86/CMakeFiles/edit_cache.dir
+C:/Users/david/StudioProjects/AndroidUSBCameraFork/libnative/.cxx/cmake/release/x86/CMakeFiles/rebuild_cache.dir

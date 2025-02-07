@@ -1,0 +1,58 @@
+[
+  {
+    "level": "INFO",
+    "message": "Start JSON generation. Platform version: 19 min SDK version: x86",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "rebuilding JSON C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\.cxx\\ndkBuild\\release\\x86\\android_gradle_build.json due to:",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "- command changed from previous, will remove stale json folder",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "removing stale contents from \u0027C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\.cxx\\ndkBuild\\release\\x86\u0027",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "created folder \u0027C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\.cxx\\ndkBuild\\release\\x86\u0027",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "executing ndkBuild Executable : C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\\ndk-build.cmd\narguments : \nNDK_PROJECT_PATH\u003dnull\nAPP_BUILD_SCRIPT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk\nAPP_ABI\u003dx86\nNDK_ALL_ABIS\u003dx86\nNDK_DEBUG\u003d0\nAPP_PLATFORM\u003dandroid-19\nNDK_OUT\u003dC:/Users/david/StudioProjects/AndroidUSBCameraFork/libuvc/build/intermediates/ndkBuild/release/obj\nNDK_LIBS_OUT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\build\\intermediates\\ndkBuild\\release\\lib\nAPP_CPPFLAGS+\u003d\nAPP_SHORT_COMMANDS\u003dfalse\nLOCAL_SHORT_COMMANDS\u003dfalse\n-B\n-n\njvmArgs : \n\n",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "Executable : C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\\ndk-build.cmd\narguments : \nNDK_PROJECT_PATH\u003dnull\nAPP_BUILD_SCRIPT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk\nAPP_ABI\u003dx86\nNDK_ALL_ABIS\u003dx86\nNDK_DEBUG\u003d0\nAPP_PLATFORM\u003dandroid-19\nNDK_OUT\u003dC:/Users/david/StudioProjects/AndroidUSBCameraFork/libuvc/build/intermediates/ndkBuild/release/obj\nNDK_LIBS_OUT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\build\\intermediates\\ndkBuild\\release\\lib\nAPP_CPPFLAGS+\u003d\nAPP_SHORT_COMMANDS\u003dfalse\nLOCAL_SHORT_COMMANDS\u003dfalse\n-B\n-n\njvmArgs : \n\n",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON generation completed with problem. Exception: Build command failed.\nError while executing process C:\\Users\\david\\AppData\\Local\\Android\\Sdk\\ndk\\21.4.7075529\\ndk-build.cmd with arguments {NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003dC:/Users/david/StudioProjects/AndroidUSBCameraFork/libuvc/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\build\\intermediates\\ndkBuild\\release\\lib APP_CPPFLAGS+\u003d APP_SHORT_COMMANDS\u003dfalse LOCAL_SHORT_COMMANDS\u003dfalse -B -n}\n\nC:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build//../build/core/build-binary.mk:651: Android NDK: Module uvc depends on undefined modules: jpeg-turbo1500 usb100    \nC:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build//../build/core/build-binary.mk:664: *** Android NDK: Note that old versions of ndk-build silently ignored this error case. If your project worked on those versions, the missing libraries were not needed and you can remove those dependencies from the module to fix your build. Alternatively, set APP_ALLOW_MISSING_DEPS\u003dtrue to allow missing dependencies.    .  Stop.\n",
+    "file": "C:\\Users\\david\\StudioProjects\\AndroidUSBCameraFork\\libuvc\\src\\main\\jni\\libuvc\\android\\jni\\Android.mk",
+    "tag": "release|x86",
+    "diagnosticCode": "UNKNOWN"
+  }
+]
