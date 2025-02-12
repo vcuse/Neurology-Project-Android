@@ -4,26 +4,28 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.platform.LocalContext
 
 class ListNIHFormActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            GradientBackground {
-                ListNIHFormScreen()
-            }
+            ListNIHFormScreen()
         }
     }
 }
@@ -32,52 +34,97 @@ class ListNIHFormActivity : ComponentActivity() {
 fun ListNIHFormScreen() {
     val context = LocalContext.current
 
+    val savedForms = remember {
+        mutableStateListOf(
+            SavedForm("Unnamed Patient", "October 9, 2024")
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White) // Plain white background
             .padding(24.dp)
     ) {
-        // Top Row with Title and Button
+        // Header Row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 24.dp),
+                .padding(top = 10.dp, bottom = 24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = "Saved Forms",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 8.dp)
+                fontWeight = FontWeight.Bold
             )
-            Button(
+
+            TextButton(
                 onClick = {
                     val intent = Intent(context, NewNIHFormActivity::class.java)
                     context.startActivity(intent)
-                },
-                modifier = Modifier.padding(end = 8.dp)
+                }
             ) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_input_add),
-                    contentDescription = "Create New Form"
-                )
+                Text(text = "New Form", fontSize = 16.sp)
             }
         }
 
-        // List of Saved Forms
+        // Scrollable List
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Placeholder - will be populated with Room DB data later
+            items(savedForms) { form ->
+                SavedFormItem(form) {
+                    val intent = Intent(context, SavedNIHFormActivity::class.java)
+                    context.startActivity(intent)
+                }
+            }
         }
     }
 }
 
+@Composable
+fun SavedFormItem(form: SavedForm, onClick: () -> Unit) {
+    Card(
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = form.patientName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = form.dateRecorded,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            }
+
+            Button(onClick = onClick) {
+                Text(text = "View")
+            }
+        }
+    }
+}
+
+data class SavedForm(val patientName: String, val dateRecorded: String)
+
 @Preview(showBackground = true)
 @Composable
 fun ListNIHFormScreenPreview() {
-    GradientBackground {
-        ListNIHFormScreen()
-    }
+    ListNIHFormScreen()
 }
