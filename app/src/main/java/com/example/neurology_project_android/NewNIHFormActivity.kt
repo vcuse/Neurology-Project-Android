@@ -9,12 +9,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +39,7 @@ fun NewNIHFormScreen() {
     var patientName by remember { mutableStateOf("") }
     val questions = remember { StrokeScaleQuestions.questions }
     val selectedOptions = remember { mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } } }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val date = remember {
         SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(Date())
@@ -65,7 +69,14 @@ fun NewNIHFormScreen() {
                 label = { Text("Enter Patient Name") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrect = false // Disables suggestions
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() } // Closes keyboard on Done press
+                ),
+                placeholder = { Text("") }, // Prevents showing hints
             )
 
             Text(
