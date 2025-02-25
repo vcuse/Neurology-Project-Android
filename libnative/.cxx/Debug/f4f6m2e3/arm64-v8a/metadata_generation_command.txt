@@ -1,18 +1,18 @@
-                        -HC:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\src\main\cpp
+                        -H/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp
 -DCMAKE_SYSTEM_NAME=Android
 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 -DCMAKE_SYSTEM_VERSION=21
 -DANDROID_PLATFORM=android-21
 -DANDROID_ABI=arm64-v8a
 -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a
--DANDROID_NDK=C:\Users\david\AppData\Local\Android\Sdk\ndk\21.4.7075529
--DCMAKE_ANDROID_NDK=C:\Users\david\AppData\Local\Android\Sdk\ndk\21.4.7075529
--DCMAKE_TOOLCHAIN_FILE=C:\Users\david\AppData\Local\Android\Sdk\ndk\21.4.7075529\build\cmake\android.toolchain.cmake
--DCMAKE_MAKE_PROGRAM=C:\Users\david\AppData\Local\Android\Sdk\cmake\3.10.2.4988404\bin\ninja.exe
--DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\f4f6m2e3\obj\arm64-v8a
--DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\f4f6m2e3\obj\arm64-v8a
+-DANDROID_NDK=/Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529
+-DCMAKE_ANDROID_NDK=/Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529
+-DCMAKE_TOOLCHAIN_FILE=/Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=/Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/arm64-v8a
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/arm64-v8a
 -DCMAKE_BUILD_TYPE=Debug
--BC:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\.cxx\Debug\f4f6m2e3\arm64-v8a
+-B/Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/arm64-v8a
 -GNinja
                         Build command args: []
                         Version: 2

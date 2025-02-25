@@ -45,7 +45,9 @@ import org.webrtc.VideoSource
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (
     url: String,
-    context: Context
+    context: Context,
+    private val onCallRecieved: () -> Unit,
+    private val onCallEnded: () -> Unit
 ) {
     private lateinit var localPeer: PeerConnection
     private lateinit var httpUrl: HttpUrl
@@ -180,6 +182,10 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
             Log.d("ICE Connection", p0.toString())
 
+            if (p0 == PeerConnection.IceConnectionState.DISCONNECTED ||
+                p0 == PeerConnection.IceConnectionState.CLOSED) {
+                onCallEnded() // Notify MainActivity when the call ends
+            }
         }
 
         override fun onIceConnectionReceivingChange(p0: Boolean) {
@@ -511,6 +517,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     val jsonMessage = JSONObject(text)
                     if (text.contains("OFFER")) {
                         theirID = jsonMessage.get("src").toString()
+                        onCallRecieved()
                     }
                     if (text.contains("OFFER") && text.contains("media")) {
 

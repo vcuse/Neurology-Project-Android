@@ -1,1 +1,1 @@
-C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\f4f6m2e3\obj\x86
+/Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86

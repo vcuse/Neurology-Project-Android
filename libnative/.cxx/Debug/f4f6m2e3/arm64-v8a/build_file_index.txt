@@ -1,1 +1,1 @@
-C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\src\main\cpp\CMakeLists.txt
+/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt

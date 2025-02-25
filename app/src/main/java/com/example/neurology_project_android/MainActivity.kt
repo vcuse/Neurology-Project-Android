@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var videoSource: VideoSource
     private lateinit var capturerObserver: CapturerObserver
+    private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -108,7 +109,13 @@ class MainActivity : ComponentActivity() {
 
         val signalingClient = SignalingClient(
             "https://videochat-signaling-app.ue.r.appspot.com:443/peerjs?id=$userId&token=6789&key=peerjs",
-            this
+            this,
+            onCallRecieved = {
+                isInCall = true  // Update call state when an offer is received
+            },
+            onCallEnded = {
+                runOnUiThread { isInCall = false }
+            }
         )
         Log.d("MainActivitiy", "SignalingClient should be set")
         //videoSource = signalingClient.getVideoSource()
@@ -143,7 +150,8 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding),
                             signalingClient = signalingClient,
                             cameraInitialized = cameraInitialized,
-                            camera = { camera }, cameraRequest = { cameraRequest }
+                            camera = { camera }, cameraRequest = { cameraRequest },
+                            isInCall = isInCall
                         )
                     })
             }
@@ -190,12 +198,16 @@ fun Greeting(
     signalingClient: SignalingClient,
     cameraInitialized: Boolean,
     camera: () -> CameraUVC,
-    cameraRequest: () -> CameraRequest
+    cameraRequest: () -> CameraRequest,
+    isInCall: Boolean
 ) {
     val navController = rememberNavController()
-    LaunchedEffect(cameraInitialized) {
-        if (cameraInitialized) {
-            navController.navigate("preview")
+
+    LaunchedEffect(isInCall) {
+        if (isInCall) {
+            navController.navigate("callScreen")
+        } else {
+            navController.navigate("home") // Navigate back when call ends
         }
     }
 
@@ -205,7 +217,9 @@ fun Greeting(
             // A simple loading/home screen
             //Greeting()
         }
-
+        composable("callScreen") {
+            CallScreen()
+        }
     }
 }
 
