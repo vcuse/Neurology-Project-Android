@@ -29,6 +29,25 @@ ninja_required_version = 1.5
 
 include rules.ninja
 
+
+#############################################
+# Utility command for rebuild_cache
+
+build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86 && /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/cmake -H/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp -B/Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+build rebuild_cache: phony CMakeFiles/rebuild_cache.util
+
+#############################################
+# Utility command for edit_cache
+
+build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86 && /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+build edit_cache: phony CMakeFiles/edit_cache.util
 # =============================================================================
 # Object build statements for SHARED_LIBRARY target nativelib
 
@@ -37,231 +56,212 @@ include rules.ninja
 # Order-only phony target for nativelib
 
 build cmake_object_order_depends_target_nativelib: phony
-build CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/VbrTag.c || cmake_object_order_depends_target_nativelib
+build CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/VbrTag.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\VbrTag.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/bitstream.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/bitstream.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\bitstream.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/encoder.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/encoder.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\encoder.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/fft.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/fft.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\fft.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/gain_analysis.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/gain_analysis.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\gain_analysis.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/id3tag.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/id3tag.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\id3tag.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/lame.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/lame.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\lame.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/mpglib_interface.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/mpglib_interface.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\mpglib_interface.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/newmdct.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/newmdct.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\newmdct.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/presets.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/presets.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\presets.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/psymodel.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/psymodel.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\psymodel.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/quantize.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/quantize.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\quantize.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/quantize_pvt.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/quantize_pvt.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\quantize_pvt.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/reservoir.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/reservoir.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\reservoir.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/set_get.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/set_get.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\set_get.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/tables.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/tables.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\tables.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/takehiro.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/takehiro.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\takehiro.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/util.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/util.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\util.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/vbrquantize.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/vbrquantize.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\vbrquantize.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o: C_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/version.c || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o: C_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame/version.c || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\lame\version.c.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3\lame
-build CMakeFiles/nativelib.dir/utils/logger.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/utils/logger.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3/lame
+build CMakeFiles/nativelib.dir/utils/logger.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/utils/logger.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\utils\logger.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/utils/logger.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\utils
-build CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/yuv/yuv.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/utils
+build CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/yuv/yuv.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\yuv\yuv.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\yuv
-build CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/mp3.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/yuv
+build CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/mp3.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\module\mp3\mp3.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\module\mp3
-build CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/proxy/proxy_yuv.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/module/mp3
+build CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/proxy/proxy_yuv.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\proxy\proxy_yuv.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\proxy
-build CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/proxy/proxy_mp3.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/proxy
+build CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/proxy/proxy_mp3.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\proxy\proxy_mp3.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir\proxy
-build CMakeFiles/nativelib.dir/nativelib.cpp.o: CXX_COMPILER__nativelib C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/nativelib.cpp || cmake_object_order_depends_target_nativelib
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir/proxy
+build CMakeFiles/nativelib.dir/nativelib.cpp.o: CXX_COMPILER__nativelib /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/nativelib.cpp || cmake_object_order_depends_target_nativelib
   DEFINES = -Dnativelib_EXPORTS
-  DEP_FILE = CMakeFiles\nativelib.dir\nativelib.cpp.o.d
+  DEP_FILE = CMakeFiles/nativelib.dir/nativelib.cpp.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC
-  INCLUDES = -IC:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  OBJECT_FILE_DIR = CMakeFiles\nativelib.dir
+  INCLUDES = -I/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/module/mp3/lame
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  OBJECT_FILE_DIR = CMakeFiles/nativelib.dir
 
 # =============================================================================
 # Link build statements for SHARED_LIBRARY target nativelib
 
 
 #############################################
-# Link the shared library C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\f4f6m2e3\obj\x86\libnativelib.so
+# Link the shared library /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
 
-build C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so: CXX_SHARED_LIBRARY_LINKER__nativelib CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o CMakeFiles/nativelib.dir/utils/logger.cpp.o CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o CMakeFiles/nativelib.dir/nativelib.cpp.o | C$:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/21/liblog.so
+build /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so: CXX_SHARED_LIBRARY_LINKER__nativelib CMakeFiles/nativelib.dir/module/mp3/lame/VbrTag.c.o CMakeFiles/nativelib.dir/module/mp3/lame/bitstream.c.o CMakeFiles/nativelib.dir/module/mp3/lame/encoder.c.o CMakeFiles/nativelib.dir/module/mp3/lame/fft.c.o CMakeFiles/nativelib.dir/module/mp3/lame/gain_analysis.c.o CMakeFiles/nativelib.dir/module/mp3/lame/id3tag.c.o CMakeFiles/nativelib.dir/module/mp3/lame/lame.c.o CMakeFiles/nativelib.dir/module/mp3/lame/mpglib_interface.c.o CMakeFiles/nativelib.dir/module/mp3/lame/newmdct.c.o CMakeFiles/nativelib.dir/module/mp3/lame/presets.c.o CMakeFiles/nativelib.dir/module/mp3/lame/psymodel.c.o CMakeFiles/nativelib.dir/module/mp3/lame/quantize.c.o CMakeFiles/nativelib.dir/module/mp3/lame/quantize_pvt.c.o CMakeFiles/nativelib.dir/module/mp3/lame/reservoir.c.o CMakeFiles/nativelib.dir/module/mp3/lame/set_get.c.o CMakeFiles/nativelib.dir/module/mp3/lame/tables.c.o CMakeFiles/nativelib.dir/module/mp3/lame/takehiro.c.o CMakeFiles/nativelib.dir/module/mp3/lame/util.c.o CMakeFiles/nativelib.dir/module/mp3/lame/vbrquantize.c.o CMakeFiles/nativelib.dir/module/mp3/lame/version.c.o CMakeFiles/nativelib.dir/utils/logger.cpp.o CMakeFiles/nativelib.dir/module/yuv/yuv.cpp.o CMakeFiles/nativelib.dir/module/mp3/mp3.cpp.o CMakeFiles/nativelib.dir/proxy/proxy_yuv.cpp.o CMakeFiles/nativelib.dir/proxy/proxy_mp3.cpp.o CMakeFiles/nativelib.dir/nativelib.cpp.o | /Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/21/liblog.so
   LANGUAGE_COMPILE_FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info
   LINK_FLAGS = -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libgcc_real.a -Wl,--exclude-libs,libatomic.a -static-libstdc++ -Wl,--build-id -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments
   LINK_LIBRARIES = -llog -latomic -lm
-  OBJECT_DIR = CMakeFiles\nativelib.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
+  OBJECT_DIR = CMakeFiles/nativelib.dir
+  POST_BUILD = :
+  PRE_LINK = :
   SONAME = libnativelib.so
   SONAME_FLAG = -Wl,-soname,
-  TARGET_FILE = C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\f4f6m2e3\obj\x86\libnativelib.so
+  TARGET_FILE = /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
   TARGET_PDB = nativelib.so.dbg
-
-#############################################
-# Utility command for edit_cache
-
-build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\.cxx\Debug\f4f6m2e3\x86 && C:\Users\david\AppData\Local\Android\Sdk\cmake\3.10.2.4988404\bin\cmake.exe -E echo "No interactive CMake dialog available.""
-  DESC = No interactive CMake dialog available...
-  restat = 1
-build edit_cache: phony CMakeFiles/edit_cache.util
-
-#############################################
-# Utility command for rebuild_cache
-
-build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\.cxx\Debug\f4f6m2e3\x86 && C:\Users\david\AppData\Local\Android\Sdk\cmake\3.10.2.4988404\bin\cmake.exe -HC:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\src\main\cpp -BC:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\.cxx\Debug\f4f6m2e3\x86"
-  DESC = Running CMake to regenerate build system...
-  pool = console
-  restat = 1
-build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build libnativelib.so: phony C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
-build nativelib: phony C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
+build libnativelib.so: phony /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
+build nativelib: phony /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
 # =============================================================================
 # Folder targets.
 
@@ -273,7 +273,7 @@ build nativelib: phony C$:/Users/david/AndroidStudioProjects/Neurology-Project-A
 #############################################
 # The main all target.
 
-build all: phony C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
+build all: phony /Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so
 
 #############################################
 # Make the all target the default.
@@ -283,13 +283,13 @@ default all
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompiler.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompilerABI.c C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompiler.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompilerABI.cpp C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCXXCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineSystem.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeFindBinUtils.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeGenericSystem.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeParseImplicitLinkInfo.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystem.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInitialize.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCompilerCommon.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C-FeatureTests.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-FeatureTests.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-TestableFeatures.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-FindBinUtils.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/GNU.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Initialize.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android/Determine-Compiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Linux.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/UnixPaths.cmake C$:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake C$:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build/cmake/platforms.cmake CMakeCache.txt CMakeFiles/3.10.2/CMakeCCompiler.cmake CMakeFiles/3.10.2/CMakeCXXCompiler.cmake CMakeFiles/3.10.2/CMakeSystem.cmake CMakeFiles/feature_tests.c CMakeFiles/feature_tests.cxx
+build build.ninja: RERUN_CMAKE | /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompiler.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompilerABI.c /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompiler.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompilerABI.cpp /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCXXCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineSystem.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeFindBinUtils.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeGenericSystem.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeParseImplicitLinkInfo.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystem.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInitialize.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCompilerCommon.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C-FeatureTests.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-FeatureTests.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-TestableFeatures.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-FindBinUtils.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/GNU.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Initialize.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android/Determine-Compiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Linux.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/UnixPaths.cmake /Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake /Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/build/cmake/platforms.cmake CMakeCache.txt CMakeFiles/3.10.2/CMakeCCompiler.cmake CMakeFiles/3.10.2/CMakeCXXCompiler.cmake CMakeFiles/3.10.2/CMakeSystem.cmake CMakeFiles/feature_tests.c CMakeFiles/feature_tests.cxx
   pool = console
 
 #############################################
 # A missing CMake input file is not an error.
 
-build C$:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompiler.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompilerABI.c C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompiler.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompilerABI.cpp C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCXXCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineSystem.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeFindBinUtils.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeGenericSystem.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeParseImplicitLinkInfo.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystem.cmake.in C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInformation.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInitialize.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCompilerCommon.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C-FeatureTests.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-FeatureTests.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-TestableFeatures.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-FindBinUtils.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/GNU.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-C.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-CXX.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Initialize.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android/Determine-Compiler.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Linux.cmake C$:/Users/david/AppData/Local/Android/Sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/UnixPaths.cmake C$:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake C$:/Users/david/AppData/Local/Android/Sdk/ndk/21.4.7075529/build/cmake/platforms.cmake CMakeCache.txt CMakeFiles/3.10.2/CMakeCCompiler.cmake CMakeFiles/3.10.2/CMakeCXXCompiler.cmake CMakeFiles/3.10.2/CMakeSystem.cmake CMakeFiles/feature_tests.c CMakeFiles/feature_tests.cxx: phony
+build /Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompiler.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCCompilerABI.c /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompiler.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXCompilerABI.cpp /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCXXInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeCommonLanguageInclude.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCXXCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompileFeatures.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineCompilerABI.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeDetermineSystem.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeFindBinUtils.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeGenericSystem.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeLanguageInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeParseImplicitLinkInfo.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystem.cmake.in /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInformation.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeSystemSpecificInitialize.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCXXCompiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/CMakeTestCompilerCommon.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C-FeatureTests.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-FeatureTests.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX-TestableFeatures.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang-FindBinUtils.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/Clang.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Compiler/GNU.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Internal/FeatureTesting.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Clang.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-C.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine-CXX.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Determine.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android-Initialize.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Android/Determine-Compiler.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/Linux.cmake /Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/share/cmake-3.10/Modules/Platform/UnixPaths.cmake /Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake /Users/laurenviado/Library/Android/sdk/ndk/21.4.7075529/build/cmake/platforms.cmake CMakeCache.txt CMakeFiles/3.10.2/CMakeCCompiler.cmake CMakeFiles/3.10.2/CMakeCXXCompiler.cmake CMakeFiles/3.10.2/CMakeSystem.cmake CMakeFiles/feature_tests.c CMakeFiles/feature_tests.cxx: phony
 
 #############################################
 # Clean all the built files.
