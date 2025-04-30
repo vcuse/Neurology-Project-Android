@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
+        requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.FOREGROUND_SERVICE_MICROPHONE), 1)
 
         val userId = fetchUserId()
         val peerIdState = mutableStateOf<String?>(userId)

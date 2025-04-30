@@ -173,11 +173,6 @@ class VideoCameraSetup constructor(
                     //videoCapturer.startCapture(0, 0, 0)
                     cameraInitialized = true
                     //signalingClient.changeVideoSource(videoProcessor)
-
-
-
-
-
                 }
 
             }
@@ -241,9 +236,9 @@ class VideoCameraSetup constructor(
         //capturer.startCapture(1080, 720, 30)
 
         var videoTrack = factory.createVideoTrack("0001", videoSource2)
-        videoSource = videoSource2
+        //videoSource = videoSource2
 
-        localPeer.addTrack(videoTrack, listOf("track01"))
+        //localPeer.addTrack(videoTrack, listOf("track01"))
 
 
 
