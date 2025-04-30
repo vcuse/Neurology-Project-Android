@@ -2,6 +2,7 @@ package com.example.neurology_project_android
 
 import android.content.Context
 import android.hardware.camera2.CameraManager
+import android.media.AudioManager
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -16,6 +17,8 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
+import org.webrtc.AudioSource
+import org.webrtc.AudioTrackSink
 import org.webrtc.Camera1Enumerator
 import org.webrtc.Camera2Capturer
 import org.webrtc.CameraEnumerationAndroid
@@ -222,7 +225,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
             var mediaStreamTrack = p0?.audioTracks?.get(0)
-            //val status = localPeer.addTrack(mediaStreamTrack)
+            val status = localPeer.addTrack(mediaStreamTrack)
             //Log.d("PeerConnection", "MediaStream added $status")
 
         }
@@ -332,53 +335,76 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         PeerConnectionFactory.initialize(options)
         rootEGL = EglBase.create()
         factory = buildFactory(rootEGL)!!
+
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        cameraManager.registerAvailabilityCallback(availabilityCallback, null)
+
+
+        val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        Log.d("Cameras", cameraManager.toString())
+        val cameraList = cameraManager.cameraIdList
+        val camera01 = cameraManager.cameraIdList.first()
+        val camera02 = cameraManager.cameraIdList.last()
+        camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
+        videoSource = factory?.createVideoSource(true)!!
+
 //
-//        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-//        cameraManager.registerAvailabilityCallback(availabilityCallback, null)
 //
-//        Log.d("Cameras", cameraManager.toString())
-//        val cameraList = cameraManager.cameraIdList
-//        val camera01 = cameraManager.cameraIdList.first()
-//        val camera02 = cameraManager.cameraIdList.last()
-//        camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
-//        videoSource = factory?.createVideoSource(true)!!
-//
-//
-//
-//        val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
+        val surfaceTexture2 = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
 //        //var test = MultiMediaClient()
-//        camera1Capturer.initialize(surfaceTexture, context, videoSource!!.capturerObserver)
-//        val config = generateConfig()
+        camera1Capturer.initialize(surfaceTexture2, context, videoSource!!.capturerObserver)
+        val config2 = generateConfig()
+
 //
-//        localPeer = factory.createPeerConnection(config, peerConnObserver)!!
-//        //camera1Capturer.startCapture(1920, 1080, 30)
-//
+       localPeer = factory.createPeerConnection(config2, peerConnObserver)!!
+       camera1Capturer.startCapture(1920, 1080, 30)
+
         client = OkHttpClient().newBuilder().build()
         httpUrl = url.toHttpUrlOrNull()!!
-//        //cameraVideoCapturer.initialize()
-//
-//
-//
-//        val mediaConstraints = MediaConstraints()
-//
-//        val audioSource = factory.createAudioSource(mediaConstraints)
-//        val audioTrack = factory.createAudioTrack("audio0", audioSource)
-//        Log.d("Audio Track", "ID IS " + audioTrack.id())
-//        track = factory.createVideoTrack("0001", videoSource)
-//
-//
-//
-//        //var trackSender = localPeer.addTrack(audioTrack)
-//        //Log.d("TRACK SENDER", trackSender.track().toString())
-//        //we want to add a track with multiple streams
-//        //var mediaTracks = factory.createLocalMediaStream("test")
-//        //localPeer.addTrack(track, listOf("track01"))
-        val config = generateConfig()
-        val videoSource2 = factory.createVideoSource(true)
-        localPeer = factory.createPeerConnection(config, peerConnObserver)!!
+        AudioManager.ADJUST_UNMUTE
+
+        val mediaConstraints1 = MediaConstraints.KeyValuePair(
+            "kRTCMediaConstraintsOfferToReceiveAudio",
+            "kRTCMediaConstraintsValueTrue"
+        )
+        val mediaConstraints2 = MediaConstraints.KeyValuePair(
+            "kRTCMediaConstraintsOfferToReceiveVideo",
+            "kRTCMediaConstraintsValueTrue"
+        )
+        val mediaConstraints3 = MediaConstraints.KeyValuePair(
+            "kRTCMediaStreamTrackKindVideo",
+            "kRTCMediaConstraintsValueTrue"
+        )
+
+        val mediaConstraints4 = MediaConstraints.KeyValuePair(
+            "DtlsSrtpKeyAgreement",
+            "kRTCMediaConstraintsValueTrue"
+        )
+
+        val mediaConstraints5 = MediaConstraints.KeyValuePair("setup", "actpass")
+        val mediaConstraints6 = MediaConstraints.KeyValuePair(
+            "video",
+            "true"
+        )
+        val mediaConstraints = MediaConstraints()
 
 
-        val surfaceTexture = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
+        mediaConstraints.mandatory.add(mediaConstraints1)
+        mediaConstraints.mandatory.add(mediaConstraints2)
+        mediaConstraints.mandatory.add(mediaConstraints3)
+        mediaConstraints.mandatory.add(mediaConstraints4)
+        mediaConstraints.mandatory.add(mediaConstraints5)
+        mediaConstraints.mandatory.add(mediaConstraints6)
+
+        val audioSource = factory.createAudioSource(mediaConstraints)
+        val audioTrack = factory.createAudioTrack("0002", audioSource)
+        track = factory.createVideoTrack("0001", videoSource)
+
+        localPeer.addTrack(track, listOf("track01"))
+
+        localPeer.addTrack(audioTrack, listOf("track01"))
+
     }
 
     fun sendVideoCapturer(capturer: VideoCapturer, context: Context, capturerObserver: CapturerObserver) {
