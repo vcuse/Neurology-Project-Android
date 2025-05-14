@@ -1,5 +1,6 @@
 package com.example.neurology_project_android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,29 +9,61 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import java.io.IOException
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sessionManager = SessionManager(this)
+
+        // If user already logged in, skip login screen
+        if (sessionManager.isLoggedIn()) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
+
         setContent {
-            LoginScreen()
+            LoginScreen(sessionManager, onLoginSuccess = {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            })
         }
     }
 }
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
+    val context = LocalContext.current
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
     GradientBackground {
         Box(
             modifier = Modifier
@@ -50,69 +83,88 @@ fun LoginScreen() {
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Login Header
-                    Text(
-                        text = "Login",
-                        fontSize = TextUnit(24f, androidx.compose.ui.unit.TextUnitType.Sp), // Explicitly define font size as SP
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Enter your credentials to access your account",
-                        color = Color.Gray
-                    )
+                    Text("Login", fontSize = TextUnit(24f, TextUnitType.Sp), modifier = Modifier.align(Alignment.Start), fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Username Input
-                    androidx.compose.material3.OutlinedTextField(
-                        value = "",
-                        onValueChange = { /* Handle input */ },
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
                         label = { Text("Username") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Password Input
-                    androidx.compose.material3.OutlinedTextField(
-                        value = "",
-                        onValueChange = { /* Handle input */ },
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
                         label = { Text("Password") },
+                        visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                        trailingIcon = {
-                            androidx.compose.material3.IconButton(onClick = { /* Handle show/hide password */ }) {
-                                androidx.compose.material3.Icon(
-                                    painter = androidx.compose.ui.res.painterResource(R.drawable.ic_visibility),
-                                    contentDescription = "Toggle password visibility"
-                                )
-                            }
-                        }
+                            .padding(top = 8.dp)
                     )
+
+                    if (error != null) {
+                        Text(text = error ?: "", color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Sign In Button
-                    androidx.compose.material3.Button(
-                        onClick = { /* Handle Sign In */ },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(text = "Sign In")
-                    }
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            error = null
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                            val client = OkHttpClient()
+                            val json = """
+                                {
+                                    "username": "$username",
+                                    "password": "$password"
+                                }
+                            """.trimIndent()
 
-                    // Create Account Button
-                    androidx.compose.material3.TextButton(
-                        onClick = { /* Navigate to Create Account */ },
+                            val requestBody = RequestBody.create(
+                                "application/json".toMediaTypeOrNull(),
+                                json
+                            )
+
+                            val request = Request.Builder()
+                                .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+                                .addHeader("Content-Type", "application/json")
+                                .addHeader("Action", "login")
+                                .post(requestBody)
+                                .build()
+
+                            client.newCall(request).enqueue(object : Callback {
+                                override fun onFailure(call: Call, e: IOException) {
+                                    isLoading = false
+                                    error = "Network error: ${e.message}"
+                                }
+
+                                override fun onResponse(call: Call, response: Response) {
+                                    isLoading = false
+                                    if (response.isSuccessful) {
+                                        val token = response.body?.string()?.trim() ?: ""
+                                        sessionManager.saveAuthToken(token, username)
+                                        (context as ComponentActivity).runOnUiThread {
+                                            onLoginSuccess()
+                                        }
+                                    } else {
+                                        error = "Login failed: ${response.code}"
+                                    }
+                                }
+                            })
+                        },
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "Create Account", color = Color.Black)
+                        Text(text = if (isLoading) "Signing In..." else "Sign In")
+                    }
+
+                    TextButton(
+                        onClick = { /* Handle create account */ },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Create Account", color = Color.Black)
                     }
                 }
             }

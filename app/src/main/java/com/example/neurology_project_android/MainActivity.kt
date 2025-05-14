@@ -33,12 +33,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -225,6 +228,9 @@ fun Greeting(
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+
     // Refresh UI every 3 seconds
     LaunchedEffect(peers) {
         // This will trigger recomposition whenever peers update
@@ -236,6 +242,26 @@ fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Top Row for logout
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = {
+                    sessionManager.logout()
+                    val intent = Intent(context, LoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    context.startActivity(intent)
+                }
+            ) {
+                Text("Log Out", color = MaterialTheme.colorScheme.primary) // your matching blue
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp)) // space below logout
+
         PeerIdSection(peerId) // Displays the correct Peer ID
 
         Column(

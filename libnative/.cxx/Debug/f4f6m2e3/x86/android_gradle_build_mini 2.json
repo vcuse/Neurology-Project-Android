@@ -1,0 +1,33 @@
+{
+  "buildFiles": [
+    "/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "nativelib-Debug-x86": {
+      "artifactName": "nativelib",
+      "buildCommandComponents": [
+        "/Users/laurenviado/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+        "-C",
+        "/Users/laurenviado/Documents/Neurology-Project-Android/libnative/.cxx/Debug/f4f6m2e3/x86",
+        "nativelib"
+      ],
+      "abi": "x86",
+      "output": "/Users/laurenviado/Documents/Neurology-Project-Android/libnative/build/intermediates/cxx/Debug/f4f6m2e3/obj/x86/libnativelib.so",
+      "runtimeFiles": []
+    }
+  }
+}
