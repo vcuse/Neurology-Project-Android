@@ -1,1 +1,0 @@
-/Users/laurenviado/Documents/Neurology-Project-Android/libnative/src/main/cpp/CMakeLists.txt

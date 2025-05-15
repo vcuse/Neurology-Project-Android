@@ -1,1 +1,0 @@
-C:\Users\david\StudioProjects\AndroidUSBCameraFork\libnative\build\intermediates\cmake\release\obj\x86

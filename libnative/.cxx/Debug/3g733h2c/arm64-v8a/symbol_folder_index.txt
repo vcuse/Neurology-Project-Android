@@ -1,1 +1,0 @@
-C:\Users\david\AndroidStudioProjects\Neurology-Project-Android\libnative\build\intermediates\cxx\Debug\3g733h2c\obj\arm64-v8a

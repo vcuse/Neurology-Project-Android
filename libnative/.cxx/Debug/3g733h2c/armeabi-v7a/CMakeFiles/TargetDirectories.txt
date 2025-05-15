@@ -1,3 +1,0 @@
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/armeabi-v7a/CMakeFiles/nativelib.dir
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/armeabi-v7a/CMakeFiles/edit_cache.dir
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/Debug/3g733h2c/armeabi-v7a/CMakeFiles/rebuild_cache.dir

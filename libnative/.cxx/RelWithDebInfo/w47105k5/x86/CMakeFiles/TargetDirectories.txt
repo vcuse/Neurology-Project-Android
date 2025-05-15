@@ -1,3 +1,0 @@
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/RelWithDebInfo/w47105k5/x86/CMakeFiles/nativelib.dir
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/RelWithDebInfo/w47105k5/x86/CMakeFiles/edit_cache.dir
-C:/Users/david/AndroidStudioProjects/Neurology-Project-Android/libnative/.cxx/RelWithDebInfo/w47105k5/x86/CMakeFiles/rebuild_cache.dir
