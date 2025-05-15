@@ -25,6 +25,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Neurology-Project-Android"
 include(":app")
-include (":libausbc")
-include (":libuvc")
-include (":libnative")
