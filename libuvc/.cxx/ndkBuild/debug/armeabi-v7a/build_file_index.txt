@@ -1,2 +1,0 @@
-C:\Users\david\StudioProjects\AndroidUSBCameraFork\libuvc\src\main\jni\Android.mk
-C:\Users\david\StudioProjects\AndroidUSBCameraFork\libuvc\src\main\jni\Application.mk

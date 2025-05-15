@@ -1,1 +1,0 @@
-C:\Users\david\StudioProjects\AndroidUSBCameraFork\libuvc\build\intermediates\ndkBuild\debug\obj\local\x86_64
