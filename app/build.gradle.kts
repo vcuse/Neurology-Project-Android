@@ -45,6 +45,7 @@ dependencies {
     implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.room:room-runtime:2.5.0")
+    implementation(libs.androidx.camera.core)
     kapt("androidx.room:room-compiler:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
     implementation("com.google.code.gson:gson:2.10.1")

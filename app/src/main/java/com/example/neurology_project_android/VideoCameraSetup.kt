@@ -1,20 +1,15 @@
 package com.example.neurology_project_android
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.usb.UsbDevice
 import androidx.annotation.OptIn
+import androidx.camera.core.imagecapture.CameraRequest
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.jiangdg.ausbc.MultiCameraClient
-import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
-import com.jiangdg.ausbc.callback.IEncodeDataCallBack
-import com.jiangdg.ausbc.callback.IPreviewDataCallBack
-import com.jiangdg.ausbc.camera.CameraUVC
-import com.jiangdg.ausbc.camera.bean.CameraRequest
-import com.jiangdg.usb.USBMonitor
 import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
 import org.webrtc.EglBase
@@ -36,8 +31,8 @@ class VideoCameraSetup constructor(
     rootEGL1: EglBase
 ){
 
-    private lateinit var multiCameraClient: MultiCameraClient
-    private lateinit var camera: CameraUVC
+
+    @SuppressLint("RestrictedApi")
     private lateinit var cameraRequest: CameraRequest
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var videoSource: VideoSource
@@ -138,83 +133,7 @@ class VideoCameraSetup constructor(
         var n21Buffer: NV21Buffer
         var videoFrame: VideoFrame
 
-        val previewCallback = object: IPreviewDataCallBack {
-            @OptIn(UnstableApi::class)
-            override fun onPreviewData(
-                data: ByteArray?,
-                width: Int,
-                height: Int,
-                format: IPreviewDataCallBack.DataFormat
-            ) {
-                timeStampNS = System.currentTimeMillis()
-                n21Buffer = NV21Buffer(data, width, height, null)
 
-                videoFrame = VideoFrame(n21Buffer, 0,timeStampNS )
-
-                videoSource.capturerObserver.onFrameCaptured(videoFrame)
-                //videoFrame.release()
-                //Log.d("PREVIEW CALLBACK", "Send on Preview Data")
-            }
-
-        }
-
-
-        val iDeviceCallback = object: IDeviceConnectCallBack {
-
-            override fun onAttachDev(device: UsbDevice?) {
-
-                if(device!!.productName == "USB Camera"){
-
-                    multiCameraClient.requestPermission(device)
-                    camera = CameraUVC(context, device)
-                    camera.addPreviewDataCallBack(previewCallback)
-                    cameraRequest = CameraRequest.Builder().setPreviewWidth(848).setPreviewHeight(480).setPreviewFormat(
-                        CameraRequest.PreviewFormat.FORMAT_MJPEG).setRawPreviewData(true).create()
-                    //videoCapturer.startCapture(0, 0, 0)
-                    cameraInitialized = true
-                    //signalingClient.changeVideoSource(videoProcessor)
-                }
-
-            }
-
-            override fun onDetachDec(device: UsbDevice?) {
-
-            }
-
-            @OptIn(UnstableApi::class)
-            override fun onConnectDev(
-                device: UsbDevice?,
-                ctrlBlock: USBMonitor.UsbControlBlock?
-            ) {
-                Log.d("CONNECT", "camera connection. pid: ${device!!.productId}, vid: ${device.vendorId}")
-                camera.setUsbControlBlock(ctrlBlock)
-                camera.openCamera(this, cameraRequest)
-                // var cameraTest = UVCCamera()
-                //camera.setEncodeDataCallBack(iEncodeDataCallback)
-
-                //camera.captureStreamStart()
-
-
-                //Log.d("CAMERA TEST DEVICE NAME", " " + cameraTest.deviceName)
-
-            }
-
-            override fun onDisConnectDec(
-                device: UsbDevice?,
-                ctrlBlock: USBMonitor.UsbControlBlock?
-            ) {
-
-            }
-
-            override fun onCancelDev(device: UsbDevice?) {
-
-            }
-
-        }
-
-
-        multiCameraClient = MultiCameraClient(context, iDeviceCallback)
-        multiCameraClient.register()
 
         sendVideoCapturer(videoCapturer, context, videoCapturerObserver, localPeer, factory )
     }

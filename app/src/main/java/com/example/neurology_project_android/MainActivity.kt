@@ -4,6 +4,7 @@ package com.example.neurology_project_android
 
 import androidx.compose.ui.platform.LocalContext
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -18,6 +19,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.camera.core.imagecapture.CameraRequest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,13 +56,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
-import com.jiangdg.ausbc.MultiCameraClient
-import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
-import com.jiangdg.ausbc.callback.IEncodeDataCallBack
-import com.jiangdg.ausbc.callback.IPreviewDataCallBack
-import com.jiangdg.ausbc.camera.CameraUVC
-import com.jiangdg.ausbc.camera.bean.CameraRequest
-import com.jiangdg.usb.USBMonitor
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -80,8 +75,9 @@ import org.webrtc.VideoSource
 import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
-    private lateinit var multiCameraClient: MultiCameraClient
-    private lateinit var camera: CameraUVC
+
+
+    @SuppressLint("RestrictedApi")
     private lateinit var cameraRequest: CameraRequest
     private lateinit var videoProcessor: VideoProcessor
     private lateinit var videoSource: VideoSource
@@ -150,7 +146,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding),
                             signalingClient = signalingClient,
                             cameraInitialized = cameraInitialized,
-                            camera = { camera }, cameraRequest = { cameraRequest },
+                           cameraRequest = { cameraRequest },
                             isInCall = isInCall
                         )
                     })
@@ -197,8 +193,7 @@ fun Greeting(
     modifier: Modifier = Modifier,
     signalingClient: SignalingClient,
     cameraInitialized: Boolean,
-    camera: () -> CameraUVC,
-    cameraRequest: () -> CameraRequest,
+    @SuppressLint("RestrictedApi") cameraRequest: () -> CameraRequest,
     isInCall: Boolean
 ) {
     val navController = rememberNavController()
