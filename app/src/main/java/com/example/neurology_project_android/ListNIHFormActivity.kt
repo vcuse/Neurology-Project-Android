@@ -33,11 +33,14 @@ class ListNIHFormActivity : ComponentActivity() {
 @Composable
 fun ListNIHFormScreen() {
     val context = LocalContext.current
+    val nihFormDao = NIHFormDatabase.getDatabase(context).nihFormDao()
 
-    val savedForms = remember {
-        mutableStateListOf(
-            SavedForm("Unnamed Patient", "October 9, 2024")
-        )
+    var savedForms by remember { mutableStateOf<List<NIHForm>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        nihFormDao.getAllForms().collect { forms ->
+            savedForms = forms
+        }
     }
 
     Column(
@@ -76,10 +79,14 @@ fun ListNIHFormScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(savedForms) { form ->
-                SavedFormItem(form) {
-                    val intent = Intent(context, SavedNIHFormActivity::class.java)
-                    context.startActivity(intent)
-                }
+                SavedFormItem(
+                    form = SavedForm(form.patientName, form.date),
+                    onClick = {
+                        val intent = Intent(context, SavedNIHFormActivity::class.java)
+                        intent.putExtra("formId", form.id)
+                        context.startActivity(intent)
+                    }
+                )
             }
         }
     }

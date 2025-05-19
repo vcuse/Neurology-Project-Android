@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class NIHForm(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val patientName: String,
+    val dob: String,
     val date: String,
-    val formData: String
+    val formData: String,
+    val username: String
 )
