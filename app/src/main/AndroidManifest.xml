@@ -41,5 +41,6 @@
         <activity android:name=".ListNIHFormActivity" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name=".NewNIHFormActivity" android:exported="false" />
+        <activity android:name=".SavedNIHFormActivity" android:exported="false" />
     </application>
 </manifest>
