@@ -26,7 +26,48 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            buildConfigField("String", "BASE_API_URL", "\"http://localhost:9000\"")
+            buildConfigField("int", "PORT", "443")
+            buildConfigField("boolean", "SECURE", "false") // no use HTTPS
+            buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
+            signingConfig = signingConfigs.getByName("debug")
         }
+
+        // Your custom 'localDebug' build type
+        create("localDebug") {
+            // Inherit all properties from the 'debug' build type first
+            // This is equivalent to 'initWith debug' in Groovy DSL
+            // You can also manually set properties if you don't want to inherit all
+            isDebuggable = true
+            isMinifyEnabled = false
+
+            applicationIdSuffix = ".local" // e.g., com.example.myapp.local
+            versionNameSuffix = "-local"
+
+            // Override BASE_API_URL to point to your local development server
+            // 10.0.2.2 is the special IP for your host machine's loopback on Android Emulator
+            buildConfigField("String", "BASE_API_URL", "\"localhost\"")
+            buildConfigField("int", "PORT", "9000")
+            buildConfigField("boolean", "SECURE", "false") // no use HTTPS
+            buildConfigField("String", "API_POST_URL","\"https://localhost:9000/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_PEERS_URL","\"http://localhost:9000/key=peerjs/peers\"")
+
+            // If using a physical device on your local network, replace with your actual local IP:
+            // buildConfigField("String", "BASE_API_URL", "\"http://192.168.1.XX:8080\"")
+
+            // Add a custom flag specific to local development
+            buildConfigField("Boolean", "ENABLE_LOCAL_MOCK_DATA", "true")
+
+            // Override the app name for local debug
+            resValue("string", "app_name", "My App (Local Debug)")
+            signingConfig = signingConfigs.getByName("debug")
+
+            // You can also set a different signing config if needed, though less common for local debug
+            // signingConfig = signingConfigs.getByName("debug") // assuming you have a debug signing config
+        }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -37,6 +78,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

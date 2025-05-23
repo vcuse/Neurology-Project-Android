@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import com.example.neurology_project_android.BuildConfig.API_POST_URL
+import com.example.neurology_project_android.BuildConfig.BASE_API_URL
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -127,9 +129,9 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                                 "application/json".toMediaTypeOrNull(),
                                 json
                             )
-
+                            val postURL = API_POST_URL
                             val request = Request.Builder()
-                                .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+                                .url(postURL)
                                 .addHeader("Content-Type", "application/json")
                                 .addHeader("Action", "login")
                                 .post(requestBody)

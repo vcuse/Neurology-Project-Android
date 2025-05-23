@@ -1,12 +1,13 @@
 package com.example.neurology_project_android
 
 import android.util.Log
+import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import okhttp3.*
 import okio.IOException
 import kotlin.concurrent.fixedRateTimer
 
 class GetPeers(private val onPeersFetched: (List<String>) -> Unit) {
-    private val url = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers"
+    private val url = API_GET_PEERS_URL
     private val client = OkHttpClient()
 
     init {
