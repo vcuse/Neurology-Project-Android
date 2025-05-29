@@ -42,7 +42,6 @@ android {
             // You can also manually set properties if you don't want to inherit all
             isDebuggable = true
             isMinifyEnabled = false
-
             applicationIdSuffix = ".local" // e.g., com.example.myapp.local
             versionNameSuffix = "-local"
 
