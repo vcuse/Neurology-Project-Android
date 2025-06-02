@@ -56,6 +56,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.BuildConfig.BASE_API_URL
+import com.example.neurology_project_android.BuildConfig.BASE_WS_API_URL
 import com.example.neurology_project_android.BuildConfig.PORT
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
 import okhttp3.Call
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
         val peersState = mutableStateOf<List<String>>(emptyList())
 
         val signalingClient = SignalingClient(
-            "https://" + BASE_API_URL + ":" + PORT + "/peerjs?id=$userId&token=6789&key=peerjs",
+            "" + BASE_WS_API_URL + ":" + PORT + "/peerjs?id=$userId&token=6789&key=peerjs",
             this,
             onCallRecieved = {
                 isInCall = true  // Update call state when an offer is received

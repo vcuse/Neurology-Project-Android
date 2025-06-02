@@ -3,6 +3,7 @@ package com.example.neurology_project_android
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -130,6 +131,7 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                                 json
                             )
                             val postURL = API_POST_URL
+                            Log.d("LoginActivity", "Post URL: " + postURL)
                             val request = Request.Builder()
                                 .url(postURL)
                                 .addHeader("Content-Type", "application/json")
@@ -147,7 +149,10 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                                     isLoading = false
                                     if (response.isSuccessful) {
                                         val token = response.body?.string()?.trim() ?: ""
-                                        sessionManager.saveAuthToken(token, username)
+                                        var authToken = response.headers.value(9).substringAfter("authorization=")
+                                        authToken = authToken.substringBefore(";")
+
+                                        sessionManager.saveAuthToken(authToken.toString(), username)
                                         (context as ComponentActivity).runOnUiThread {
                                             onLoginSuccess()
                                         }

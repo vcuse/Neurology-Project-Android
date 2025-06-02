@@ -53,7 +53,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private val onCallEnded: () -> Unit
 ) {
     private lateinit var localPeer: PeerConnection
-    private lateinit var httpUrl: HttpUrl
+    private lateinit var httpUrl: String
     private lateinit var theirID: String
     private lateinit var webSocketListener: WebSocketListener
     private lateinit var client: OkHttpClient
@@ -367,7 +367,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
        camera1Capturer.startCapture(1920, 1080, 30)
 
         client = OkHttpClient().newBuilder().build()
-        httpUrl = url.toHttpUrlOrNull()!!
+        httpUrl = url
         AudioManager.ADJUST_UNMUTE
 
         val mediaConstraints1 = MediaConstraints.KeyValuePair(
@@ -413,93 +413,6 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     }
 
-    fun sendVideoCapturer(capturer: VideoCapturer, context: Context, capturerObserver: CapturerObserver) {
-
-        //capturerObserver.onCapturerStarted(true)
-        //capturer.initialize(surfaceTexture,context , capturerObserver)
-
-
-        //videoSource2.setVideoProcessor(videoProcessor)
-        //videoProcessor.onCapturerStarted(true)
-        //capturer.startCapture(1080, 720, 30)
-
-//        var videoTrack = factory.createVideoTrack("0001", videoSource2)
-//        videoSource = videoSource2
-//        localPeer.addTrack(videoTrack, listOf("track01"))
-//
-//        var camera = object:  CameraVideoCapturer{
-//            override fun switchCamera(p0: CameraVideoCapturer.CameraSwitchHandler?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun switchCamera(
-//                p0: CameraVideoCapturer.CameraSwitchHandler?,
-//                p1: String?
-//            ) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun initialize(
-//                p0: SurfaceTextureHelper?,
-//                p1: Context?,
-//                p2: CapturerObserver?
-//            ) {
-//
-//            }
-//
-//            override fun startCapture(p0: Int, p1: Int, p2: Int) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun stopCapture() {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun changeCaptureFormat(p0: Int, p1: Int, p2: Int) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun dispose() {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun isScreencast(): Boolean {
-//                TODO("Not yet implemented")
-//            }
-//
-//        }
-//
-//        camera.initialize(surfaceTexture,context , capturerObserver)
-//        var cameraEvents = object : CameraVideoCapturer.CameraEventsHandler {
-//            override fun onCameraError(p0: String?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onCameraDisconnected() {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onCameraFreezed(p0: String?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onCameraOpening(p0: String?) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onFirstFrameAvailable() {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onCameraClosed() {
-//                TODO("Not yet implemented")
-//            }
-//
-//        }
-
-
-    }
-
     fun changeCamera(){
         camera1Capturer.switchCamera(null)
     }
@@ -520,13 +433,16 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         buildVideoSenders(context, url)
 
         var videoCamera = VideoCameraSetup(context, localPeer, factory, rootEGL)
-
-
+        var sessionManager = SessionManager(context)
+        val authToken = sessionManager.fetchAuthToken()
 
         if (httpUrl != null) {
             Log.d("SignalingClient", "URL IS $httpUrl")
-            Log.d("SignalingClient", "isHttps?: " + httpUrl.isHttps)
-            val request = Request.Builder().url(httpUrl).build()
+            Log.d("SignalingClient", "isHttps?: " + httpUrl)
+            val request = Request.Builder().url(httpUrl).addHeader("Authorization",
+                authToken.toString()
+            ).build()
+            Log.d("SignalingClient", "auth token" + authToken.toString())
             Log.d("SignalingClient", request.method)
 
 

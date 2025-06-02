@@ -27,9 +27,26 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"http://localhost:9000\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
             buildConfigField("int", "PORT", "443")
-            buildConfigField("boolean", "SECURE", "false") // no use HTTPS
+            buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
+            buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
+        debug {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+            buildConfigField("String", "BASE_API_URL", "\"https://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("int", "PORT", "443")
+            buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
             buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
@@ -48,6 +65,7 @@ android {
             // Override BASE_API_URL to point to your local development server
             // 10.0.2.2 is the special IP for your host machine's loopback on Android Emulator
             buildConfigField("String", "BASE_API_URL", "\"localhost\"")
+            buildConfigField("String", "BASE_WS_API_URL", "\"ws://localhost:9000\"")
             buildConfigField("int", "PORT", "9000")
             buildConfigField("boolean", "SECURE", "false") // no use HTTPS
             buildConfigField("String", "API_POST_URL","\"https://localhost:9000/key=peerjs/post\"")
