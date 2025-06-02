@@ -60,6 +60,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private lateinit var videoSource: VideoSource
     private lateinit var factory: PeerConnectionFactory
     private lateinit var rootEGL: EglBase
+    private lateinit var sdpObserver: SdpObserver
 
     fun setLocalSDP() {
         localPeer.setLocalDescription(remoteObserver, localSDP)
@@ -222,7 +223,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
             var mediaStreamTrack = p0?.audioTracks?.get(0)
             val status = localPeer.addTrack(mediaStreamTrack)
-            //Log.d("PeerConnection", "MediaStream added $status")
+            Log.d("PeerConnection", "MediaStream added $status")
 
         }
 
@@ -421,7 +422,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     fun createAndSendCallMessage(p0: SessionDescription?, userId: String, mediaID: String) {
         var innerSDPMessage = JSONObject()
-        innerSDPMessage.put("sdp", p0)
+        innerSDPMessage.put("sdp", p0!!.description)
         innerSDPMessage.put("type", "offer")
         var payloadMessage = JSONObject()
         payloadMessage.put("connectionId", mediaID)
@@ -473,8 +474,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         mediaConstraints.mandatory.add(mediaConstraints4)
         mediaConstraints.mandatory.add(mediaConstraints5)
         mediaConstraints.mandatory.add(mediaConstraints6)
-        mediaID = "31480asdf3"
-        var sdpObserver = object: SdpObserver {
+        mediaID = "31480asdf33"
+        sdpObserver = object: SdpObserver {
             @OptIn(UnstableApi::class)
             override fun onCreateSuccess(p0: SessionDescription?) {
                 Log.d("SignalingClient", "createSDP Success")
@@ -578,6 +579,28 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
                     }
 
+                    if (text.contains("ANSWER") && text.contains("media")) {
+
+                        Log.d("SignalingClient", "We received an ANSWER")
+                        //val messageSplit = text.split(",")
+                        Log.d("Signaling client", jsonMessage.get("payload").toString())
+                        theirID = jsonMessage.get("src").toString()
+
+                        Log.d("Signaling Client", "TheirID: $theirID")
+                        val payload = jsonMessage.get("payload") as JSONObject
+                        val sdpMessage = payload.get("sdp") as JSONObject
+                        mediaID = payload.get("connectionId").toString()
+                        Log.d("Signaling Client", "mediaID: $mediaID")
+                        val theirSDP = sdpMessage.get("sdp").toString()
+                        val sessionDescription =
+                            SessionDescription(SessionDescription.Type.ANSWER, theirSDP)
+                        Log.d("signaling client", "sdp is: $theirSDP")
+                        Log.d("SignalingClient", "Setting our reemote SDP To their answer")
+                        localPeer.setRemoteDescription(sdpObserver, sessionDescription)
+
+                        //Log.d("Signaling Client", "set remote SDP " + localPeer.toString())
+                    }
+
                     if (text.contains("CANDIDATE")) {
                         val payload = jsonMessage.get("payload") as JSONObject
                         Log.d("Payload Message", payload.toString())
@@ -601,6 +624,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                         if (!isReadyToAddIceCandidate) {
                             candidatesList.add(iceCandidate)
                             candidateMessagesToSend.add(msg.toString())
+                            Log.d("Signaling client", "Adding ICE CANDDIATE TO LIST")
                         } else {
                             Log.d(
                                 "IceCANDIDATE",
