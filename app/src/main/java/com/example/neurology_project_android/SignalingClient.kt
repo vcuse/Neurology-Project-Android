@@ -503,6 +503,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
                     override fun onSetSuccess() {
                         Log.d("SignalingClient", "Set Peer Success")
+                        isReadyToAddIceCandidate = true
                     }
 
                     override fun onCreateFailure(p0: String?) {
