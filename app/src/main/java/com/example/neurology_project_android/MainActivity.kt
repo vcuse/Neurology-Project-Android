@@ -195,6 +195,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
     fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
         // Refresh UI every 3 seconds
