@@ -37,13 +37,14 @@ import org.webrtc.VideoSource
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (
     url: String,
-    context: Context,
+    context: Context, ourID: String,
     private val onCallRecieved: () -> Unit,
     private val onCallEnded: () -> Unit
 ) {
     private lateinit var localPeer: PeerConnection
     private lateinit var httpUrl: String
     private lateinit var theirID: String
+    private var ourID = ourID
     private lateinit var webSocketListener: WebSocketListener
     private lateinit var client: OkHttpClient
     private lateinit var mediaID: String
@@ -418,6 +419,24 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         return videoSource
     }
 
+    fun createAndSendCallMessage(p0: SessionDescription?, userId: String, mediaID: String) {
+        var innerSDPMessage = JSONObject()
+        innerSDPMessage.put("sdp", p0)
+        innerSDPMessage.put("type", "offer")
+        var payloadMessage = JSONObject()
+        payloadMessage.put("connectionId", mediaID)
+        payloadMessage.put("type", "media")
+        payloadMessage.put("sdp", innerSDPMessage)
+
+        var outerObjectMessage = JSONObject()
+        outerObjectMessage.put("dst", userId)
+        outerObjectMessage.put("src", ourID)
+        outerObjectMessage.put("payload", payloadMessage)
+        outerObjectMessage.put("type", "OFFER")
+
+        webSocket.send(outerObjectMessage.toString())
+    }
+
     //function to begin calling
     fun startCall(userId: String) {
         theirID = userId
@@ -459,9 +478,12 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             @OptIn(UnstableApi::class)
             override fun onCreateSuccess(p0: SessionDescription?) {
                 Log.d("SignalingClient", "createSDP Success")
+                createAndSendCallMessage(p0, userId,mediaID)
                 var sdpObserver2 = object: SdpObserver {
                     override fun onCreateSuccess(p0: SessionDescription?) {
-                        Log.d("SignalingClient", "Set Peer Success")
+
+
+                        Log.d("SignalingClient", "onCreateSucess")
                     }
 
 

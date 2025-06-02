@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
 
         signalingClient = SignalingClient(
             "" + BASE_WS_API_URL + ":" + PORT + "/peerjs?id=$userId&token=6789&key=peerjs",
-            this,
+            this, userId,
             onCallRecieved = {
                 isInCall = true  // Update call state when an offer is received
             },
@@ -142,6 +142,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
     fun OnlineNowSection(peers: List<String>) {
         Text(
