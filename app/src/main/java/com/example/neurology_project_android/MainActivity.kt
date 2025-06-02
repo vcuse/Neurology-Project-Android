@@ -87,6 +87,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var capturerObserver: CapturerObserver
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
+    private lateinit var signalingClient: SignalingClient
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
         val peerIdState = mutableStateOf<String?>(userId)
         val peersState = mutableStateOf<List<String>>(emptyList())
 
-        val signalingClient = SignalingClient(
+        signalingClient = SignalingClient(
             "" + BASE_WS_API_URL + ":" + PORT + "/peerjs?id=$userId&token=6789&key=peerjs",
             this,
             onCallRecieved = {
@@ -154,6 +155,86 @@ class MainActivity : ComponentActivity() {
                         )
                     })
             }
+        }
+    }
+
+    @Composable
+    fun OnlineNowSection(peers: List<String>) {
+        Text(
+            text = "Online Now:",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if (peers.isEmpty()) {
+                Text(text = "No peers online", modifier = Modifier.padding(16.dp))
+            } else {
+                peers.forEach { userId ->
+                    OnlineUserCard(userId)
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun OnlineUserCard(userId: String) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .shadow(4.dp, RoundedCornerShape(8.dp)),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = userId,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 16.dp)
+                )
+                Button(
+                    onClick = {  },
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    Text(text = "Call")
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
+        // Refresh UI every 3 seconds
+        LaunchedEffect(peers) {
+            // This will trigger recomposition whenever peers update
+        }
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PeerIdSection(peerId) // Displays the correct Peer ID
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OnlineNowSection(peers) // No need for additional state
+            }
+
+            NIHFormsButton()
         }
     }
 }
@@ -221,34 +302,7 @@ fun Greeting(
     }
 }
 
-@Composable
-fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
-    // Refresh UI every 3 seconds
-    LaunchedEffect(peers) {
-        // This will trigger recomposition whenever peers update
-    }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PeerIdSection(peerId) // Displays the correct Peer ID
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OnlineNowSection(peers) // No need for additional state
-        }
-
-        NIHFormsButton()
-    }
-}
 
 @Composable
 fun PeerIdSection(peerId: String) {
@@ -273,56 +327,9 @@ fun PeerIdSection(peerId: String) {
 }
 
 
-@Composable
-fun OnlineNowSection(peers: List<String>) {
-    Text(
-        text = "Online Now:",
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(vertical = 8.dp)
-    )
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        if (peers.isEmpty()) {
-            Text(text = "No peers online", modifier = Modifier.padding(16.dp))
-        } else {
-            peers.forEach { userId ->
-                OnlineUserCard(userId)
-            }
-        }
-    }
-}
 
-@Composable
-fun OnlineUserCard(userId: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .shadow(4.dp, RoundedCornerShape(8.dp)),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = userId,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp)
-            )
-            Button(
-                onClick = { /* Placeholder for Call button */ },
-                modifier = Modifier.wrapContentWidth()
-            ) {
-                Text(text = "Call")
-            }
-        }
-    }
-}
+
 
 @Composable
 fun NIHFormsButton() {

@@ -429,6 +429,90 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         return videoSource
     }
 
+    //function to begin calling
+    fun startCall() {
+
+
+        val mediaConstraints1 = MediaConstraints.KeyValuePair(
+            "kRTCMediaConstraintsOfferToReceiveAudio",
+            "kRTCMediaConstraintsValueTrue"
+        )
+        val mediaConstraints2 = MediaConstraints.KeyValuePair(
+            "kRTCMediaConstraintsOfferToReceiveVideo",
+            "kRTCMediaConstraintsValueTrue"
+        )
+        val mediaConstraints3 = MediaConstraints.KeyValuePair(
+            "kRTCMediaStreamTrackKindVideo",
+            "kRTCMediaConstraintsValueTrue"
+        )
+
+        val mediaConstraints4 = MediaConstraints.KeyValuePair(
+            "DtlsSrtpKeyAgreement",
+            "kRTCMediaConstraintsValueTrue"
+        )
+
+        val mediaConstraints5 = MediaConstraints.KeyValuePair("setup", "actpass")
+        val mediaConstraints6 = MediaConstraints.KeyValuePair(
+            "video",
+            "true"
+        )
+        val mediaConstraints = MediaConstraints()
+
+
+        mediaConstraints.mandatory.add(mediaConstraints1)
+        mediaConstraints.mandatory.add(mediaConstraints2)
+        mediaConstraints.mandatory.add(mediaConstraints3)
+        mediaConstraints.mandatory.add(mediaConstraints4)
+        mediaConstraints.mandatory.add(mediaConstraints5)
+        mediaConstraints.mandatory.add(mediaConstraints6)
+
+        var sdpObserver = object: SdpObserver {
+            @OptIn(UnstableApi::class)
+            override fun onCreateSuccess(p0: SessionDescription?) {
+                Log.d("SignalingClient", "createSDP Success")
+                var sdpObserver2 = object: SdpObserver {
+                    override fun onCreateSuccess(p0: SessionDescription?) {
+                        Log.d("SignalingClient", "Set Peer Success")
+                    }
+
+
+                    override fun onSetSuccess() {
+                        Log.d("SignalingClient", "Set Peer Success")
+                    }
+
+                    override fun onCreateFailure(p0: String?) {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun onSetFailure(p0: String?) {
+                        TODO("Not yet implemented")
+                    }
+
+                }
+                localPeer.setLocalDescription(sdpObserver2, p0)
+
+
+            }
+
+            override fun onSetSuccess() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCreateFailure(p0: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onSetFailure(p0: String?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+        var offerSDP = localPeer.createOffer(sdpObserver, mediaConstraints)
+        localPeer.setLocalDescription(sdpObserver)
+
+    }
+
     init {
         buildVideoSenders(context, url)
 
