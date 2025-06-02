@@ -220,10 +220,23 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         @OptIn(UnstableApi::class)
         override fun onAddStream(p0: MediaStream?) {
 
-
-            var mediaStreamTrack = p0?.audioTracks?.get(0)
-            val status = localPeer.addTrack(mediaStreamTrack)
-            Log.d("PeerConnection", "MediaStream added $status")
+            if (p0 != null) {
+                // Handle remote video track
+                if (p0.videoTracks.isNotEmpty()) {
+                    val remoteVideoTrack = p0.videoTracks[0]
+                    //localPeer.addTrack(remoteVideoTrack)
+                    // You need a way to pass this remoteVideoTrack to your UI
+                    // For example, if you have a SurfaceViewRenderer in your Activity/Fragment:
+                    // yourRemoteVideoRenderer.addTrack(remoteVideoTrack)
+                    Log.d("PeerConnection", "Remote Video Track received: ${remoteVideoTrack.id()}")
+                }
+                // Handle remote audio track (WebRTC usually plays this automatically once received)
+                if (p0.audioTracks.isNotEmpty()) {
+                    val remoteAudioTrack = p0.audioTracks[0]
+                    //localPeer.addTrack(remoteAudioTrack)
+                    Log.d("PeerConnection", "Remote Audio Track received: ${remoteAudioTrack.id()}")
+                }
+            }
 
         }
 
@@ -522,7 +535,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         }
 
         var offerSDP = localPeer.createOffer(sdpObserver, mediaConstraints)
-        localPeer.setLocalDescription(sdpObserver)
+        //localPeer.setLocalDescription(sdpObserver)
 
     }
 
