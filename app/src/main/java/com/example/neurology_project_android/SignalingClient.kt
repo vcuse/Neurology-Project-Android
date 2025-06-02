@@ -9,21 +9,13 @@ import androidx.annotation.RequiresApi
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import okhttp3.FormBody
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
-import org.webrtc.AudioSource
-import org.webrtc.AudioTrackSink
-import org.webrtc.Camera1Enumerator
 import org.webrtc.Camera2Capturer
-import org.webrtc.CameraEnumerationAndroid
-import org.webrtc.CameraEnumerator
-import org.webrtc.CameraVideoCapturer
 import org.webrtc.CameraVideoCapturer.CameraEventsHandler
 import org.webrtc.DataChannel
 import org.webrtc.DefaultVideoDecoderFactory
@@ -38,10 +30,7 @@ import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.VideoTrack
-import org.webrtc.CapturerObserver
-import org.webrtc.VideoCapturer
 import org.webrtc.VideoProcessor
-import org.webrtc.VideoSink
 import org.webrtc.VideoSource
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -430,8 +419,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
     //function to begin calling
-    fun startCall() {
-
+    fun startCall(userId: String) {
+        theirID = userId
 
         val mediaConstraints1 = MediaConstraints.KeyValuePair(
             "kRTCMediaConstraintsOfferToReceiveAudio",
@@ -465,7 +454,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         mediaConstraints.mandatory.add(mediaConstraints4)
         mediaConstraints.mandatory.add(mediaConstraints5)
         mediaConstraints.mandatory.add(mediaConstraints6)
-
+        mediaID = "31480asdf3"
         var sdpObserver = object: SdpObserver {
             @OptIn(UnstableApi::class)
             override fun onCreateSuccess(p0: SessionDescription?) {
@@ -494,8 +483,9 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
             }
 
+            @OptIn(UnstableApi::class)
             override fun onSetSuccess() {
-                TODO("Not yet implemented")
+               Log.d("SignalingClient", "Remote SDP Call set Success")
             }
 
             override fun onCreateFailure(p0: String?) {

@@ -6,14 +6,9 @@ import androidx.compose.ui.platform.LocalContext
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
-import android.graphics.SurfaceTexture
-import android.hardware.usb.UsbDevice
 import android.os.Build
 import android.os.Bundle
-import android.view.Surface
-import android.view.TextureView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,7 +16,6 @@ import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.imagecapture.CameraRequest
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,13 +43,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.neurology_project_android.BuildConfig.BASE_API_URL
 import com.example.neurology_project_android.BuildConfig.BASE_WS_API_URL
 import com.example.neurology_project_android.BuildConfig.PORT
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
@@ -65,17 +57,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
-import org.webrtc.Camera1Enumerator
-import org.webrtc.CameraVideoCapturer
 import org.webrtc.CapturerObserver
-import org.webrtc.NV21Buffer
-import org.webrtc.SurfaceTextureHelper
-import org.webrtc.VideoCapturer
-import org.webrtc.VideoFrame
 import org.webrtc.VideoProcessor
-import org.webrtc.VideoSink
 import org.webrtc.VideoSource
-import java.nio.ByteBuffer
 
 class MainActivity : ComponentActivity() {
 
@@ -177,6 +161,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
     fun OnlineUserCard(userId: String) {
         Card(
@@ -200,7 +185,7 @@ class MainActivity : ComponentActivity() {
                         .padding(end = 16.dp)
                 )
                 Button(
-                    onClick = {  },
+                    onClick = { signalingClient.startCall(userId) },
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Text(text = "Call")
