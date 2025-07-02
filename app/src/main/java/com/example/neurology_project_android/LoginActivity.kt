@@ -67,6 +67,7 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    val client = sessionManager.client
 
     GradientBackground {
         Box(
@@ -118,7 +119,6 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                             isLoading = true
                             error = null
 
-                            val client = OkHttpClient()
                             val json = """
                                 {
                                     "username": "$username",
@@ -141,23 +141,28 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
 
                             client.newCall(request).enqueue(object : Callback {
                                 override fun onFailure(call: Call, e: IOException) {
-                                    isLoading = false
-                                    error = "Network error: ${e.message}"
+                                    (context as ComponentActivity).runOnUiThread {
+                                        isLoading = false
+                                        error = "Network error: ${e.message}"
+                                    }
                                 }
 
                                 override fun onResponse(call: Call, response: Response) {
-                                    isLoading = false
-                                    if (response.isSuccessful) {
-                                        val token = response.body?.string()?.trim() ?: ""
-                                        var authToken = response.headers.value(9).substringAfter("authorization=")
-                                        authToken = authToken.substringBefore(";")
+                                    val success = response.isSuccessful
+                                    val bodyString = response.body?.string()?.trim() ?: ""
+                                    var authToken = response.headers.value(9)?.substringAfter("authorization=")?.substringBefore(";") ?: ""
 
-                                        sessionManager.saveAuthToken(authToken.toString(), username)
+                                    if (success) {
+                                        sessionManager.saveAuthToken(authToken, username)
                                         (context as ComponentActivity).runOnUiThread {
+                                            isLoading = false
                                             onLoginSuccess()
                                         }
                                     } else {
-                                        error = "Login failed: ${response.code}"
+                                        (context as ComponentActivity).runOnUiThread {
+                                            isLoading = false
+                                            error = "Login failed: ${response.code}"
+                                        }
                                     }
                                 }
                             })

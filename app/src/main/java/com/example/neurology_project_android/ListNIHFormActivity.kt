@@ -22,25 +22,32 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 
 class ListNIHFormActivity : ComponentActivity() {
+    private var refreshTrigger by mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ListNIHFormScreen()
+            ListNIHFormScreen(refreshTrigger)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshTrigger++
     }
 }
 
 @Composable
-fun ListNIHFormScreen() {
+fun ListNIHFormScreen(refreshTrigger: Int) {
     val context = LocalContext.current
-    val nihFormDao = NIHFormDatabase.getDatabase(context).nihFormDao()
+    val sessionManager = remember { SessionManager(context) }
+    val client = sessionManager.client
+    val username = sessionManager.fetchUsername() ?: "anonymous"
 
     var savedForms by remember { mutableStateOf<List<NIHForm>>(emptyList()) }
 
-    LaunchedEffect(Unit) {
-        nihFormDao.getAllForms().collect { forms ->
-            savedForms = forms
-        }
+    LaunchedEffect(refreshTrigger) { // runs every time refreshTrigger changes
+        val fetchedForms = FormManager.fetchFormsForUser(username, sessionManager.client)
+        savedForms = fetchedForms
     }
 
     Column(
@@ -82,8 +89,14 @@ fun ListNIHFormScreen() {
                 SavedFormItem(
                     form = SavedForm(form.patientName, form.date),
                     onClick = {
-                        val intent = Intent(context, SavedNIHFormActivity::class.java)
-                        intent.putExtra("formId", form.id)
+                        val intent = Intent(context, SavedNIHFormActivity::class.java).apply {
+                            putExtra("formId", form.id)
+                            putExtra("patientName", form.patientName)
+                            putExtra("dob", form.dob)
+                            putExtra("date", form.date)
+                            putExtra("formData", form.formData)
+                            putExtra("username", form.username)
+                        }
                         context.startActivity(intent)
                     }
                 )
@@ -129,9 +142,3 @@ fun SavedFormItem(form: SavedForm, onClick: () -> Unit) {
 }
 
 data class SavedForm(val patientName: String, val dateRecorded: String)
-
-@Preview(showBackground = true)
-@Composable
-fun ListNIHFormScreenPreview() {
-    ListNIHFormScreen()
-}

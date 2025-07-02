@@ -100,6 +100,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.franmontiel:PersistentCookieJar:v1.0.1")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
     implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation("androidx.compose.material:material-icons-extended")

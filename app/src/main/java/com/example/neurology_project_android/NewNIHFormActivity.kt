@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -40,27 +42,53 @@ import java.util.*
 class NewNIHFormActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val formId = intent.getIntExtra("formId", -1)
+        val patientName = intent.getStringExtra("patientName")
+        val dob = intent.getStringExtra("dob")
+        val date = intent.getStringExtra("date")
+        val formData = intent.getStringExtra("formData")
+        val username = intent.getStringExtra("username")
+
+        val existingForm = if (patientName != null && dob != null && date != null && formData != null && username != null) {
+            NIHForm(formId, patientName, dob, date, formData, username)
+        } else null
+
         setContent {
-            NewNIHFormScreen()
+            NewNIHFormScreen(existingForm)
         }
     }
 }
 
 @Composable
-fun NewNIHFormScreen() {
+fun NewNIHFormScreen(existingForm: NIHForm? = null) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    var patientName by remember { mutableStateOf("") }
+    val client = sessionManager.client
+    val coroutineScope = rememberCoroutineScope()
+    var refreshTrigger by remember { mutableStateOf(0) }
+
+    var patientName by remember { mutableStateOf(existingForm?.patientName ?: "") }
+    var dob by remember { mutableStateOf(existingForm?.dob ?: "") }
     val questions = remember { StrokeScaleQuestions.questions }
-    val selectedOptions = remember { mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } } }
+    val selectedOptions = remember {
+        mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } }
+    }
+
     val keyboardController = LocalSoftwareKeyboardController.current
     val dobCalendar = remember { Calendar.getInstance() }
-    var dob by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
-    val nihFormDao = NIHFormDatabase.getDatabase(context).nihFormDao()
+    val username = remember { sessionManager.fetchUsername() ?: "anonymous" }
 
-    val username = remember {
-        sessionManager.fetchUsername() ?: "anonymous"
+    val date = remember {
+        existingForm?.date ?: SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(Date())
+    }
+
+    // Populate selected options if editing
+    LaunchedEffect(existingForm) {
+        existingForm?.formData?.forEachIndexed { index, c ->
+            val score = c.toString().toIntOrNull() ?: 9
+            selectedOptions[index] = if (score != 9) score else null
+        }
     }
 
     val datePickerDialog = android.app.DatePickerDialog(
@@ -73,11 +101,6 @@ fun NewNIHFormScreen() {
         dobCalendar.get(Calendar.MONTH),
         dobCalendar.get(Calendar.DAY_OF_MONTH)
     )
-
-
-    val date = remember {
-        SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(Date())
-    }
 
     Column(
         modifier = Modifier
@@ -155,8 +178,6 @@ fun NewNIHFormScreen() {
         ) {
             Button(
                 onClick = {
-                    Log.d("DEBUG", "Saving form for user: $username")
-
                     if (patientName.isBlank()) {
                         Toast.makeText(context, "Please enter a patient name", Toast.LENGTH_SHORT).show()
                         return@Button
@@ -171,13 +192,18 @@ fun NewNIHFormScreen() {
                             formData = formData,
                             username = username
                         )
-                        nihFormDao.insertForm(form)
-                        sendFormToServer(form)
-
-                        // Navigate back to the list
-                        val intent = Intent(context, ListNIHFormActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        context.startActivity(intent)
+                        FormManager.submitFormToServer(form, client) { success ->
+                            (context as? ComponentActivity)?.runOnUiThread {
+                                if (success) {
+                                    Toast.makeText(context, "Form saved successfully", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(context, ListNIHFormActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    context.startActivity(intent)
+                                } else {
+                                    Toast.makeText(context, "Failed to save form", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
@@ -248,44 +274,6 @@ fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int
             }
         }
     }
-}
-
-fun sendFormToServer(form: NIHForm) {
-    val client = OkHttpClient()
-
-    val json = JSONObject().apply {
-        put("patientName", form.patientName)
-        put("DOB", form.dob)
-        put("formDate", form.date)
-        put("results", form.formData)
-        put("username", form.username) 
-    }
-
-    val requestBody = RequestBody.create(
-        "application/json; charset=utf-8".toMediaTypeOrNull(),
-        json.toString()
-    )
-
-    val request = Request.Builder()
-        .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post") // ✅ MATCHES iOS
-        .post(requestBody)
-        .addHeader("Content-Type", "application/json")
-        .addHeader("Action", "submitStrokeScale") // ✅ REQUIRED by server
-        .build()
-
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            Log.e("POST", "Failed to send form: ${e.message}")
-        }
-
-        override fun onResponse(call: Call, response: Response) {
-            if (response.isSuccessful) {
-                Log.d("POST", "Form posted successfully!")
-            } else {
-                Log.e("POST", "Server error: ${response.code}")
-            }
-        }
-    })
 }
 
 data class StrokeScaleQuestion(
