@@ -16,7 +16,7 @@ object FormManager {
     fun submitFormToServer(form: NIHForm, client: OkHttpClient, onResult: (Boolean) -> Unit) {
         val json = JSONObject().apply {
             put("patientName", form.patientName)
-            put("DOB", form.dob)
+            put("patientDob", form.dob)
             put("formDate", form.date)
             put("results", form.formData)
             put("username", form.username)
@@ -78,8 +78,8 @@ object FormManager {
                     forms.add(
                         NIHForm(
                             id = item.getInt("id"),
-                            patientName = item.getString("name"),
-                            dob = item.getString("dob"),
+                            patientName = item.getString("patient_name"),
+                            dob = item.getString("patient_dob"),
                             date = item.getString("form_date"),
                             formData = item.getString("results"),
                             username = item.getString("username")
@@ -131,7 +131,7 @@ object FormManager {
         val json = JSONObject().apply {
             put("id", form.id)
             put("patientName", form.patientName)
-            put("dob", form.dob)
+            put("patientDob", form.dob)
             put("formDate", form.date)
             put("results", form.formData)
             put("username", form.username)

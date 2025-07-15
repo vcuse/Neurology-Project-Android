@@ -16,6 +16,7 @@ import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.imagecapture.CameraRequest
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -63,6 +65,8 @@ import okio.IOException
 import org.webrtc.CapturerObserver
 import org.webrtc.VideoProcessor
 import org.webrtc.VideoSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -88,59 +92,72 @@ class MainActivity : ComponentActivity() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.FOREGROUND_SERVICE_MICROPHONE), 1)
-
-        val userId = fetchUserId()
-        val peerIdState = mutableStateOf<String?>(userId)
-        val peersState = mutableStateOf<List<String>>(emptyList())
-
-        signalingClient = SignalingClient(
-            "" + BASE_WS_API_URL + ":" + PORT + "/peerjs?id=$userId&token=6789&key=peerjs",
-            this, userId,
-            onCallRecieved = {
-                isInCall = true  // Update call state when an offer is received
-            },
-            onCallEnded = {
-                runOnUiThread { isInCall = false }
-            }
+        requestPermissions(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.FOREGROUND_SERVICE_MICROPHONE
+            ), 1
         )
-        Log.d("MainActivitiy", "SignalingClient should be set")
-        //videoSource = signalingClient.getVideoSource()
-
-        // Fetch peers and update state (excluding own peer ID)
-        GetPeers { peers ->
-            runOnUiThread {
-                peerIdState.value?.let { id ->
-                    peersState.value = peers.filter { it != id }
-                } ?: run {
-                    peersState.value = peers
-                }
-            }
-        }
 
         enableEdgeToEdge()
+
         setContent {
             NeurologyProjectAndroidTheme {
+                val userIdState = remember { mutableStateOf<String?>(null) }
+                val peersState = remember { mutableStateOf<List<String>>(emptyList()) }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent, // Make the Scaffold background transparent
-                    content = { innerPadding ->
-                        // Suppose you have the camera & request object set up
-                        HomeScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            peerId = peerIdState.value ?: userId,
-                            peers = peersState.value
-                        )
-                        Greeting(
-                            name = "Android",
-                            modifier = Modifier.padding(innerPadding),
-                            signalingClient = signalingClient,
-                            cameraInitialized = cameraInitialized,
-                           cameraRequest = { cameraRequest },
-                            isInCall = isInCall
-                        )
-                    })
+                // Fetch user ID once
+                LaunchedEffect(Unit) {
+                    val fetchedId = fetchUserId()
+                    userIdState.value = fetchedId
+
+                    // Now safe to start SignalingClient
+                    signalingClient = SignalingClient(
+                        "$BASE_WS_API_URL:$PORT/peerjs?id=$fetchedId&token=6789&key=peerjs",
+                        this@MainActivity,
+                        fetchedId,
+                        onCallRecieved = { isInCall = true },
+                        onCallEnded = { runOnUiThread { isInCall = false } }
+                    )
+
+                    // Fetch peers
+                    GetPeers { peers ->
+                        runOnUiThread {
+                            peersState.value = peers.filter { it != fetchedId }
+                        }
+                    }
+                }
+
+                val userId = userIdState.value
+
+                if (userId == null) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = Color.Transparent,
+                        content = { innerPadding ->
+                            HomeScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                peerId = userId,
+                                peers = peersState.value
+                            )
+                            Greeting(
+                                name = "Android",
+                                modifier = Modifier.padding(innerPadding),
+                                signalingClient = signalingClient,
+                                cameraInitialized = cameraInitialized,
+                                cameraRequest = { cameraRequest },
+                                isInCall = isInCall
+                            )
+                        }
+                    )
+                }
             }
         }
     }
@@ -250,35 +267,22 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun fetchUserId(): String {
-    val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
-    val client = OkHttpClient()
-    var id = "123"
-    var requestReceived = false
-
-    val request = Request.Builder().url(idUrl).build()
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            android.util.Log.d("Request", "Request failed: ${e.message}")
-        }
-
-        override fun onResponse(call: Call, response: Response) {
+suspend fun fetchUserId(): String {
+    return withContext(Dispatchers.IO) {
+        try {
+            val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+            val client = OkHttpClient()
+            val request = Request.Builder().url(idUrl).build()
+            val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                response.body?.string()?.let { body ->
-                    id = body
-                    requestReceived = true
-                }
+                response.body?.string() ?: "unknown"
             } else {
-                android.util.Log.d("Response", "Request failed: ${response.code}")
+                "unknown"
             }
+        } catch (e: Exception) {
+            "unknown"
         }
-    })
-    while (!requestReceived) {
-        /* Unsure how to make program wait until id is received
-           This works for now, but I am sure there are better ways
-         */
     }
-    return id
 }
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)

@@ -8,20 +8,21 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import okhttp3.OkHttpClient
 
-class SessionManager(context: Context) {
+class SessionManager(private val context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
     // Use the PersistentCookieJar to automatically persist cookies
-    private val cookieJar: ClearableCookieJar = PersistentCookieJar(
+    private var cookieJar: ClearableCookieJar = PersistentCookieJar(
         SetCookieCache(),
         SharedPrefsCookiePersistor(context)
     )
 
     // Shared OkHttpClient for your whole app
-    val client: OkHttpClient = OkHttpClient.Builder()
+    var client: OkHttpClient = OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .build()
+        private set
 
     fun saveAuthToken(token: String, username: String) {
         val editor = prefs.edit()
@@ -46,5 +47,16 @@ class SessionManager(context: Context) {
     fun logout() {
         prefs.edit().clear().apply()
         cookieJar.clear()
+        resetClient()
+    }
+
+    private fun resetClient() {
+        cookieJar = PersistentCookieJar(
+            SetCookieCache(),
+            SharedPrefsCookiePersistor(context)
+        )
+        client = OkHttpClient.Builder()
+            .cookieJar(cookieJar)
+            .build()
     }
 }
