@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,21 +40,21 @@ class NewNIHFormActivity : ComponentActivity() {
         val date = intent.getStringExtra("date")
         val formData = intent.getStringExtra("formData")
         val username = intent.getStringExtra("username")
-
+        val sessionManager = SessionManager(this) // Create the real instance
         val existingForm = if (patientName != null && dob != null && date != null && formData != null && username != null) {
             NIHForm(formId, patientName, dob, date, formData, username)
         } else null
 
         setContent {
-            NewNIHFormScreen(existingForm)
+            NewNIHFormScreen(existingForm, sessionManager)
         }
     }
 }
 
 @Composable
-fun NewNIHFormScreen(existingForm: NIHForm? = null) {
+fun NewNIHFormScreen(existingForm: NIHForm? = null, sessionManager: ISessionManager) {
     val context = LocalContext.current
-    val sessionManager = remember { SessionManager(context) }
+
     val client = sessionManager.client
     val coroutineScope = rememberCoroutineScope()
     var refreshTrigger by remember { mutableStateOf(0) }
@@ -181,7 +183,7 @@ fun NewNIHFormScreen(existingForm: NIHForm? = null) {
                             formData = formData,
                             username = username
                         )
-                        FormManager.submitFormToServer(form, client) { success ->
+                        FormManager.submitFormToServer(form, client as OkHttpClient) { success ->
                             (context as? ComponentActivity)?.runOnUiThread {
                                 if (success) {
                                     Toast.makeText(context, "Form saved successfully", Toast.LENGTH_SHORT).show()
@@ -466,5 +468,23 @@ object StrokeScaleQuestions {
             )
         )
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CallNewFormPreview() {
+
+    val formId = 33
+    val patientName = "patientName"
+    val dob = "test"
+    val date = "33333"
+    val formData = "334999999"
+    val username = "Sim Username"
+
+    val existingForm = if (patientName != null && dob != null && date != null && formData != null && username != null) {
+        NIHForm(formId, patientName, dob, date, formData, username)
+    } else null
+
+    NewNIHFormScreen(existingForm, MockSessionManager())
 }
 

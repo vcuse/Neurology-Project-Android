@@ -358,7 +358,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val camera02 = cameraManager.cameraIdList.last()
         camera1Capturer = Camera2Capturer(context, camera02, cameraEventsHandler)
         videoSource = factory?.createVideoSource(true)!!
-
+        audioManager.toString()
 //
 //
         val surfaceTexture2 = SurfaceTextureHelper.create("CaptureThread", rootEGL.eglBaseContext)
@@ -373,7 +373,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         client = OkHttpClient().newBuilder().build()
         httpUrl = url
         AudioManager.ADJUST_UNMUTE
-
+        val audioDeviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+        Log.d("Signaling Client", "Audio devices" + audioDeviceInfo.size)
         val mediaConstraints1 = MediaConstraints.KeyValuePair(
             "kRTCMediaConstraintsOfferToReceiveAudio",
             "kRTCMediaConstraintsValueTrue"
@@ -408,6 +409,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         mediaConstraints.mandatory.add(mediaConstraints6)
 
         val audioSource = factory.createAudioSource(mediaConstraints)
+
         val audioTrack = factory.createAudioTrack("0002", audioSource)
         track = factory.createVideoTrack("0001", videoSource)
 
@@ -495,8 +497,6 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 createAndSendCallMessage(p0, userId,mediaID)
                 var sdpObserver2 = object: SdpObserver {
                     override fun onCreateSuccess(p0: SessionDescription?) {
-
-
                         Log.d("SignalingClient", "onCreateSucess")
                     }
 

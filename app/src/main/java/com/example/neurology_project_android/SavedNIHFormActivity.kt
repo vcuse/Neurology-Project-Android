@@ -150,6 +150,7 @@ fun SavedNIHFormScreen(form: NIHForm) {
                         }
                     } else {
                         isEditing = true
+                        isEditing = true
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF3E5F5)),

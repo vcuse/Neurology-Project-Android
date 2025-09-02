@@ -8,7 +8,14 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import okhttp3.OkHttpClient
 
-class SessionManager(private val context: Context) {
+// Create an interface for the SessionManager
+interface ISessionManager {
+    val client: Any
+    fun fetchUsername(): String?
+}
+
+class SessionManager(private val context: Context): ISessionManager {
+
     private val prefs: SharedPreferences =
         context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
@@ -19,7 +26,7 @@ class SessionManager(private val context: Context) {
     )
 
     // Shared OkHttpClient for your whole app
-    var client: OkHttpClient = OkHttpClient.Builder()
+    override var client: OkHttpClient = OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .build()
         private set
@@ -42,7 +49,7 @@ class SessionManager(private val context: Context) {
 
     fun fetchAuthToken(): String? = prefs.getString("TOKEN", null)
     fun isLoggedIn(): Boolean = prefs.getBoolean("IS_LOGGED_IN", false)
-    fun fetchUsername(): String? = prefs.getString("USERNAME", null)
+    override fun fetchUsername(): String? = prefs.getString("USERNAME", null)
 
     fun logout() {
         prefs.edit().clear().apply()
