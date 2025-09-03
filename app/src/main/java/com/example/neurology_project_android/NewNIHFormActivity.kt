@@ -254,7 +254,7 @@ fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .background(
-                        if (selectedOptions[question.id] == index) Color(0xFFD1C4E9) else Color(0xFFF3E5F5)
+                        if (selectedOptions[question.id] == index) Color(0xFFA5D6A7) else Color(0xFFF3E5F5)
                     )
                     .padding(8.dp)
                     .clickable { selectedOptions[question.id] = index },
