@@ -410,7 +410,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         val audioSource = factory.createAudioSource(mediaConstraints)
 
-        val audioTrack = factory.createAudioTrack("0002", audioSource)
+        val audioTrack = factory.createAudioTrack("0001", audioSource)
         track = factory.createVideoTrack("0001", videoSource)
 
         localPeer.addTrack(track, listOf("track01"))

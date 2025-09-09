@@ -95,9 +95,12 @@ class MainActivity : ComponentActivity() {
         requestPermissions(
             arrayOf(
                 Manifest.permission.CAMERA,
-                Manifest.permission.FOREGROUND_SERVICE_MICROPHONE
+                Manifest.permission.FOREGROUND_SERVICE_MICROPHONE,
+                Manifest.permission.RECORD_AUDIO
             ), 1
         )
+
+        
 
         enableEdgeToEdge()
 
