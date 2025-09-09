@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-
+    runs-on: ubuntu-latest
     steps:
     - name: Report current user
     # This step will print the username that the runner is currently operating as.
