@@ -27,11 +27,11 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"https://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
-            buildConfigField("int", "PORT", "443")
+            buildConfigField("int", "PORT", "3016")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:3016/key=peerjs/post\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -100,9 +100,11 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.0-u-0:mediasoup-android-sdk:0.0.1")
+    implementation("com.github.0-u-0:dugon-webrtc-android:100.0.2")
+    implementation("io.socket:socket.io-client:2.1.1")
     implementation ("com.github.franmontiel:PersistentCookieJar:v1.0.1")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.room:room-runtime:2.5.0")
     implementation(libs.androidx.camera.core)

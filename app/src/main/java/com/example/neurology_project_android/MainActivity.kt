@@ -62,9 +62,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
-import org.webrtc.CapturerObserver
-import org.webrtc.VideoProcessor
-import org.webrtc.VideoSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -73,9 +70,9 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("RestrictedApi")
     private lateinit var cameraRequest: CameraRequest
-    private lateinit var videoProcessor: VideoProcessor
-    private lateinit var videoSource: VideoSource
-    private lateinit var capturerObserver: CapturerObserver
+//    private lateinit var videoProcessor: VideoProcessor
+//    private lateinit var videoSource: VideoSource
+//    private lateinit var capturerObserver: CapturerObserver
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
     private lateinit var signalingClient: SignalingClient
@@ -114,21 +111,24 @@ class MainActivity : ComponentActivity() {
                     val fetchedId = fetchUserId()
                     userIdState.value = fetchedId
 
-                    // Now safe to start SignalingClient
+                     //Now safe to start SignalingClient
                     signalingClient = SignalingClient(
-                        "$BASE_WS_API_URL:$PORT/peerjs?id=$fetchedId&token=6789&key=peerjs",
                         this@MainActivity,
-                        fetchedId,
-                        onCallRecieved = { isInCall = true },
-                        onCallEnded = { runOnUiThread { isInCall = false } }
+
+                        { peers ->
+                            runOnUiThread {
+                                peersState.value = peers.filter { it != fetchedId }
+                            }
+                        }
+
                     )
 
-                    // Fetch peers
-                    GetPeers { peers ->
-                        runOnUiThread {
-                            peersState.value = peers.filter { it != fetchedId }
-                        }
-                    }
+//                    // Fetch peers
+//                    GetPeers { peers ->
+//                        runOnUiThread {
+//                            peersState.value = peers.filter { it != fetchedId }
+//                        }
+//                    }
                 }
 
                 val userId = userIdState.value
@@ -150,14 +150,14 @@ class MainActivity : ComponentActivity() {
                                 peerId = userId,
                                 peers = peersState.value
                             )
-                            Greeting(
-                                name = "Android",
-                                modifier = Modifier.padding(innerPadding),
-                                signalingClient = signalingClient,
-                                cameraInitialized = cameraInitialized,
-                                cameraRequest = { cameraRequest },
-                                isInCall = isInCall
-                            )
+//                            Greeting(
+//                                name = "Android",
+//                                modifier = Modifier.padding(innerPadding),
+//                                signalingClient = signalingClient,
+//                                cameraInitialized = cameraInitialized,
+//                                cameraRequest = { cameraRequest },
+//                                isInCall = isInCall
+//                            )
                         }
                     )
                 }
@@ -209,7 +209,7 @@ class MainActivity : ComponentActivity() {
                         .padding(end = 16.dp)
                 )
                 Button(
-                    onClick = { signalingClient.startCall(userId) },
+                    onClick = { signalingClient.joinRoom(userId) }, //signalingClient.startCall(userId)
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Text(text = "Call")
