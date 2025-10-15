@@ -4,6 +4,7 @@ package com.example.neurology_project_android
 
 import androidx.compose.ui.platform.LocalContext
 import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
@@ -15,22 +16,28 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.imagecapture.CameraRequest
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,26 +52,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.neurology_project_android.BuildConfig.BASE_WS_API_URL
-import com.example.neurology_project_android.BuildConfig.PORT
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
-import org.webrtc.CapturerObserver
-import org.webrtc.VideoProcessor
-import org.webrtc.VideoSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -73,13 +71,16 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("RestrictedApi")
     private lateinit var cameraRequest: CameraRequest
-    private lateinit var videoProcessor: VideoProcessor
-    private lateinit var videoSource: VideoSource
-    private lateinit var capturerObserver: CapturerObserver
+//    private lateinit var videoProcessor: VideoProcessor
+//    private lateinit var videoSource: VideoSource
+//    private lateinit var capturerObserver: CapturerObserver
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
     private lateinit var signalingClient: SignalingClient
 
+
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,21 +115,24 @@ class MainActivity : ComponentActivity() {
                     val fetchedId = fetchUserId()
                     userIdState.value = fetchedId
 
-                    // Now safe to start SignalingClient
+                     //Now safe to start SignalingClient
                     signalingClient = SignalingClient(
-                        "$BASE_WS_API_URL:$PORT/peerjs?id=$fetchedId&token=6789&key=peerjs",
                         this@MainActivity,
-                        fetchedId,
-                        onCallRecieved = { isInCall = true },
-                        onCallEnded = { runOnUiThread { isInCall = false } }
+
+                        { peers ->
+                            runOnUiThread {
+                                peersState.value = peers.filter { it != fetchedId }
+                            }
+                        }
+
                     )
 
-                    // Fetch peers
-                    GetPeers { peers ->
-                        runOnUiThread {
-                            peersState.value = peers.filter { it != fetchedId }
-                        }
-                    }
+//                    // Fetch peers
+//                    GetPeers { peers ->
+//                        runOnUiThread {
+//                            peersState.value = peers.filter { it != fetchedId }
+//                        }
+//                    }
                 }
 
                 val userId = userIdState.value
@@ -144,21 +148,13 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         containerColor = Color.Transparent,
-                        content = { innerPadding ->
-                            HomeScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                peerId = userId,
-                                peers = peersState.value
-                            )
-                            Greeting(
-                                name = "Android",
-                                modifier = Modifier.padding(innerPadding),
-                                signalingClient = signalingClient,
-                                cameraInitialized = cameraInitialized,
-                                cameraRequest = { cameraRequest },
-                                isInCall = isInCall
-                            )
+                        content = {
+                        innerPadding ->
+
+                            myApp(peersState.value, innerPadding)
                         }
+
+
                     )
                 }
             }
@@ -167,7 +163,21 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun OnlineNowSection(peers: List<String>) {
+    fun OnlineNowSection(peers: List<String>,  onNavigateToOnlineScreen: () -> Unit) {
+
+
+//    LaunchedEffect(isInCall) {
+//        if (isInCall) {
+//            navController.navigate("callScreen")
+//        } else {
+//            navController.navigate("home") // Navigate back when call ends
+//        }
+//    }
+
+
+
+
+
         Text(
             text = "Online Now:",
             fontWeight = FontWeight.Bold,
@@ -179,7 +189,7 @@ class MainActivity : ComponentActivity() {
                 Text(text = "No peers online", modifier = Modifier.padding(16.dp))
             } else {
                 peers.forEach { userId ->
-                    OnlineUserCard(userId)
+                    OnlineUserCard(userId, onNavigateToOnlineScreen)
                 }
             }
         }
@@ -187,7 +197,8 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun OnlineUserCard(userId: String) {
+    fun OnlineUserCard(userId: String, onNavigateToOnlineScreen: () -> Unit) {
+        var navController = rememberNavController()
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -209,7 +220,11 @@ class MainActivity : ComponentActivity() {
                         .padding(end = 16.dp)
                 )
                 Button(
-                    onClick = { signalingClient.startCall(userId) },
+                    onClick = {
+
+                        signalingClient.joinRoom(userId)
+                        onNavigateToOnlineScreen()
+                    }, //signalingClient.startCall(userId)
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Text(text = "Call")
@@ -220,8 +235,37 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
+    fun myApp(peers: List<String>, innerPadding: PaddingValues) {
+
+        var navController = rememberNavController()
+
+        NavHost(navController, startDestination = "home") {
+            composable("home") {
+                HomeScreen(
+                    onNavigateToProfile = { navController.navigate("callScreen") },
+                    modifier = Modifier.padding(innerPadding),
+                    peerId = "VR CLIENT",
+                    peers = peers
+                )
+
+                // A simple loading/home screen
+                //Greeting()
+            }
+            composable("callScreen") {
+                CallScreen()
+            }
+        }
+
+    }
+
+
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Composable
+    fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>, onNavigateToProfile: () -> Unit) {
         val context = LocalContext.current
+
+
         val sessionManager = remember { SessionManager(context) }
         // Refresh UI every 3 seconds
         LaunchedEffect(peers) {
@@ -253,7 +297,7 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            PeerIdSection(peerId) // Displays the correct Peer ID
+            PeerIdSection("VR CLIENT") // Displays the correct Peer ID
 
             Column(
                 modifier = Modifier
@@ -262,12 +306,14 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OnlineNowSection(peers) // No need for additional state
+                OnlineNowSection(peers,onNavigateToProfile) // No need for additional state
             }
 
             NIHFormsButton()
         }
     }
+
+
 }
 
 suspend fun fetchUserId(): String {
@@ -288,6 +334,9 @@ suspend fun fetchUserId(): String {
     }
 }
 
+
+
+
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
 fun Greeting(
@@ -298,26 +347,18 @@ fun Greeting(
     @SuppressLint("RestrictedApi") cameraRequest: () -> CameraRequest,
     isInCall: Boolean
 ) {
-    val navController = rememberNavController()
-
-    LaunchedEffect(isInCall) {
-        if (isInCall) {
-            navController.navigate("callScreen")
-        } else {
-            navController.navigate("home") // Navigate back when call ends
-        }
-    }
 
 
-    NavHost(navController, startDestination = "home") {
-        composable("home") {
-            // A simple loading/home screen
-            //Greeting()
-        }
-        composable("callScreen") {
-            CallScreen()
-        }
-    }
+//    LaunchedEffect(isInCall) {
+//        if (isInCall) {
+//            navController.navigate("callScreen")
+//        } else {
+//            navController.navigate("home") // Navigate back when call ends
+//        }
+//    }
+
+
+
 }
 
 

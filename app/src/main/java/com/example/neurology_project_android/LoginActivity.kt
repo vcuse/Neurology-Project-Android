@@ -150,8 +150,11 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                                 override fun onResponse(call: Call, response: Response) {
                                     val success = response.isSuccessful
                                     val bodyString = response.body?.string()?.trim() ?: ""
-                                    var authToken = response.headers.value(9)?.substringAfter("authorization=")?.substringBefore(";") ?: ""
+                                    var authToken = response.headers.get("Set-Cookie")
 
+                                        ?.substringBefore(";") ?: ""
+                                    Log.d("LOGINACTIVITY:", "RESPONSE HEADERS: " + response.headers.get("Set-Cookie"))
+                                    Log.d("LOGINACTIVITY:", "AUTH TOKEN: " + authToken)
                                     if (success) {
                                         sessionManager.saveAuthToken(authToken, username)
                                         (context as ComponentActivity).runOnUiThread {
