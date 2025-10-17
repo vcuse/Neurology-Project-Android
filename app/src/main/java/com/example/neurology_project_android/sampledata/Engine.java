@@ -68,7 +68,7 @@ public class Engine {
 
 
     public Engine(Context context){
-        protoo = new ProtooSocket();
+        //protoo = new ProtooSocket();
         consumerHashMap = new HashMap<>();
         tracks = new HashMap<>();
         Device.initialize(context);
@@ -89,7 +89,7 @@ public class Engine {
                     getRtpCaps();
                     createWebRTCTransport(false);
                     createWebRTCTransport(true);
-                    join();
+                    //join();
                 });
             }
 

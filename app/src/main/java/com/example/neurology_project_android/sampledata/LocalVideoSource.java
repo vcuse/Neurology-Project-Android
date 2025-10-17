@@ -34,7 +34,7 @@ public class LocalVideoSource extends LocalSource{
         surfaceTextureHelper =
                 SurfaceTextureHelper.create("CaptureThread", rootEglBase.getEglBaseContext());
         capturer.initialize(surfaceTextureHelper, appContext, source.getCapturerObserver());
-        capturer.startCapture(720, 1280, 30);
+        capturer.startCapture(1080, 1920, 30);
     }
 
     @Override

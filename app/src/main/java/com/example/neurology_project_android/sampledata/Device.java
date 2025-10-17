@@ -10,7 +10,11 @@ import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.CandidatePairChangeEvent;
 import org.webrtc.DataChannel;
+import org.webrtc.DefaultVideoDecoderFactory;
+import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
+import org.webrtc.HardwareVideoDecoderFactory;
+import org.webrtc.HardwareVideoEncoderFactory;
 import org.webrtc.IceCandidate;
 import org.webrtc.IceCandidateErrorEvent;
 import org.webrtc.MediaConstraints;
@@ -68,7 +72,7 @@ public class Device {
             PeerConnectionFactory.initialize(
                     PeerConnectionFactory.InitializationOptions.builder(appContext)
 //                            .setFieldTrials(fieldTrials)
-                            .setEnableInternalTracer(true)
+                            .setEnableInternalTracer(false)
                             .createInitializationOptions());
 
 
@@ -77,7 +81,7 @@ public class Device {
 
             // Create peer connection factory.
             PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
-
+            options.disableNetworkMonitor = false;
 //        final boolean enableH264HighProfile =
 //                VIDEO_CODEC_H264_HIGH.equals(peerConnectionParameters.videoCodec);
             final VideoEncoderFactory encoderFactory;
@@ -88,8 +92,8 @@ public class Device {
 //                rootEglBase.getEglBaseContext(), true /* enableIntelVp8Encoder */, enableH264HighProfile);
 //        decoderFactory = new DefaultVideoDecoderFactory(rootEglBase.getEglBaseContext());
 
-            encoderFactory = new SoftwareVideoEncoderFactory();
-            decoderFactory = new SoftwareVideoDecoderFactory();
+            encoderFactory = new DefaultVideoEncoderFactory(rootEglBase.getEglBaseContext(),true, false);
+            decoderFactory = new DefaultVideoDecoderFactory(rootEglBase.getEglBaseContext());
 
             // Disable encryption for loopback calls.
 //        if (peerConnectionParameters.loopback) {
@@ -98,7 +102,7 @@ public class Device {
 
             factory = PeerConnectionFactory.builder()
                     .setOptions(options)
-                    .setAudioDeviceModule(adm)
+                    //.setAudioDeviceModule(adm)
                     .setVideoEncoderFactory(encoderFactory)
                     .setVideoDecoderFactory(decoderFactory)
                     .createPeerConnectionFactory();
@@ -125,12 +129,12 @@ public class Device {
                     new PeerConnection.RTCConfiguration(iceServers);
             // TCP candidates are only useful when connecting to a server that supports
             // ICE-TCP.
-            rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.DISABLED;
+            rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.ENABLED;
             rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE;
-            rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE;
-            rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY;
+            //rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE;
+            //rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY;
             // Use ECDSA encryption.
-            rtcConfig.keyType = PeerConnection.KeyType.ECDSA;
+            //rtcConfig.keyType = PeerConnection.KeyType.ECDSA;
             rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
 
             assert factory != null;
@@ -466,7 +470,6 @@ public class Device {
 
         PeerConnection.RTCConfiguration rtcConfig =
                 new PeerConnection.RTCConfiguration(iceServers);
-
         rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE;
 
         PeerConnection peerConnection = factory.createPeerConnection(rtcConfig, t.transport);

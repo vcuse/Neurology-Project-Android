@@ -2,7 +2,6 @@ package com.example.neurology_project_android.sampledata; // <-- Must be your pa
 
 
 import org.webrtc.MediaStreamTrack;
-
 // FIX 1: Make the class public so your RoomClient can inherit/reference it.
 public abstract class LocalSource {
 

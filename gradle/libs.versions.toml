@@ -12,7 +12,7 @@ navigationCompose = "2.8.5"
 firebaseDatabaseKtx = "21.0.0"
 constraintlayout = "2.2.0"
 media3CommonKtx = "1.5.1"
-cameraCore = "1.4.2"
+cameraCore = "1.5.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

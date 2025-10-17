@@ -136,12 +136,13 @@ public class SendTransport {
 
         sendingRtpParameters.add("encodings", Utils.getRtpEncodings(offerMediaObject));
 
-//        Log.d(TAG,"codec:"+sendingRemoteRtpParameters.getAsJsonArray("codecs").toString());
+        Log.d(TAG,"codec:"+sendingRemoteRtpParameters.getAsJsonArray("codecs").toString());
         // TODO: 2024/10/11 fix mid
-        transport.remoteSdp.send(offerMediaObject, "", sendingRtpParameters, sendingRemoteRtpParameters, null);
 
+        transport.remoteSdp.send(offerMediaObject, "", sendingRtpParameters, sendingRemoteRtpParameters, null);
+        Log.d(TAG, sendingRemoteRtpParameters.toString());
         String remoteSdpStr = transport.remoteSdp.getSdp();
-        //Log.d(TAG, remoteSdpStr);
+
 
         CompletableFuture<Void> futureSetRemote = new CompletableFuture<>();
 
