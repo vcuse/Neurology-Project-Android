@@ -1,5 +1,6 @@
 package com.example.neurology_project_android
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
@@ -10,10 +11,16 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.remember
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Manager
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -60,6 +67,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private lateinit var client: OkHttpClient
     private lateinit var mediaID: String
     private lateinit var webSocket: WebSocket
+    private lateinit var currentRoomClient: RoomClient
 //    private lateinit var localSDP: SessionDescription
 //    private lateinit var track: VideoTrack
 //    private val server =
@@ -119,7 +127,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
     fun joinRoom(room_id: String){
-        var currentRoomClient = RoomClient(room_id, "david_android", socket, context = this.context)
+        currentRoomClient = RoomClient(room_id, "david_android", socket, context = this.context)
 
 
     }
@@ -180,8 +188,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         })
 
     }
-
-
+    private val gson = Gson()
+    private val producerMap: MutableMap<String, Any> = mutableMapOf()
     init {
         this.context = context
         var sessionManager = SessionManager(context)
@@ -202,7 +210,52 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         try{
             socket = IO.socket("https://meechie.techkit.xyz:3016", options)
+            // The Emitter.Listener callback runs on a background thread.
+            socket.on("newProducers", Emitter.Listener { args ->
 
+                // 1. Get the JSONArray containing the list of producer objects
+                val dataArray = args.getOrNull(0) as? JSONArray
+
+                if (dataArray == null || dataArray.length() == 0) {
+                    Log.w(TAG, "Received newProducers event but data array was empty or null.")
+                    return@Listener
+                }
+
+                // 2. Launch a coroutine to handle the asynchronous consumption loop
+                // We use Dispatchers.IO for networking/blocking operations.
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    // --- CONVERSION ---
+                    // Convert the org.json.JSONArray to a List<ProducerInfo> using Gson/TypeToken
+                    val listType = object : TypeToken<List<ProducerInfo>>() {}.type
+
+                    // Note: Since JSONArray doesn't have a direct toString() that Gson handles perfectly
+                    // across all Android versions, we convert to string and parse.
+                    val producerInfoList: List<ProducerInfo> = gson.fromJson(dataArray.toString(), listType)
+
+                    Log.d(TAG, "Attempting to consume ${producerInfoList.size} new producers.")
+
+                    // --- CONSUMPTION LOOP ---
+                    for (info in producerInfoList) {
+
+                        val producerId = info.producer_id
+
+                        // 3. Check if we already created this producer (optional self-check)
+                        if (!producerMap.containsKey(producerId)) {
+                            try {
+                                // 4. Await the asynchronous consumption method
+                                // This method (which you need to implement) handles signaling and transport setup
+                                currentRoomClient.consume(producerId)
+
+                                Log.i(TAG, "Successfully consumed stream for Producer ID: $producerId")
+
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Failed to consume producer $producerId", e)
+                            }
+                        }
+                    }
+                }
+            })
 
         }catch(e: Error){
             Log.d("SOCKET ERROR:" ,e.toString())
