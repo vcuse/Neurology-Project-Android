@@ -265,7 +265,7 @@ class MainActivity : ComponentActivity() {
                 OnlineNowSection(peers) // No need for additional state
             }
 
-            NIHFormsButton()
+            SessionsAndFormsButtons()
         }
     }
 }
@@ -350,20 +350,42 @@ fun PeerIdSection(peerId: String) {
 
 
 @Composable
-fun NIHFormsButton() {
+fun SessionsAndFormsButtons() {
     val context = LocalContext.current
 
-    Button(
-        onClick = {
-            val intent = Intent(context, ListNIHFormActivity::class.java)
-            context.startActivity(intent)
-        },
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
-        shape = RoundedCornerShape(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(text = "NIH Forms")
+        // Sessions Button
+        Button(
+            onClick = {
+                val intent = Intent(context, ListSessionActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(text = "Sessions")
+        }
+
+        // NIH Forms Button
+        Button(
+            onClick = {
+                val intent = Intent(context, ListNIHFormActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(text = "NIH Forms")
+        }
     }
 }
 
