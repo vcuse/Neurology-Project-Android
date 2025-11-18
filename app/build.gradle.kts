@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization").version("2.2.21")
     }
 
 android {
@@ -100,6 +102,10 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    implementation(libs.androidx.runtime)
+    ksp("com.google.dagger:hilt-android-compiler:2.57.2")
     implementation ("com.github.0-u-0:mediasoup-android-sdk:0.0.1")
     implementation("com.github.0-u-0:dugon-webrtc-android:100.0.2")
     implementation("io.socket:socket.io-client:2.1.1")

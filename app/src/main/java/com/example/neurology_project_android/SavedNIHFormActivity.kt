@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,17 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.UUID
 
 class SavedNIHFormActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val form = NIHForm(
-            id = intent.getIntExtra("formId", -1),
-            patientName = intent.getStringExtra("patientName") ?: "",
-            dob = intent.getStringExtra("dob") ?: "",
-            date = intent.getStringExtra("date") ?: "",
-            formData = intent.getStringExtra("formData") ?: "",
-            username = intent.getStringExtra("username") ?: ""
+
         )
 
         setContent {
@@ -41,16 +38,16 @@ class SavedNIHFormActivity : ComponentActivity() {
 fun SavedNIHFormScreen(form: NIHForm) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val questions = remember { StrokeScaleQuestions.questions }
+    val questions = remember { NIHFormModel.questions }
     val selectedOptions = remember { mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } } }
 
     var isEditing by remember { mutableStateOf(false) }
 
     LaunchedEffect(form) {
-        val values = form.formData.map { c -> c.toString().toIntOrNull() ?: 9 }
-        values.forEachIndexed { index, score ->
-            selectedOptions[index] = if (score != 9) score else null
-        }
+//        val values = form.formData.map { c -> c.toString().toIntOrNull() ?: 9 }
+//        values.forEachIndexed { index, score ->
+//            selectedOptions[index] = if (score != 9) score else null
+//        }
     }
 
     Column(
@@ -97,14 +94,9 @@ fun SavedNIHFormScreen(form: NIHForm) {
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            Text(
-                text = "DOB: ${form.dob}",
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
 
             Text(
-                text = "Date: ${form.date}",
+                text = "Date: ${form.formDate}",
                 fontSize = 16.sp,
                 color = Color.Gray
             )
@@ -132,12 +124,7 @@ fun SavedNIHFormScreen(form: NIHForm) {
                 onClick = {
                     if (isEditing) {
                         val updatedForm = NIHForm(
-                            id = form.id,
-                            patientName = form.patientName,
-                            dob = form.dob,
-                            date = form.date,
-                            formData = selectedOptions.joinToString("") { (it ?: 9).toString() },
-                            username = form.username
+
                         )
                         FormManager.updateForm(updatedForm, sessionManager.client) { success ->
                             (context as? ComponentActivity)?.runOnUiThread {
@@ -161,15 +148,15 @@ fun SavedNIHFormScreen(form: NIHForm) {
 
             Button(
                 onClick = {
-                    FormManager.deleteForm(form.id, form.username, sessionManager.client) { success ->
-                        (context as? ComponentActivity)?.runOnUiThread {
-                            if (success) {
-                                (context as? ComponentActivity)?.finish()
-                            } else {
-                                Toast.makeText(context, "Failed to delete form", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
+//                    FormManager.deleteForm(form.formId, form.username!!, sessionManager.client) { success ->
+//                        (context as? ComponentActivity)?.runOnUiThread {
+//                            if (success) {
+//                                (context as? ComponentActivity)?.finish()
+//                            } else {
+//                                Toast.makeText(context, "Failed to delete form", Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+//                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                 modifier = Modifier.weight(1f)
@@ -181,7 +168,12 @@ fun SavedNIHFormScreen(form: NIHForm) {
 }
 
 @Composable
-fun ReadOnlyQuestionCard(question: StrokeScaleQuestion, selectedOptions: List<Int?>) {
+fun QuestionCard(x0: FormQuestion, x1: SnapshotStateList<Int?>) {
+    TODO("Not yet implemented")
+}
+
+@Composable
+fun ReadOnlyQuestionCard(question: FormQuestion, selectedOptions: List<Int?>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,15 +183,15 @@ fun ReadOnlyQuestionCard(question: StrokeScaleQuestion, selectedOptions: List<In
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = question.questionHeader,
+            text = question.questionText,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        if (!question.subHeader.isNullOrEmpty()) {
+        if (!question.instructionText.isNullOrEmpty()) {
             Text(
-                text = question.subHeader,
+                text = question.instructionText,
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -216,7 +208,7 @@ fun ReadOnlyQuestionCard(question: StrokeScaleQuestion, selectedOptions: List<In
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = option.title)
+                Text(text = option.displayText, modifier = Modifier.weight(1f))
                 Text(text = if (option.score > 0) "+${option.score}" else "${option.score}")
             }
         }

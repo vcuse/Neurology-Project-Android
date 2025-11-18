@@ -1,490 +1,217 @@
 package com.example.neurology_project_android
 
-import android.content.Context
-import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+// --- FIX 1: Import the new models ---
+import com.example.neurology_project_android.NIHFormModel
+import com.example.neurology_project_android.FormQuestion
+import com.example.neurology_project_android.NewNIHFormViewModel
+import com.example.neurology_project_android.SubmissionStatus
+import dagger.hilt.android.AndroidEntryPoint
 
+// --- You can remove the old StrokeScaleQuestions import if it exists ---
+ // This annotation tells Hilt to manage dependencies for this Activity
+@AndroidEntryPoint
 class NewNIHFormActivity : ComponentActivity() {
+
+    // 1. Get the ViewModel directly from Hilt.
+    // The `by viewModels()` delegate handles everything for you.
+    private val viewModel: NewNIHFormViewModel by viewModels()
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val formId = intent.getIntExtra("formId", -1)
-        val patientName = intent.getStringExtra("patientName")
-        val dob = intent.getStringExtra("dob")
-        val date = intent.getStringExtra("date")
-        val formData = intent.getStringExtra("formData")
-        val username = intent.getStringExtra("username")
-        val sessionManager = SessionManager(this) // Create the real instance
-        val existingForm = if (patientName != null && dob != null && date != null && formData != null && username != null) {
-            NIHForm(formId, patientName, dob, date, formData, username)
-        } else null
-
+        // Hilt provides the ViewModel and its dependencies automatically.
+        // No manual setup needed.
         setContent {
-            NewNIHFormScreen(existingForm, sessionManager)
-        }
-    }
-}
-
-@Composable
-fun NewNIHFormScreen(existingForm: NIHForm? = null, sessionManager: ISessionManager) {
-    val context = LocalContext.current
-
-    val client = sessionManager.client
-    val coroutineScope = rememberCoroutineScope()
-    var refreshTrigger by remember { mutableStateOf(0) }
-
-    var patientName by remember { mutableStateOf(existingForm?.patientName ?: "") }
-    var dob by remember { mutableStateOf(existingForm?.dob ?: "") }
-    val questions = remember { StrokeScaleQuestions.questions }
-    val selectedOptions = remember {
-        mutableStateListOf<Int?>().apply { repeat(questions.size) { add(null) } }
-    }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val dobCalendar = remember { Calendar.getInstance() }
-    val username = remember { sessionManager.fetchUsername() ?: "anonymous" }
-
-    val date = remember {
-        existingForm?.date ?: SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(Date())
-    }
-
-    // Populate selected options if editing
-    LaunchedEffect(existingForm) {
-        existingForm?.formData?.forEachIndexed { index, c ->
-            val score = c.toString().toIntOrNull() ?: 9
-            selectedOptions[index] = if (score != 9) score else null
+            // 2. Simply pass the Hilt-provided ViewModel to your screen.
+            NewNIHFormScreen(viewModel = viewModel)
         }
     }
 
-    val datePickerDialog = android.app.DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            dobCalendar.set(year, month, dayOfMonth)
-            dob = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(dobCalendar.time)
-        },
-        dobCalendar.get(Calendar.YEAR),
-        dobCalendar.get(Calendar.MONTH),
-        dobCalendar.get(Calendar.DAY_OF_MONTH)
-    )
+    // This is the Composable function your Activity is trying to call.
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Composable
+    fun NewNIHFormScreen(viewModel: NewNIHFormViewModel) {
+        // 1. Observe state directly from the ViewModel
+        val patientName by viewModel.patientName
+        val itemScores by viewModel.itemScores
+        val submissionStatus by viewModel.submissionStatus.collectAsState()
+        val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF3E5F5))
-            .padding(16.dp)
-    ) {
+        // 2. React to changes in submissionStatus (e.g., show a toast, navigate away)
+        LaunchedEffect(submissionStatus) {
+            when (val status = submissionStatus) {
+                is SubmissionStatus.Success -> {
+                    Toast.makeText(context, "Form submitted successfully!", Toast.LENGTH_SHORT).show()
+                    // You could finish the activity upon success
+                    // (context as? android.app.Activity)?.finish()
+                    viewModel.resetSubmissionStatus()
+                }
+                is SubmissionStatus.Error -> {
+                    Toast.makeText(context, status.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetSubmissionStatus()
+                }
+                else -> { /* Do nothing for Idle or Loading states here */ }
+            }
+        }
+
+        // 3. Define the UI structure
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Text(
                 text = "New NIH Stroke Scale Form",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 16.dp)
             )
 
             OutlinedTextField(
                 value = patientName,
-                onValueChange = { patientName = it },
-                label = { Text("Enter Patient Name") },
+                // Send user input events up to the ViewModel
+                onValueChange = { viewModel.onPatientNameChange(it) },
+                label = { Text("Patient Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // A scrollable list for all the questions
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                // --- FIX 2: Use the new NIHFormModel instead of StrokeScaleQuestions ---
+                itemsIndexed(NIHFormModel.questions) { index, question ->
+                    QuestionCard(
+                        question = question,
+                        // Get the currently selected score for this question from the ViewModel's state
+                        selectedScore = itemScores.getOrNull(index),
+                        // When an option is clicked, notify the ViewModel with the question index and the option's score
+                        onOptionClick = { score ->
+                            viewModel.onScoreSelected(index, score)
+                        }
+                    )
+                }
+            }
+
+            Button(
+                // When the button is clicked, call the submitForm function on the ViewModel
+                onClick = { viewModel.submitForm() },
+                // Disable the button while the form is submitting
+                enabled = submissionStatus != SubmissionStatus.Loading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                keyboardOptions = KeyboardOptions(
-                    autoCorrect = false // Disables suggestions
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() } // Closes keyboard on Done press
-                ),
-                placeholder = { Text("") }, // Prevents showing hints
-            )
-
-            OutlinedTextField(
-                value = dob,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Date of Birth") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .clickable { datePickerDialog.show() },
-                enabled = false, //Disables editing, but still clickable due to Modifier
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledBorderColor = MaterialTheme.colorScheme.outline
-                )
-
-            )
-
-
-            Text(
-                text = "Date: $date",
-                fontSize = 16.sp,
-                color = Color.Gray,
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-            )
-        }
-
-        LazyColumn(
-            modifier = Modifier.weight(1f)
-        ) {
-            items(questions) { question ->
-                QuestionCard(question, selectedOptions)
+                    .padding(vertical = 8.dp)
+            ) {
+                if (submissionStatus == SubmissionStatus.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                } else {
+                    Text("Save Form")
+                }
             }
         }
+    }
 
-        Row(
+    /**
+     * A reusable Composable for displaying a single question, its options, and highlighting the selection.
+     */
+    @Composable
+    fun QuestionCard(question: FormQuestion, selectedScore: Int?, onOptionClick: (Int) -> Unit) { // --- FIX 3: Use FormQuestion class ---
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Button(
-                onClick = {
-                    if (patientName.isBlank()) {
-                        Toast.makeText(context, "Please enter a patient name", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
-                    coroutineScope.launch {
-                        val formData = selectedOptions.joinToString("") { (it ?: 9).toString() }
-                        val form = NIHForm(
-                            patientName = patientName,
-                            dob = dob,
-                            date = date,
-                            formData = formData,
-                            username = username
-                        )
-                        FormManager.submitFormToServer(form, client as OkHttpClient) { success ->
-                            (context as? ComponentActivity)?.runOnUiThread {
-                                if (success) {
-                                    Toast.makeText(context, "Form saved successfully", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(context, ListNIHFormActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                                    context.startActivity(intent)
-                                } else {
-                                    Toast.makeText(context, "Failed to save form", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Save", color = Color.White)
-            }
-
-            Button(
-                onClick = {
-                    val intent = Intent(context, ListNIHFormActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    context.startActivity(intent)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Cancel", color = Color.White)
-            }
-        }
-    }
-}
-
-
-@Composable
-fun QuestionCard(question: StrokeScaleQuestion, selectedOptions: MutableList<Int?>) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(Color.White)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.Start
-    ) {
-        // Question Header
-        Text(
-            text = question.questionHeader,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        // Subheader
-        if (!question.subHeader.isNullOrEmpty()) {
-            Text(
-                text = question.subHeader,
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        // Options
-        question.options.forEachIndexed { index, option ->
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .background(
-                        if (selectedOptions[question.id] == index) Color(0xFFA5D6A7) else Color(0xFFF3E5F5)
-                    )
-                    .padding(8.dp)
-                    .clickable { selectedOptions[question.id] = index },
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(16.dp)
             ) {
-                Text(text = option.title)
-                Text(text = if (option.score > 0) "+${option.score}" else "${option.score}")
+                // --- FIX 4: Use properties from the new FormQuestion data class ---
+                Text(text = question.questionText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                if (question.instructionText.isNotEmpty()) {
+                    Text(
+                        text = question.instructionText,
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                // Create a clickable row for each answer option
+                question.options.forEach { option ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                // Highlight the row if its score matches the selected score
+                                if (selectedScore == option.score) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                            )
+                            .clickable { onOptionClick(option.score) } // Pass the option's actual score up
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // --- FIX 5: Use properties from the new FormOption data class ---
+                        Text(text = option.displayText, modifier = Modifier.weight(1f))
+                        Text(text = "${option.score}")
+                    }
+                }
             }
         }
     }
 }
 
-data class StrokeScaleQuestion(
-    val id: Int,
-    val questionHeader: String,
-    val subHeader: String?,
-    val options: List<Option>
-)
-
-data class Option(
-    val title: String,
-    val score: Int
-)
-
-object StrokeScaleQuestions {
-    val questions = listOf(
-        StrokeScaleQuestion(
-            id = 0,
-            questionHeader = "1A: Level of Consciousness",
-            subHeader = "May be assessed casually while taking history",
-            options = listOf(
-                Option("Alert; keenly responsive", 0),
-                Option("Arouses to minor stimulation", 1),
-                Option("Requires repeated stimulation to arouse", 2),
-                Option("Movements to pain", 2),
-                Option("Postures or unresponsive", 3)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 1,
-            questionHeader = "1B: Ask month and age",
-            subHeader = null,
-            options = listOf(
-                Option("Both questions right", 0),
-                Option("1 question right", 1),
-                Option("0 questions right", 2),
-                Option("Dysarthric/intubated/trauma/language barrier", 1),
-                Option("Aphasic", 2)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 2,
-            questionHeader = "1C: 'Blink eyes' & 'Squeeze hands'",
-            subHeader = "Pantomime commands if communication barrier",
-            options = listOf(
-                Option("Performs both tasks", 0),
-                Option("Performs 1 task", 1),
-                Option("Performs 0 tasks", 2)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 3,
-            questionHeader = "2: Horizontal extraocular movements",
-            subHeader = "Only assess horizontal gaze",
-            options = listOf(
-                Option("Normal", 0),
-                Option("Partial gaze palsy: corrects with oculocephalic reflex", 1),
-                Option("Forced gaze palsy: cannot be overcome", 2)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 4,
-            questionHeader = "3: Visual Fields",
-            subHeader = null,
-            options = listOf(
-                Option("No visual loss", 0),
-                Option("Partial hemianopia", 1),
-                Option("Complete hemianopia", 2),
-                Option("Patient is bilaterally blind", 3),
-                Option("Bilateral hemianopia", 3)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 5,
-            questionHeader = "4: Facial Palsy",
-            subHeader = "Use grimace if obtunded",
-            options = listOf(
-                Option("Normal symmetry", 0),
-                Option("Minor paralysis (flat nasolabial fold, smile asymmetry)", 1),
-                Option("Partial paralysis (lower face)", 2),
-                Option("Unilateral complete paralysis (upper/lower face)", 3),
-                Option("Bilateral complete paralysis (upper/lower face)", 3)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 6,
-            questionHeader = "5A: Left arm motor drift",
-            subHeader = "Count out loud and use your fingers to show the patient your count",
-            options = listOf(
-                Option("No drift for 10 seconds", 0),
-                Option("Drift, but doesn't hit bed", 1),
-                Option("Drift, hits bed", 2),
-                Option("Some effort against gravity", 2),
-                Option("No effort against gravity", 3),
-                Option("No movement", 4),
-                Option("Amputation/joint fusion", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 7,
-            questionHeader = "5B: Right arm motor drift",
-            subHeader = "Count out loud and use your fingers to show the patient your count",
-            options = listOf(
-                Option("No drift for 10 seconds", 0),
-                Option("Drift, but doesn't hit bed", 1),
-                Option("Drift, hits bed", 2),
-                Option("Some effort against gravity", 2),
-                Option("No effort against gravity", 3),
-                Option("No movement", 4),
-                Option("Amputation/joint fusion", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 8,
-            questionHeader = "6A: Left leg motor drift",
-            subHeader = "Count out loud and use your fingers to show the patient your count",
-            options = listOf(
-                Option("No drift for 5 seconds", 0),
-                Option("Drift, but doesn't hit bed", 1),
-                Option("Drift, hits bed", 2),
-                Option("Some effort against gravity", 2),
-                Option("No effort against gravity", 3),
-                Option("No movement", 4),
-                Option("Amputation/joint fusion", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 9,
-            questionHeader = "6B: Right leg motor drift",
-            subHeader = "Count out loud and use your fingers to show the patient your count",
-            options = listOf(
-                Option("No drift for 5 seconds", 0),
-                Option("Drift, but doesn't hit bed", 1),
-                Option("Drift, hits bed", 2),
-                Option("Some effort against gravity", 2),
-                Option("No effort against gravity", 3),
-                Option("No movement", 4),
-                Option("Amputation/joint fusion", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 10,
-            questionHeader = "7: Limb Ataxia",
-            subHeader = "FNF/heel-shin",
-            options = listOf(
-                Option("No ataxia", 0),
-                Option("Ataxia in 1 limb", 1),
-                Option("Ataxia in 2 limbs", 2),
-                Option("Does not understand", 0),
-                Option("Paralyzed", 0),
-                Option("Amputation/joint fusion", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 11,
-            questionHeader = "8: Sensation",
-            subHeader = null,
-            options = listOf(
-                Option("Normal; no sensory loss", 0),
-                Option("Mild-moderate loss: less sharp/more dull", 1),
-                Option("Mild-moderate loss: can sense being touched", 1),
-                Option("Complete loss: cannot sense being touched at all", 2),
-                Option("No response and quadriplegic", 2),
-                Option("Coma/unresponsive", 2)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 12,
-            questionHeader = "9: Language/Aphasia",
-            subHeader = "Describe the scene; name the items; read the sentences",
-            options = listOf(
-                Option("Normal; no aphasia", 0),
-                Option("Mild-moderate aphasia: some obvious changes, without significant limitation", 1),
-                Option("Severe aphasia: fragmentary expression, inference needed, cannot identify materials", 2),
-                Option("Mute/global aphasia: no usable speech/auditory comprehension", 3),
-                Option("Coma/unresposive", 3)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 13,
-            questionHeader = "10: Dysarthria",
-            subHeader = "Read the words",
-            options = listOf(
-                Option("Normal", 0),
-                Option("Mild-moderate dysarthria: slurring but can be understood", 1),
-                Option("Severe dysarthria: unintelligible slurring or out of proportion to dysphasia", 2),
-                Option("Mute/anarthic", 2),
-                Option("Intubated/unable to test", 0)
-            )
-        ),
-        StrokeScaleQuestion(
-            id = 14,
-            questionHeader = "11: Extinction/Inattention",
-            subHeader = null,
-            options = listOf(
-                Option("No abnormality", 0),
-                Option("Visual/tactile/auditory/spatial inattention", 1),
-                Option("Extinction to bilateral simultaneous stimulation", 1),
-                Option("Profound hemi-inattention", 2),
-                Option("Extinction to >1 modality", 2)
-            )
-        )
-    )
+// The factory for your ViewModel
+class NewNIHFormViewModelFactory(private val neurologyRepository: SignalingClient) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(NewNIHFormViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return NewNIHFormViewModel(neurologyRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun CallNewFormPreview() {
-
-    val formId = 33
-    val patientName = "patientName"
-    val dob = "test"
-    val date = "33333"
-    val formData = "334999999"
-    val username = "Sim Username"
-
-    val existingForm = if (patientName != null && dob != null && date != null && formData != null && username != null) {
-        NIHForm(formId, patientName, dob, date, formData, username)
-    } else null
-
-    NewNIHFormScreen(existingForm, MockSessionManager())
-}
-

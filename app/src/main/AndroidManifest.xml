@@ -15,7 +15,9 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
-    <uses-feature android:name="android.hardware.usb.host" android:required="true" />    <application
+    <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+    <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

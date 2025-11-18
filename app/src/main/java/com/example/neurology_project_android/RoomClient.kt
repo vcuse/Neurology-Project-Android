@@ -18,22 +18,27 @@ import org.webrtc.MediaStreamTrack
 import java.util.function.Consumer
 import java.util.function.Function
 
-class RoomClient constructor(room_id: String, name: String,  socket: Socket, context: Context) {
+class RoomClient constructor(room_id: String, name: String, socket: Socket, context: Context) {
+    private lateinit var sendTransportIdAudio: String
+    private lateinit var device: Device
+    private lateinit var producers: Any
     private lateinit var consumerTransportId: String
     private var localMedia = null;
     private var remoteMedia = null;
-    private lateinit var consumerTransport:RecvTransport
+    private lateinit var consumerTransport: RecvTransport
     private lateinit var socket: Socket
-    private lateinit var sendTransportId:String
+    private lateinit var sendTransportId: String
 
     @OptIn(UnstableApi::class)
-    fun requestProducer(producerTransportId: String, kind: String, rtpParams: String){
+    fun requestProducer(producerTransportId: String, kind: String, rtpParams: String) {
         Log.d("REQUESTPRODUCER: ", "IN REQUEST PRODUCER")
-        val jsonPayload = JSONObject().apply { put("producerTransportId", producerTransportId)
-        put("kind", kind)
-        put("rtpParameters", JSONObject(rtpParams))}
+        val jsonPayload = JSONObject().apply {
+            put("producerTransportId", producerTransportId)
+            put("kind", kind)
+            put("rtpParameters", JSONObject(rtpParams))
+        }
 
-        socket.emit("produce",  jsonPayload, Ack { args ->
+        socket.emit("produce", jsonPayload, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -60,13 +65,13 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
 //                Device.load(jsonObject)
 
 
-
-
-
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
     }
@@ -76,19 +81,23 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
         t: JSONObject,
         producerId: String
     ) {
-        val jsonPayload = JSONObject().apply { put("transport_id", producerId)
+        val jsonPayload = JSONObject().apply {
+            put("transport_id", producerId)
             put("dtlsParameters", t)
-            }
+        }
         socket.emit("connectTransport", jsonPayload)
         Log.d("ROOMCLIENT", "EMITTED CONNECT TRANSPORT" + t.toString())
 
 
     }
+
     @OptIn(UnstableApi::class)
-    fun createWebRTCTransport(){
-        val jsonPayload = JSONObject().apply { put("forceTcp", "false")
-            put("rtpCapabilities", Device.rtpCapabilities)}
-        socket.emit("createWebRtcTransport",  jsonPayload, Ack { args ->
+    fun createWebRTCTransport() {
+        val jsonPayload = JSONObject().apply {
+            put("forceTcp", "false")
+            put("rtpCapabilities", Device.rtpCapabilities)
+        }
+        socket.emit("createWebRtcTransport", jsonPayload, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -107,16 +116,24 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
                 // 1. Initialize a mutable list to hold the extracted room IDs
 
 
-
                 val gson = Gson()
-                val iceParameters:JsonObject = gson.fromJson(responseData.get("iceParameters").toString(), JsonObject::class.java)
+                val iceParameters: JsonObject = gson.fromJson(
+                    responseData.get("iceParameters").toString(),
+                    JsonObject::class.java
+                )
                 val iceCandidates: JSONArray = responseData.getJSONArray("iceCandidates")
-                val iceCandidatesJson: JsonArray = gson.fromJson(iceCandidates.toString(), JsonArray::class.java)
-                val dtlsParameters:JsonObject = gson.fromJson(responseData.get("dtlsParameters").toString(), JsonObject::class.java)
+                val iceCandidatesJson: JsonArray =
+                    gson.fromJson(iceCandidates.toString(), JsonArray::class.java)
+                val dtlsParameters: JsonObject = gson.fromJson(
+                    responseData.get("dtlsParameters").toString(),
+                    JsonObject::class.java
+                )
 //
 //                Device.load(responseData)
-                val producerTransport = Device.createSendTransport(responseData.get("id").toString(), iceParameters,
-                    iceCandidatesJson, dtlsParameters)
+                val producerTransport = Device.createSendTransport(
+                    responseData.get("id").toString(), iceParameters,
+                    iceCandidatesJson, dtlsParameters
+                )
 
                 sendTransportId = responseData.get("id").toString()
                 Log.d("ROOM CLIENT", "CREATED PRODUCER TRANSPORT: " + producerTransport.toString())
@@ -135,35 +152,128 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
                     }
                 }
 
-                producerTransport.transport.onConnect = Consumer<JSONObject> {dtlsParameters: JSONObject ->
+                producerTransport.transport.onConnect =
+                    Consumer<JSONObject> { dtlsParameters: JSONObject ->
 
                         Log.d("ROOM CLIENT", "ON CONNECT" + dtlsParameters.toString())
 
                         requestConnectTransport(dtlsParameters, sendTransportId)
 
 
-                }
-
-
+                    }
 
 
                 var localVideoSource = Device.createVideoSource()
                 producerTransport.send(localVideoSource)
-                var producerId = producerTransport.onProduce.apply(JSONObject(producerTransport.produceData.toString()))
+                var producerId =
+                    producerTransport.onProduce.apply(JSONObject(producerTransport.produceData.toString()))
                 Log.d("producerIDasdfsdaf", producerId.toString())
 
 
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
 
-        var newJsonPayload = JSONObject().apply { put("forceTcp", "false")
+        val jsonPayloadAudio = JSONObject().apply {
+            put("forceTcp", "false")
+            put("rtpCapabilities", Device.rtpCapabilities)
+        }
+        socket.emit("createWebRtcTransport", jsonPayloadAudio, Ack { args ->
+
+            // This block runs when the server executes 'callback(roomList)'
+
+            if (args.isEmpty() || args[0] == null) {
+                Log.e("SIGNALING CLIENT", "no router rtpCaps")
+                return@Ack
             }
 
-        socket.emit("createWebRtcTransport",  newJsonPayload, Ack { args ->
+            // Assuming the room list is the first argument in the callback's arguments array
+            val responseData = args[0]
+
+            if (responseData is JSONObject) {
+
+
+                Log.d("SIGNALING CLIENT", "SUCCESS! transport created: $responseData")
+                // 1. Initialize a mutable list to hold the extracted room IDs
+
+
+                val gson = Gson()
+                val iceParameters: JsonObject = gson.fromJson(
+                    responseData.get("iceParameters").toString(),
+                    JsonObject::class.java
+                )
+                val iceCandidates: JSONArray = responseData.getJSONArray("iceCandidates")
+                val iceCandidatesJson: JsonArray =
+                    gson.fromJson(iceCandidates.toString(), JsonArray::class.java)
+                val dtlsParameters: JsonObject = gson.fromJson(
+                    responseData.get("dtlsParameters").toString(),
+                    JsonObject::class.java
+                )
+//
+//                Device.load(responseData)
+                val producerTransport = Device.createSendTransport(
+                    responseData.get("id").toString(), iceParameters,
+                    iceCandidatesJson, dtlsParameters
+                )
+
+                sendTransportIdAudio = responseData.get("id").toString()
+                Log.d("ROOM CLIENT", "CREATED PRODUCER TRANSPORT: " + producerTransport.toString())
+
+                producerTransport.onProduce = object : Function<JSONObject, String> {
+                    override fun apply(pData: JSONObject): String {
+                        Log.d("ROOM CLIENT", "IN ONPRODUCE")
+                        // The 'apply' method is the Single Abstract Method (SAM) that must be implemented
+                        Log.d("ROOM CLIENT", "IN PRODUCER TRANSPORT ONPRODUCE" + pData.toString())
+                        var rtpParams = pData.get("rtpParameters").toString()
+
+                        var kind = pData.get("kind").toString()
+
+                        requestProducer(sendTransportIdAudio, kind, rtpParams)
+                        return "hi"
+                    }
+                }
+
+                producerTransport.transport.onConnect =
+                    Consumer<JSONObject> { dtlsParameters: JSONObject ->
+
+                        Log.d("ROOM CLIENT", "ON CONNECT" + dtlsParameters.toString())
+
+                        requestConnectTransport(dtlsParameters, sendTransportIdAudio)
+
+
+                    }
+
+
+                var localAudioSource = Device.createAudioSource()
+                producerTransport.send(localAudioSource)
+                var producerId =
+                    producerTransport.onProduce.apply(JSONObject(producerTransport.produceData.toString()))
+                Log.d("producerIDasdfsdaf", producerId.toString())
+
+
+                // TODO: Update ViewModel/Activity state here
+
+            } else {
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
+            }
+        })
+
+
+        var newJsonPayload = JSONObject().apply {
+            put("forceTcp", "false")
+            put("rtpCapabilities", Device.rtpCapabilities)
+        }
+
+        socket.emit("createWebRtcTransport", newJsonPayload, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -184,35 +294,62 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
 
                 val gson = Gson()
                 this.consumerTransportId = responseData.get("id").toString()
-                this.consumerTransport = Device.createRecvTransport(responseData.get("id").toString(),
-                    gson.fromJson(responseData.get("iceParameters").toString(), JsonObject::class.java) ,
-                    gson.fromJson(responseData.get("iceCandidates").toString(), JsonArray::class.java), gson.fromJson(responseData.get("dtlsParameters").toString(), JsonObject::class.java)
+                Log.d("SIGNALINGCLIENT", "CONSUMERTRANSPORTID IS " + consumerTransportId)
+                this.consumerTransport = Device.createRecvTransport(
+                    responseData.get("id").toString(),
+                    gson.fromJson(
+                        responseData.get("iceParameters").toString(),
+                        JsonObject::class.java
+                    ),
+                    gson.fromJson(
+                        responseData.get("iceCandidates").toString(),
+                        JsonArray::class.java
+                    ),
+                    gson.fromJson(
+                        responseData.get("dtlsParameters").toString(),
+                        JsonObject::class.java
+                    )
                 )
 
-                this.consumerTransport.onConnect = Consumer<JSONObject> { dtlsParameters: JSONObject ->
-                    Log.d("ROOM CLIENT", "ON CONNECT")
-                }
-                this.consumerTransport.onTrack = Consumer<MediaStreamTrack> { track: MediaStreamTrack ->
-                    Log.d("ROOM CLIENT", "ON TRACK")
-                }
+                this.consumerTransport.onConnect =
+                    Consumer<JSONObject> { dtlsParameters: JSONObject ->
+                        var jsonArray = JSONArray()
+                        jsonArray.put(dtlsParameters.get("fingerprints"))
+                        var jsonObject = JSONObject().put("fingerPrints", jsonArray)
 
-                this.consumerTransport.receive(consumerTransportId, "audio", Device.rtpCapabilities)
+                        var jsonPayload = JSONObject().apply {
+                            put("transport_id", consumerTransportId)
+                            put("dtlsParameters", dtlsParameters)
+                        }
+                        Log.d("ROOM CLIENT", "ON CONNECT params $dtlsParameters")
+
+                        socket.emit("connectTransport", jsonPayload)
+                    }
+                this.consumerTransport.onTrack =
+                    Consumer<MediaStreamTrack> { track: MediaStreamTrack ->
+                        Log.d("ROOM CLIENT", "ON TRACK")
+
+                    }
+
+//                this.consumerTransport.receive(consumerTransportId, "audio", Device.rtpCapabilities)
 
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
-
 
 
     }
 
     @OptIn(UnstableApi::class)
-    fun getRouterRtpCapabilities(){
+    fun getRouterRtpCapabilities() {
         val jsonPayload = JSONObject().apply { }
-        socket.emit("getRouterRtpCapabilities",  jsonPayload, Ack { args ->
+        socket.emit("getRouterRtpCapabilities", jsonPayload, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -230,7 +367,8 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
                 Log.d("SIGNALING CLIENT", "SUCCESS! routerRTCCapabilities Recv $responseData")
                 // 1. Initialize a mutable list to hold the extracted room IDs
                 val gson = Gson()
-                val jsonObject:JsonObject = gson.fromJson(responseData.toString(), JsonObject::class.java)
+                val jsonObject =
+                    gson.fromJson(responseData.toString(), JsonObject::class.java)
 
 
 //
@@ -239,13 +377,13 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
                 Device.load(jsonObject)
 
 
-
-
-
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
 
@@ -253,11 +391,13 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
 
 
     @OptIn(UnstableApi::class)
-    fun joinRoom(room_id: String, name: String){
+    fun joinRoom(room_id: String, name: String) {
 
-        val jsonPayload = JSONObject().apply { put("room_id", room_id)
-        put("name", name)}
-        socket.emit("join",  jsonPayload, Ack { args ->
+        val jsonPayload = JSONObject().apply {
+            put("room_id", room_id)
+            put("name", name)
+        }
+        socket.emit("join", jsonPayload, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -274,27 +414,26 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
 
                 Log.d("SIGNALING CLIENT", "SUCCESS! Room joined: $responseData")
                 // 1. Initialize a mutable list to hold the extracted room IDs
-
-
-
-
-
-
+                //this.producers = responseData.get("producers")
 
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
         getRouterRtpCapabilities()
         createWebRTCTransport()
     }
+
     @OptIn(UnstableApi::class)
-    fun createRoom(room_id: String){
+    fun createRoom(room_id: String) {
         val emptyPayload = JSONObject()
 
-        socket.emit("createRoom", { room_id}, Ack { args ->
+        socket.emit("createRoom", { room_id }, Ack { args ->
 
             // This block runs when the server executes 'callback(roomList)'
 
@@ -323,25 +462,47 @@ class RoomClient constructor(room_id: String, name: String,  socket: Socket, con
                 }
 
 
-
-
                 // TODO: Update ViewModel/Activity state here
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
             }
         })
     }
 
+    @OptIn(UnstableApi::class)
     fun consume(producerId: String) {
+        val gson = Gson()
 
-        var payload = JSONObject().apply { put("producerId", producerId)
-        put("rtpCapabilities", Device.rtpCapabilities, )}
-        this.socket.emit("consume")
+        val jsonString: String = gson.toJson(Device.rtpCapabilities)
+        var payload = JSONObject().apply {
+            put("producerId", producerId)
+            put("rtpCapabilities", JSONObject(jsonString))
+            put("consumerTransportId", consumerTransportId)
+        }
+        Log.d("ROOM CLIENT", "CONSUMED CALLING params were $payload")
+
+        this.socket.emit("consume", payload , Ack { args ->
+            val response = args[0]
+            if (response is JSONObject) {
+                val jsonString: JsonObject = gson.fromJson(response.get("rtpParameters").toString(),
+                    JsonObject::class.java)
+
+                Log.d("ROOM CLIENT", "RESPONSE WAS $response")
+                this.consumerTransport.receive(response.get("id").toString(), response.get("kind").toString(), jsonString)
+
+            }
+        })
     }
 
-    private var device = Device()
+
+
     init {
+
+
         this.socket = socket
         Device.initialize(context)
 

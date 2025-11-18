@@ -21,27 +21,23 @@ public class LocalVideoSource extends LocalSource {
 
     private static final String TAG = "LocalVideoSource";
     private final Context appContext;
-    public VideoTrack track;
     private final VideoCapturer capturer;
     private final VideoSource source;
     private final SurfaceTextureHelper surfaceTextureHelper;
+    public VideoTrack track;
 
     public LocalVideoSource(Context context, EglBase rootEglBase, VideoSource videoSource, VideoTrack videoTrack) throws CameraAccessException {
         appContext = context;
         source = videoSource;
         track = videoTrack;
         CameraManager cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        //String lastCameraId = cameraManager.getCameraIdList()[cameraManager.getCameraIdList().length-1];
         String lastCameraId = cameraManager.getCameraIdList()[cameraManager.getCameraIdList().length - 1];
         Camera2Capturer cameraCapturer = new Camera2Capturer(context, lastCameraId, null);
 
         CameraEnumerator enumerator = new Camera2Enumerator(appContext);
         capturer = createCameraCapturer(enumerator);
-//        capturer = createCameraCapturer(new Camera2Enumerator(appContext));
         surfaceTextureHelper =
                 SurfaceTextureHelper.create("CaptureThread", rootEglBase.getEglBaseContext());
-//        capturer.initialize(surfaceTextureHelper, appContext, source.getCapturerObserver());
-//        capturer.startCapture(1080, 1920, 30);
         cameraCapturer.initialize(surfaceTextureHelper, appContext, source.getCapturerObserver());
         cameraCapturer.startCapture(1920, 1080, 30);
     }
@@ -57,9 +53,6 @@ public class LocalVideoSource extends LocalSource {
     }
 
 
-    //    public void play(Player player){
-//        track.addSink(player);
-//    }
 
     private @Nullable VideoCapturer createCameraCapturer(CameraEnumerator enumerator) {
         final String[] deviceNames = enumerator.getDeviceNames();
@@ -67,14 +60,14 @@ public class LocalVideoSource extends LocalSource {
         // First, try to find front facing camera
         Logging.d(TAG, "Looking for front facing cameras.");
         for (String deviceName : deviceNames) {
-//            if (enumerator.isFrontFacing(deviceName)) {
+
             Logging.d(TAG, "Creating camera capturer.");
             VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
 
             if (videoCapturer != null) {
                 return videoCapturer;
             }
-//            }
+
         }
 
         // Front facing camera not found, try something else

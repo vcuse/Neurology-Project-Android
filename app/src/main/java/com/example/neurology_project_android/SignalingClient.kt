@@ -20,6 +20,10 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
@@ -52,14 +56,20 @@ import kotlin.contracts.contract
 //import org.webrtc.VideoProcessor
 //import org.webrtc.VideoSource
 
+
+class HeaderAndMessage(header: String, message: JSONObject) {
+
+}
+
+
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class SignalingClient @OptIn(UnstableApi::class) constructor
     (
     context: Context,
-    private val onPeersFetched: (List<String>) -> Unit
+//    private val onPeersFetched: (List<String>) -> Unit
 
 ) {
-//    private lateinit var localPeer: PeerConnection
+    //    private lateinit var localPeer: PeerConnection
     private lateinit var httpUrl: String
     private lateinit var theirID: String
     private lateinit var context: Context
@@ -68,13 +78,16 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     private lateinit var mediaID: String
     private lateinit var webSocket: WebSocket
     private lateinit var currentRoomClient: RoomClient
-//    private lateinit var localSDP: SessionDescription
-//    private lateinit var track: VideoTrack
-//    private val server =
-//        PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
-//    private var candidatesList = ArrayList<IceCandidate>()
+    private val clientScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var isReadyToAddIceCandidate: Boolean = false
     private var candidateMessagesToSend = ArrayList<String>()
+
+    // A private, mutable flow that the WebSocketListener can post values to.
+    private val _peerListFlow = MutableSharedFlow<List<String>>()
+
+    // A public, read-only SharedFlow that the rest of the app can collect.
+    val peerListFlow: SharedFlow<List<String>> = _peerListFlow.asSharedFlow()
+
 
     val availabilityCallback = object : CameraManager.AvailabilityCallback() {
         @OptIn(UnstableApi::class)
@@ -93,14 +106,6 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
 
-
-
-
-
-
-
-
-
     @OptIn(UnstableApi::class)
     private fun buildVideoSenders(context: Context, url: String) {
 
@@ -109,13 +114,13 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         cameraManager.registerAvailabilityCallback(availabilityCallback, null)
 
 
-        val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val audioManager: AudioManager =
+            context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         Log.d("Cameras", cameraManager.toString())
         val cameraList = cameraManager.cameraIdList
         val camera01 = cameraManager.cameraIdList.first()
         val camera02 = cameraManager.cameraIdList.last()
-
 
         client = OkHttpClient().newBuilder().build()
         httpUrl = url
@@ -123,81 +128,85 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
         val audioDeviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
         Log.d("Signaling Client", "Audio devices" + audioDeviceInfo.size)
 
-
     }
 
-    fun joinRoom(room_id: String){
+    fun joinRoom(room_id: String) {
         currentRoomClient = RoomClient(room_id, "david_android", socket, context = this.context)
-
-
     }
 
 
-    fun getAuthToken(){
-
+    @OptIn(UnstableApi::class)
+    fun submitToServer(header:String, payload: JSONObject){
+        socket.emit(header, payload, Ack { args ->
+            val responseData = args[0]
+            Log.d(TAG, "Response from server: $responseData")
+        })
     }
+
     private var rooms: Array<String> = emptyArray()
     private var roomList = mutableListOf<String>()
     private lateinit var socket: Socket;
 
 
     @OptIn(UnstableApi::class)
-    fun getRoomList(){
+    fun getRoomList() {
         Log.d("SIGNALING CLIENT", "Attempting to emit getRoomList with Ack")
 
-        // 1. Prepare the payload (empty, as the server doesn't need it for this event)
-        val emptyPayload = JSONObject() // Or simply passing 'null' might work, but this is safer
+        val emptyPayload = JSONObject()
 
-        // 2. Emit the event with two arguments: Payload + Ack Callback
         socket.emit("getRoomList", emptyPayload, Ack { args ->
-
-            // This block runs when the server executes 'callback(roomList)'
-
             if (args.isEmpty() || args[0] == null) {
                 Log.e("SIGNALING CLIENT", "No room list received.")
+                // It's good practice to emit an empty list on failure too
+                clientScope.launch { _peerListFlow.emit(emptyList()) }
                 return@Ack
             }
 
-            // Assuming the room list is the first argument in the callback's arguments array
             val responseData = args[0]
 
             if (responseData is JSONArray) {
-
-
                 Log.d("SIGNALING CLIENT", "SUCCESS! Room List received: $responseData")
-                // 1. Initialize a mutable list to hold the extracted room IDs
 
-                var roomList = mutableListOf<String>()
+                // --- FIX IS HERE ---
+                // 1. Create a new list to hold the parsed room IDs.
+                val parsedRoomList = mutableListOf<String>()
 
-                // 2. Loop through the JSONArray
+                // 2. Loop through the JSONArray and extract each string.
                 for (i in 0 until responseData.length()) {
-                    // 3. Safely extract each element as a String
-                    val roomId = responseData.getString(i)
-                    roomList.add(roomId)
-                    onPeersFetched(roomList)
+                    // Use optString to safely get the string at each index.
+                    val roomName = responseData.optString(i)
+                    if (roomName.isNotEmpty()) {
+                        parsedRoomList.add(roomName)
+                    }
                 }
 
-
-
-
-                // TODO: Update ViewModel/Activity state here
+                // 3. Launch a coroutine to emit the PARSED list to the flow.
+                clientScope.launch {
+                    Log.d("SIGNALING CLIENT", "Emitting parsed room list to flow: $parsedRoomList")
+                    _peerListFlow.emit(parsedRoomList)
+                }
+                // --- END OF FIX ---
 
             } else {
-                Log.e("SIGNALING CLIENT", "Received unexpected response type: ${responseData.javaClass.name}")
+                Log.e(
+                    "SIGNALING CLIENT",
+                    "Received unexpected response type: ${responseData.javaClass.name}"
+                )
+                // Also emit an empty list if the data format is wrong
+                clientScope.launch { _peerListFlow.emit(emptyList()) }
             }
         })
-
     }
+
     private val gson = Gson()
     private val producerMap: MutableMap<String, Any> = mutableMapOf()
-    init {
-        this.context = context
+
+    @OptIn(UnstableApi::class)
+    fun connectClient(){
         var sessionManager = SessionManager(context)
         var token = sessionManager.fetchAuthToken()
         Log.d("SIGNALING CLIENT", "token is " + token)
         val authMap = mapOf("cookie" to listOf(token))
-
-
 
 
         val options = IO.Options.builder()
@@ -208,11 +217,13 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             .build()
 
 
-        try{
+        try {
             socket = IO.socket("https://meechie.techkit.xyz:3016", options)
+            socket.connect()
             // The Emitter.Listener callback runs on a background thread.
             socket.on("newProducers", Emitter.Listener { args ->
-
+//                this.currentRoomClient.consume()
+                Log.e(TAG, "RECEIVED PRODUCERS")
                 // 1. Get the JSONArray containing the list of producer objects
                 val dataArray = args.getOrNull(0) as? JSONArray
 
@@ -231,7 +242,8 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
                     // Note: Since JSONArray doesn't have a direct toString() that Gson handles perfectly
                     // across all Android versions, we convert to string and parse.
-                    val producerInfoList: List<ProducerInfo> = gson.fromJson(dataArray.toString(), listType)
+                    val producerInfoList: List<ProducerInfo> =
+                        gson.fromJson(dataArray.toString(), listType)
 
                     Log.d(TAG, "Attempting to consume ${producerInfoList.size} new producers.")
 
@@ -247,7 +259,10 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                                 // This method (which you need to implement) handles signaling and transport setup
                                 currentRoomClient.consume(producerId)
 
-                                Log.i(TAG, "Successfully consumed stream for Producer ID: $producerId")
+                                Log.i(
+                                    TAG,
+                                    "Successfully consumed stream for Producer ID: $producerId"
+                                )
 
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to consume producer $producerId", e)
@@ -257,14 +272,19 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                 }
             })
 
-        }catch(e: Error){
-            Log.d("SOCKET ERROR:" ,e.toString())
+        } catch (e: Error) {
+            Log.d("SOCKET ERROR:", e.toString())
         }
 
-        socket.connect()
+
         fixedRateTimer("getRoomList timer", false, 0L, 175000L) {
             getRoomList()
         }
+    }
+
+    init {
+        this.context = context
+
 
 
 

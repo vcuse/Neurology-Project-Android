@@ -1,5 +1,6 @@
 package com.example.neurology_project_android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,7 +29,7 @@ class CallScreenActivity : ComponentActivity() {
 @Composable
 fun CallScreen() {
     var isMuted by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +53,15 @@ fun CallScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { /* Open Stroke Scale Form */ },
+
+                    onClick = {
+                        val intent = Intent(
+                            context,
+                            ListNIHFormActivity::class.java
+                        )
+                        // 3. Start the new Activity
+                        context.startActivity(intent)
+                              /* Open Stroke Scale Form */ },
                     modifier = Modifier
                         .size(64.dp)
                         .background(Color.Gray, shape = CircleShape)

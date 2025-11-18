@@ -13,6 +13,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.imagecapture.CameraRequest
@@ -44,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,11 +63,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
 
@@ -77,8 +83,8 @@ class MainActivity : ComponentActivity() {
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
     private lateinit var signalingClient: SignalingClient
-
-
+    private lateinit var signalingRepository: SignalingRepository
+    private val viewModel: MainViewModel by viewModels()
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -101,61 +107,37 @@ class MainActivity : ComponentActivity() {
             ), 1
         )
 
-        
+
 
         enableEdgeToEdge()
 
         setContent {
             NeurologyProjectAndroidTheme {
-                val userIdState = remember { mutableStateOf<String?>(null) }
-                val peersState = remember { mutableStateOf<List<String>>(emptyList()) }
-
-                // Fetch user ID once
-                LaunchedEffect(Unit) {
-                    val fetchedId = fetchUserId()
-                    userIdState.value = fetchedId
-
-                     //Now safe to start SignalingClient
-                    signalingClient = SignalingClient(
-                        this@MainActivity,
-
-                        { peers ->
-                            runOnUiThread {
-                                peersState.value = peers.filter { it != fetchedId }
+                viewModel.connectSignalingClient()
+                val uiState by viewModel.uiState.collectAsState()
+                // 3. OBSERVE state from the ViewModel
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    when (val state = uiState) {
+                        is MainUiState.Loading -> {
+                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator()
                             }
                         }
-
-                    )
-
-//                    // Fetch peers
-//                    GetPeers { peers ->
-//                        runOnUiThread {
-//                            peersState.value = peers.filter { it != fetchedId }
-//                        }
-//                    }
-                }
-
-                val userId = userIdState.value
-
-                if (userId == null) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        containerColor = Color.Transparent,
-                        content = {
-                        innerPadding ->
-
-                            myApp(peersState.value, innerPadding)
+                        is MainUiState.Error -> {
+                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                Text("Error: ${state.message}")
+                            }
                         }
-
-
-                    )
+                        is MainUiState.Success -> {
+                            // Pass the state down to your UI
+                            MyApp(
+                                userId = state.userId,
+                                peers = state.peers,
+                                innerPadding = innerPadding,
+                                onJoinRoom = { targetId -> viewModel.joinRoom(targetId) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -233,44 +215,47 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // All your other @Composable functions should be updated to accept the data and lambdas they need
+    // For example, MyApp now takes the userId, peers, and onJoinRoom lambda
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun myApp(peers: List<String>, innerPadding: PaddingValues) {
-
-        var navController = rememberNavController()
-
+    fun MyApp(
+        userId: String,
+        peers: List<String>,
+        innerPadding: PaddingValues,
+        onJoinRoom: (String) -> Unit // FIX #1: This is a simple function type, not @Composable
+    ) {
+        val navController = rememberNavController()
         NavHost(navController, startDestination = "home") {
             composable("home") {
                 HomeScreen(
-                    onNavigateToProfile = { navController.navigate("callScreen") },
                     modifier = Modifier.padding(innerPadding),
-                    peerId = "VR CLIENT",
-                    peers = peers
+                    userId = userId, // Pass state down
+                    peers = peers,   // Pass state down
+                    onJoinRoom = onJoinRoom, // Pass the event handler down
+                    onNavigateToCallScreen = { navController.navigate("callScreen") }
                 )
-
-                // A simple loading/home screen
-                //Greeting()
             }
             composable("callScreen") {
+                // Assuming CallScreen is defined elsewhere
                 CallScreen()
             }
         }
-
     }
 
 
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>, onNavigateToProfile: () -> Unit) {
+    fun HomeScreen(
+        modifier: Modifier = Modifier,
+        userId: String,
+        peers: List<String>,
+        onJoinRoom: (String) -> Unit,
+        onNavigateToCallScreen: () -> Unit
+    ) {
         val context = LocalContext.current
-
-
         val sessionManager = remember { SessionManager(context) }
-        // Refresh UI every 3 seconds
-        LaunchedEffect(peers) {
-            // This will trigger recomposition whenever peers update
-        }
 
         Column(
             modifier = modifier
@@ -278,27 +263,24 @@ class MainActivity : ComponentActivity() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = {
-                        sessionManager.logout()
-                        val intent = Intent(context, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
+            // Logout Button
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = {
+                    sessionManager.logout()
+                    val intent = Intent(context, LoginActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
-                ) {
+                    context.startActivity(intent)
+                }) {
                     Text("Log Out", color = MaterialTheme.colorScheme.primary)
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            PeerIdSection("VR CLIENT") // Displays the correct Peer ID
+            // Peer ID Section
+            PeerIdSection(peerId = userId)
 
+            // Online Now Section (Scrollable)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -306,9 +288,14 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OnlineNowSection(peers,onNavigateToProfile) // No need for additional state
+                OnlineNowSection(
+                    peers = peers,
+                    onJoinRoom = onJoinRoom,
+                    onNavigateToCallScreen = onNavigateToCallScreen
+                )
             }
 
+            // NIH Forms Button
             NIHFormsButton()
         }
     }
@@ -334,32 +321,64 @@ suspend fun fetchUserId(): String {
     }
 }
 
-
-
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@Composable
+fun OnlineNowSection(
+    peers: List<String>,
+    onJoinRoom: (String) -> Unit,
+    onNavigateToCallScreen: () -> Unit
+) {
+    Text(
+        text = "Online Now:",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    if (peers.isEmpty()) {
+        Text(text = "No peers online", modifier = Modifier.padding(16.dp))
+    } else {
+        peers.forEach { peerId ->
+            OnlineUserCard(
+                userId = peerId,
+                onJoinClick = {
+                    // FIX #2: Chain the events. Call ViewModel then navigate.
+                    onJoinRoom(peerId)
+                    onNavigateToCallScreen()
+                }
+            )
+        }
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-    signalingClient: SignalingClient,
-    cameraInitialized: Boolean,
-    @SuppressLint("RestrictedApi") cameraRequest: () -> CameraRequest,
-    isInCall: Boolean
-) {
-
-
-//    LaunchedEffect(isInCall) {
-//        if (isInCall) {
-//            navController.navigate("callScreen")
-//        } else {
-//            navController.navigate("home") // Navigate back when call ends
-//        }
-//    }
-
-
-
+fun OnlineUserCard(userId: String, onJoinClick: () -> Unit) { // FIX #3: Simplified parameter
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = userId, modifier = Modifier.weight(1f).padding(end = 16.dp))
+            Button(
+                onClick = onJoinClick, // Use the simplified lambda
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text(text = "Call")
+            }
+        }
+    }
 }
+
+
+
 
 
 

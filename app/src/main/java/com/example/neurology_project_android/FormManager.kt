@@ -1,45 +1,42 @@
 package com.example.neurology_project_android
 
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.UUID
 
 object FormManager {
 
+    var TAG = "FormManager"
     fun submitFormToServer(form: NIHForm, client: OkHttpClient, onResult: (Boolean) -> Unit) {
-        val json = JSONObject().apply {
-            put("patientName", form.patientName)
-            put("patientDob", form.dob)
-            put("formDate", form.date)
-            put("results", form.formData)
-            put("username", form.username)
-        }
-
+        val jsonString = Gson().toJson(form)
+        Log.d(TAG, "values are " + form.toString())
         val requestBody = RequestBody.create(
             "application/json; charset=utf-8".toMediaTypeOrNull(),
-            json.toString()
+            jsonString
         )
 
         val request = Request.Builder()
-            .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+            .url("https://meechie.techkit.xyz:3016/key=peerjs/post")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-            .addHeader("Action", "submitStrokeScale")
+            .addHeader("Action", "start_new_nihss_form")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.e(TAG, e.toString())
                 onResult(false)
             }
 
             override fun onResponse(call: Call, response: Response) {
+                Log.d(TAG, response.toString())
                 onResult(response.isSuccessful)
             }
         })
@@ -61,7 +58,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+            .url("https://meechie.techkit.xyz:3016/key=peerjs/post")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "getUsersForms")
@@ -75,28 +72,28 @@ object FormManager {
 
                 for (i in 0 until jsonArray.length()) {
                     val item = jsonArray.getJSONObject(i)
-                    forms.add(
-                        NIHForm(
-                            id = item.getInt("id"),
-                            patientName = item.getString("patient_name"),
-                            dob = item.getString("patient_dob"),
-                            date = item.getString("form_date"),
-                            formData = item.getString("results"),
-                            username = item.getString("username")
-                        )
-                    )
+//                    forms.add(
+//                        NIHForm(
+//                            form_id = UUID.randomUUID(),
+////                            patientName = item.getString("patient_name"),
+////                            dob = item.getString("patient_dob"),
+////                            date = item.getString("form_date"),
+////                            formData = item.getString("results"),
+//                            username = item.getString("username")
+//                        )
+//                    )
                 }
             } else {
                 Log.e("FORM_MANAGER", "Server error: ${response.code}")
             }
-        } catch (e: IOException) {
-            Log.e("FORM_MANAGER", "Network error: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("FORM_MANAGER", "Error opening form: ${e.message}")
         }
 
         return@withContext forms
     }
 
-    fun deleteForm(formId: Int, username: String, client: OkHttpClient, callback: (Boolean) -> Unit) {
+    fun deleteForm(formId: UUID, username: String, client: OkHttpClient, callback: (Boolean) -> Unit) {
         val json = JSONObject().apply {
             put("id", formId)
             put("username", username)
@@ -108,7 +105,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+            .url("https://meechie.techkit.xyz:3016/key=peerjs/post")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "deleteForm")
@@ -129,12 +126,12 @@ object FormManager {
 
     fun updateForm(form: NIHForm, client: OkHttpClient, onComplete: (Boolean) -> Unit) {
         val json = JSONObject().apply {
-            put("id", form.id)
-            put("patientName", form.patientName)
-            put("patientDob", form.dob)
-            put("formDate", form.date)
-            put("results", form.formData)
-            put("username", form.username)
+//            put("id", form.id)
+//            put("patientName", form.patientName)
+//            put("patientDob", form.dob)
+//            put("formDate", form.date)
+//            put("results", form.formData)
+//            put("username", form.username)
         }
 
         val requestBody = RequestBody.create(
@@ -143,7 +140,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post")
+            .url("https://meechie.techkit.xyz:3016/key=peerjs/post")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "updateForm")

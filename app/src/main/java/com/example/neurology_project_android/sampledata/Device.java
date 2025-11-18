@@ -131,10 +131,10 @@ public class Device {
             // ICE-TCP.
             rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.ENABLED;
             rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE;
-            //rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE;
-            //rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY;
+            rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE;
+            rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY;
             // Use ECDSA encryption.
-            //rtcConfig.keyType = PeerConnection.KeyType.ECDSA;
+            rtcConfig.keyType = PeerConnection.KeyType.ECDSA;
             rtcConfig.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
 
             assert factory != null;
@@ -215,7 +215,8 @@ public class Device {
     public  static LocalAudioSource createAudioSource() {
         Callable<LocalAudioSource> task = () -> {
 
-            MediaConstraints audioConstraints = new MediaConstraints();;
+            MediaConstraints audioConstraints = new MediaConstraints();
+
 
             AudioSource audioSource = factory.createAudioSource(audioConstraints);
             AudioTrack localAudioTrack = factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
