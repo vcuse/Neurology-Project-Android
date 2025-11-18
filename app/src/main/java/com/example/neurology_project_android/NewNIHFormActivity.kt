@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -78,6 +80,12 @@ class NewNIHFormActivity : ComponentActivity() {
         val itemScores by viewModel.itemScores
         val submissionStatus by viewModel.submissionStatus.collectAsState()
         val context = LocalContext.current
+
+        val totalScore by remember(itemScores) {
+            derivedStateOf {
+                itemScores.mapNotNull { it }.sum()
+            }
+        }
 
         // 2. React to changes in submissionStatus (e.g., show a toast, navigate away)
         LaunchedEffect(submissionStatus) {
@@ -135,6 +143,30 @@ class NewNIHFormActivity : ComponentActivity() {
                     )
                 }
             }
+
+            // --- NEW: ADD THE TOTAL SCORE DISPLAY ---
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Total NIHSS Score:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    text = "$totalScore", // Display the calculated total score
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 // When the button is clicked, call the submitForm function on the ViewModel
