@@ -13,6 +13,8 @@ import java.util.UUID
 @Serializable
 data class NIHForm(
 
+    @SerialName(value = "form_id")
+    val form_id: String? = null,
 
     // Other string/text fields (all nullable)
     @SerialName("username")
@@ -23,6 +25,9 @@ data class NIHForm(
 
     @SerialName("patient_name")
     val patientName: String? = null,
+
+    @SerialName("patient_dob")
+    val patientDob: String? = null,
 
     @SerialName("sessionid")
     val sessionId: String? = null,

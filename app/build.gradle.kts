@@ -31,9 +31,9 @@ android {
 
             buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
-            buildConfigField("int", "PORT", "3016")
+            buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:3016/key=peerjs/post\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -47,9 +47,9 @@ android {
 
             buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
-            buildConfigField("int", "PORT", "3016")
+            buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:3016/key=peerjs/post\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }

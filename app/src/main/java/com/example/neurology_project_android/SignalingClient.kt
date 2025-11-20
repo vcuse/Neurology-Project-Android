@@ -136,11 +136,15 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
     @OptIn(UnstableApi::class)
-    fun submitToServer(header:String, payload: JSONObject){
+    fun submitToServer(header:String, payload: JSONObject): String {
+        var response = "blank"
         socket.emit(header, payload, Ack { args ->
             val responseData = args[0]
             Log.d(TAG, "Response from server: $responseData")
+            response = responseData.toString()
         })
+
+        return response
     }
 
     private var rooms: Array<String> = emptyArray()
@@ -218,7 +222,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
         try {
-            socket = IO.socket("https://meechie.techkit.xyz:3016", options)
+            socket = IO.socket("https://meechie.techkit.xyz:444", options)
             socket.connect()
             // The Emitter.Listener callback runs on a background thread.
             socket.on("newProducers", Emitter.Listener { args ->

@@ -6,16 +6,17 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.neurology_project_android.BuildConfig.API_POST_URL
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
-import java.util.UUID
 import javax.inject.Inject
-
 @HiltViewModel
-class NewNIHFormViewModel @Inject constructor(private val client: SignalingClient) : ViewModel() {
+class SavedNIHFormViewModel @Inject constructor(private val client: SignalingClient) : ViewModel() {
 
     // --- UI State Management ---
 
@@ -34,6 +35,73 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
     val submissionStatus = _submissionStatus.asStateFlow()
 
     // --- User Events ---
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    suspend fun loadExistingForm(formId: String?, client: OkHttpClient){
+        val postURL = API_POST_URL
+        val request = Request.Builder()
+            .url(postURL)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Action", "login")
+            .build()
+        // 2. Launch a coroutine using the ViewModel's scope
+
+            // 3. Call the suspend function (FormManager.loadForm must be suspend!)
+            // Note: Since loadForm is a synchronous call wrapped in IO Dispatchers,
+            // you should ideally call it directly inside the coroutine.
+
+            // Assuming FormManager.loadForm is correctly updated to be a suspend function:
+            val existingForm = FormManager.loadForm(formId!!, client)
+
+            // 4. Update the state based on the result
+            if (existingForm != null) {
+                // Now call the function to map the NIHForm fields back to the state variables
+                mapFormToState(existingForm)
+                Log.d("NIHFormViewModel", "Successfully loaded form for ID: $formId")
+            } else {
+                Log.e("NIHFormViewModel", "Failed to load form for ID: $formId")
+                // Handle loading failure (e.g., set an error state)
+            }
+
+
+
+
+            //client.submitToServer("requestSingleForm", JSONObject().put("form_id", formId))
+    }
+
+    /**
+     * Maps the properties of a fully loaded NIHForm object back into the ViewModel's mutable state.
+     */
+    private fun mapFormToState(existingForm: NIHForm) {
+        // This function should be called on the Main thread (which viewModelScope.launch defaults to).
+
+        patientName.value = existingForm.patientName ?: ""
+
+        val loadedScores = listOf(
+            existingForm.item1aLocLevel,
+            existingForm.item1bLocCommands,
+            existingForm.item1cLocBestGaze,
+            existingForm.item2BestMotorGaze,
+            existingForm.item3Visual,
+            existingForm.item4FacialPalsy,
+            existingForm.item5LeftArmMotor,
+            existingForm.item6RightArmMotor,
+            existingForm.item7LeftLegMotor,
+            existingForm.item8RightLegMotor,
+            existingForm.item9Ataxia,
+            existingForm.item10Sensory,
+            existingForm.item11Language,
+            existingForm.item12Dysarthria,
+            existingForm.item13ExtinctionInattention
+        )
+
+        if (loadedScores.size == 15) {
+            itemScores.value = loadedScores
+        } else {
+            Log.e("NIHFormViewModel", "Loaded scores list size is not 15, resetting scores.")
+            // You may choose to not reset and use the partial data, depending on requirements.
+            // itemScores.value = List<Int?>(15) { null }
+        }
+    }
 
     /**
      * Called by the View when the patient name TextField changes.
@@ -122,18 +190,7 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
         //formJsonObject.put("total_nihss_score", scores.mapNotNull { it }.sum())
 
         // 3. Launch a coroutine to call the repository
-        viewModelScope.launch {
-            try {
-                var jsonString = formToSubmit.toJson()
-                Log.d("NEWNIHFORMVIEWMODEL", "JSON: $jsonString")
-                var stringToSubmit = JSONObject().put("payload", formJsonObject)
-                val success = client.submitToServer("CREATEFORM", stringToSubmit)
-                //_submissionStatus.value = if (success) SubmissionStatus.Success else SubmissionStatus.Error("Failed to submit form to server.")
-            } catch (e: Exception) {
-                _submissionStatus.value = SubmissionStatus.Error("An error occurred: ${e.message}")
-                Log.e("Error", "An error occurred: ${e.message}")
-            }
-        }
+
     }
 
     /**
@@ -144,14 +201,7 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
     }
 }
 
-
-/**
- * A sealed interface to represent the different states of the form submission process,
- * making it easy for the UI to react to changes.
- */
-sealed interface SubmissionStatus {
-    object Idle : SubmissionStatus
-    object Loading : SubmissionStatus
-    object Success : SubmissionStatus
-    data class Error(val message: String) : SubmissionStatus
+private fun SignalingClient.getUsername() {
+    TODO("Not yet implemented")
 }
+
