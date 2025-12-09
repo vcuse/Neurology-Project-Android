@@ -185,7 +185,7 @@ class SavedNIHFormViewModel @Inject constructor(private val client: SignalingCli
         formJsonObject.put("item_11_language", scores.getOrNull(12))
         formJsonObject.put("item_12_dysarthria", scores.getOrNull(13))
         formJsonObject.put("item_13_extinction_inattention", scores.getOrNull(14))
-        formJsonObject.put("username", "david_android")
+        formJsonObject.put("username", "thera")
         // Calculate and put the total score
         //formJsonObject.put("total_nihss_score", scores.mapNotNull { it }.sum())
 

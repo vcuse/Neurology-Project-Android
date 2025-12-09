@@ -117,7 +117,7 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
         formJsonObject.put("item_11_language", scores.getOrNull(12))
         formJsonObject.put("item_12_dysarthria", scores.getOrNull(13))
         formJsonObject.put("item_13_extinction_inattention", scores.getOrNull(14))
-        formJsonObject.put("username", "david_android")
+        formJsonObject.put("username", "thera")
         // Calculate and put the total score
         //formJsonObject.put("total_nihss_score", scores.mapNotNull { it }.sum())
 
@@ -127,8 +127,10 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
                 var jsonString = formToSubmit.toJson()
                 Log.d("NEWNIHFORMVIEWMODEL", "JSON: $jsonString")
                 var stringToSubmit = JSONObject().put("payload", formJsonObject)
-                val success = client.submitToServer("CREATEFORM", stringToSubmit)
-                //_submissionStatus.value = if (success) SubmissionStatus.Success else SubmissionStatus.Error("Failed to submit form to server.")
+                var success = client.submitToServer("CREATEFORM", stringToSubmit)
+                Log.d("NEWNIHFORMVIEWMODEL", "SUCCESS: $success")
+                _submissionStatus.value = if (success) SubmissionStatus.Success else SubmissionStatus.Error("Failed to submit form to server.")
+
             } catch (e: Exception) {
                 _submissionStatus.value = SubmissionStatus.Error("An error occurred: ${e.message}")
                 Log.e("Error", "An error occurred: ${e.message}")

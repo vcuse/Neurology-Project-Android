@@ -508,7 +508,7 @@ class RoomClient constructor(room_id: String, name: String, socket: Socket, cont
 
 
 
-        joinRoom(room_id, "david_android")
+        joinRoom(room_id, "thera")
 
     }
 

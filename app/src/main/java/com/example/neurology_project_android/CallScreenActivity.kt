@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -16,6 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 
 class CallScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,54 +54,190 @@ fun CallScreen() {
                     .padding(16.dp)
                     .padding(bottom = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
 
-                    onClick = {
+            ) {
+                Column(
+                    // Center the items horizontally within the column
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f).background(Color.DarkGray).clickable(onClick = {
                         val intent = Intent(
                             context,
                             ListNIHFormActivity::class.java
                         )
-                        // 3. Start the new Activity
+
                         context.startActivity(intent)
-                              /* Open Stroke Scale Form */ },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.Gray, shape = CircleShape)
+                        /* Open Stroke Scale Form */
+                    })
+
                 ) {
-                    Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_edit),
-                        contentDescription = null,
-                        tint = Color.White
+                    IconButton(
+                        onClick = {
+                            val intent = Intent(
+                                context,
+                                ListNIHFormActivity::class.java
+                            )
+                            // 3. Start the new Activity
+                            context.startActivity(intent)
+                            /* Open Stroke Scale Form */ },
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color.DarkGray)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.assignment_add_24px),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                    // Add the Text composable right below the IconButton
+                    Spacer(modifier = Modifier.height(4.dp)) // Optional: Add a small vertical space
+                    Text(
+                        text = "New Form/View Form",
+                        modifier = Modifier.fillMaxWidth(),
+
+
+                        fontSize = 16.sp,
+
+
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+
+
+                        color = Color.White,
+
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                IconButton(
-                    onClick = { isMuted = !isMuted },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.DarkGray, shape = CircleShape)
+                Column(
+                    // Center the items horizontally within the column
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f).background(Color.Gray).clickable(onClick = {
+
+                    })
+
                 ) {
-                    Icon(
-                        painter = painterResource(id = if (isMuted) android.R.drawable.ic_lock_silent_mode else android.R.drawable.ic_lock_silent_mode_off),
+                    IconButton(
+                        onClick = {
+                            if(isMuted){
+                                isMuted = false
+                            }
+                            else{
+                                isMuted = true
+                            }
+
+                        },
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color.Gray)
+                    ) {
+                        Icon(
+                        painter = painterResource(id = if (isMuted) R.drawable.mic_off_24px else R.drawable.mic_24px),
                         contentDescription = null,
                         tint = Color.White
+                    )
+                    }
+                    // Add the Text composable right below the IconButton
+                    Spacer(modifier = Modifier.height(4.dp)) // Optional: Add a small vertical space
+                    Text(
+                        text = "Mute/Unmute",
+                        modifier = Modifier.fillMaxWidth(),
+
+
+                        fontSize = 16.sp,
+
+
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+
+
+                        color = Color.White,
+
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                IconButton(
-                    onClick = { /* End Call */ },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.Red, shape = CircleShape)
+                Column(
+                    // Center the items horizontally within the column
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f).background(Color.Red).clickable(onClick = {
+                        val intent = Intent(
+                            context,
+                            ListNIHFormActivity::class.java
+                        )
+
+                        context.startActivity(intent)
+                        /* Open Stroke Scale Form */
+                    })
+
                 ) {
-                    Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
+                    IconButton(
+                        onClick = {
+                            val intent = Intent(
+                                context,
+                                ListNIHFormActivity::class.java
+                            )
+                            // 3. Start the new Activity
+                            context.startActivity(intent)
+                            /* Open Stroke Scale Form */ },
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color.Red)
+                    ) {
+                        Icon(
+                        painter = painterResource(R.drawable.call_end_24px),
                         contentDescription = null,
                         tint = Color.White
                     )
+                    }
+                    // Add the Text composable right below the IconButton
+                    Spacer(modifier = Modifier.height(4.dp)) // Optional: Add a small vertical space
+                    Text(
+                        text = "End Call",
+                        modifier = Modifier.fillMaxWidth(),
+
+
+                        fontSize = 16.sp,
+
+
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+
+                       
+                        color = Color.White,
+
+                        textAlign = TextAlign.Center,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                        )
                 }
+
+//                IconButton(
+//                    onClick = { isMuted = !isMuted },
+//                    modifier = Modifier
+//                        .size(64.dp)
+//                        .background(Color.DarkGray, shape = CircleShape)
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = if (isMuted) R.drawable.mic_off_24px else R.drawable.mic_24px),
+//                        contentDescription = null,
+//                        tint = Color.White
+//                    )
+//                }
+//
+//                IconButton(
+//                    onClick = { /* End Call */ },
+//                    modifier = Modifier
+//                        .size(64.dp)
+//                        .background(Color.Red, shape = CircleShape)
+//                ) {
+//                    Icon(
+//                        painter = painterResource(R.drawable.call_end_24px),
+//                        contentDescription = null,
+//                        tint = Color.White
+//                    )
+//                }
             }
         }
     }

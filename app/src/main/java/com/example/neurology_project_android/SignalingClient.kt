@@ -37,6 +37,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.concurrent.fixedRateTimer
 import kotlin.contracts.contract
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 //import org.webrtc.Camera2Capturer
 //import org.webrtc.CameraVideoCapturer.CameraEventsHandler
@@ -131,20 +133,39 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
     fun joinRoom(room_id: String) {
-        currentRoomClient = RoomClient(room_id, "david_android", socket, context = this.context)
+        currentRoomClient = RoomClient(room_id, "thera", socket, context = this.context)
     }
 
 
-    @OptIn(UnstableApi::class)
-    fun submitToServer(header:String, payload: JSONObject): String {
-        var response = "blank"
-        socket.emit(header, payload, Ack { args ->
-            val responseData = args[0]
-            Log.d(TAG, "Response from server: $responseData")
-            response = responseData.toString()
-        })
 
-        return response
+    @OptIn(UnstableApi::class)
+    suspend fun submitToServer(header: String, payload: JSONObject): Boolean {
+        // Use suspendCoroutine to bridge the callback to a coroutine
+        return suspendCoroutine { continuation ->
+            socket.emit(header, payload, Ack { args ->
+                try {
+                    if (args.isNotEmpty() && args[0] != null) {
+                        val responseJson = args[0] as JSONObject
+                        Log.d(TAG, "Response from server: $responseJson")
+                        val status = responseJson.optString("response", "")
+
+                        if (status == "SUCCESS") {
+                            Log.d(TAG, "Server response was SUCCESS")
+                            continuation.resume(true) // <-- Resume the coroutine with 'true'
+                        } else {
+                            Log.w(TAG, "Server response was not SUCCESS: $status")
+                            continuation.resume(false) // <-- Resume the coroutine with 'false'
+                        }
+                    } else {
+                        Log.e(TAG, "Received empty or null response from server for header: $header")
+                        continuation.resume(false) // <-- Resume with 'false' on empty response
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing server response", e)
+                    continuation.resume(false) // <-- Resume with 'false' on error
+                }
+            })
+        }
     }
 
     private var rooms: Array<String> = emptyArray()

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,7 +45,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 // --- FIX 1: Import the new models ---
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.Dispatcher
 
 // --- You can remove the old StrokeScaleQuestions import if it exists ---
  // This annotation tells Hilt to manage dependencies for this Activity
@@ -87,7 +87,7 @@ class NewSavedNIHFormActivity : ComponentActivity() {
                 viewModel.loadExistingForm(formId, client)
             }
         }
-
+        var isEditable = false
 
         val patientName by viewModel.patientName
         val itemScores by viewModel.itemScores
@@ -153,7 +153,8 @@ class NewSavedNIHFormActivity : ComponentActivity() {
                         // When an option is clicked, notify the ViewModel with the question index and the option's score
                         onOptionClick = { score ->
                             viewModel.onScoreSelected(index, score)
-                        }
+                        },
+                        isEditable = isEditable,
                     )
                 }
             }
@@ -182,19 +183,39 @@ class NewSavedNIHFormActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                // When the button is clicked, call the submitForm function on the ViewModel
-                onClick = { },
-                // Disable the button while the form is submitting
-                enabled = submissionStatus != SubmissionStatus.Loading,
+            // Wrap the buttons in a Row
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .fillMaxWidth() // Row takes up the full width
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // Add spacing between the buttons
             ) {
-                if (submissionStatus == SubmissionStatus.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                } else {
-                    Text("Save Form")
+                // 1. Update/Save Button
+                Button(
+                    onClick = { isEditable = true },
+                    enabled = submissionStatus != SubmissionStatus.Loading,
+                    modifier = Modifier.weight(1f) // 🔑 Takes up half the row space
+                ) {
+                    if (submissionStatus == SubmissionStatus.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        // Changed text to suggest updating
+                        Text("Update Form")
+                    }
+                }
+
+                // 2. Delete Button
+                Button(
+                    onClick = { /* TODO: Call viewModel.deleteForm() */ },
+                    enabled = submissionStatus != SubmissionStatus.Loading,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error), // Use error color for deletion
+                    modifier = Modifier.weight(1f) // 🔑 Takes up the other half of the row space
+                ) {
+                    if (submissionStatus == SubmissionStatus.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("Delete Form")
+                    }
                 }
             }
         }
@@ -204,7 +225,7 @@ class NewSavedNIHFormActivity : ComponentActivity() {
      * A reusable Composable for displaying a single question, its options, and highlighting the selection.
      */
     @Composable
-    fun QuestionCard(question: FormQuestion, selectedScore: Int?, onOptionClick: (Int) -> Unit) { // --- FIX 3: Use FormQuestion class ---
+    fun QuestionCard(question: FormQuestion, selectedScore: Int?, onOptionClick: (Int) -> Unit, isEditable: Boolean) { // --- FIX 3: Use FormQuestion class ---
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -235,8 +256,11 @@ class NewSavedNIHFormActivity : ComponentActivity() {
                                 // Highlight the row if its score matches the selected score
                                 if (selectedScore == option.score) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                             )
-                            .clickable { onOptionClick(option.score) } // Pass the option's actual score up
+                            .clickable(enabled = isEditable) {
+                                onOptionClick(option.score)
+                            }
                             .padding(8.dp),
+
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

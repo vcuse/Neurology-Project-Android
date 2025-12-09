@@ -92,7 +92,7 @@ object NIHFormModel {
                 FormOption("Some effort against gravity; arm cannot get to or maintain (if cued) 90 (or 45) degrees, drifts down to bed.", 2),
                 FormOption("No effort against gravity; arm falls.", 3),
                 FormOption("No movement.", 4),
-                FormOption("Amputation or joint fusion, explain:", 9)
+                FormOption("Amputation or joint fusion, explain:", 0)
             )
         ),
         FormQuestion(
@@ -105,7 +105,7 @@ object NIHFormModel {
                 FormOption("Some effort against gravity; arm cannot get to or maintain (if cued) 90 (or 45) degrees, drifts down to bed.", 2),
                 FormOption("No effort against gravity; arm falls.", 3),
                 FormOption("No movement.", 4),
-                FormOption("Amputation or joint fusion, explain:", 9)
+                FormOption("Amputation or joint fusion, explain:", 0)
             )
         ),
         FormQuestion(
@@ -118,7 +118,7 @@ object NIHFormModel {
                 FormOption("Some effort against gravity; leg falls to bed by 5 seconds, but has some effort against gravity.", 2),
                 FormOption("No effort against gravity; leg falls to bed immediately.", 3),
                 FormOption("No movement.", 4),
-                FormOption("Amputation or joint fusion, explain:", 9)
+                FormOption("Amputation or joint fusion, explain:", 0)
             )
         ),
         FormQuestion(
@@ -131,7 +131,7 @@ object NIHFormModel {
                 FormOption("Some effort against gravity; leg falls to bed by 5 seconds, but has some effort against gravity.", 2),
                 FormOption("No effort against gravity; leg falls to bed immediately.", 3),
                 FormOption("No movement.", 4),
-                FormOption("Amputation or joint fusion, explain:", 9)
+                FormOption("Amputation or joint fusion, explain:", 0)
             )
         ),
         FormQuestion(
@@ -142,7 +142,7 @@ object NIHFormModel {
                 FormOption("Absent.", 0),
                 FormOption("Present in one limb.", 1),
                 FormOption("Present in two limbs.", 2),
-                FormOption("Does not understand or is paralyzed.", 9)
+                FormOption("Does not understand or is paralyzed.", 0)
             )
         ),
         FormQuestion(
@@ -174,7 +174,7 @@ object NIHFormModel {
                 FormOption("Normal.", 0),
                 FormOption("Mild-to-moderate dysarthria; slurring of words but can be understood.", 1),
                 FormOption("Severe dysarthria; so slurred it is unintelligible or worse.", 2),
-                FormOption("Intubated or other physical barrier.", 9)
+                FormOption("Intubated or other physical barrier.", 0)
             )
         ),
         FormQuestion(
