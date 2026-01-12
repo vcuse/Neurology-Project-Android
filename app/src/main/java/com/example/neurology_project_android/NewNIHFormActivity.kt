@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.getOrNull
@@ -139,7 +142,8 @@ class NewNIHFormActivity : ComponentActivity() {
                         // When an option is clicked, notify the ViewModel with the question index and the option's score
                         onOptionClick = { score ->
                             viewModel.onScoreSelected(index, score)
-                        }
+                        },
+
                     )
                 }
             }
@@ -195,18 +199,22 @@ class NewNIHFormActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(
+            containerColor = Color.hsv(268.9F, saturation = .165F, value = 1.0F, alpha = 1.0F)
+            )
         ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
+
             ) {
                 // --- FIX 4: Use properties from the new FormQuestion data class ---
                 Text(text = question.questionText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 if (question.instructionText.isNotEmpty()) {
                     Text(
                         text = question.instructionText,
-                        fontSize = 14.sp,
+                        fontSize = 18.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -216,20 +224,28 @@ class NewNIHFormActivity : ComponentActivity() {
                 question.options.forEach { option ->
                     Row(
                         modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(
+                                width = 2.dp,
+                                color = Color.LightGray,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                             .fillMaxWidth()
                             .background(
                                 // Highlight the row if its score matches the selected score
-                                if (selectedScore == option.score) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                                if (selectedScore == option.score) Color.hsv(270.0F, saturation = .477F, value = .987F, alpha = 1.0F) else Color.White
                             )
+
                             .clickable { onOptionClick(option.score) } // Pass the option's actual score up
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // --- FIX 5: Use properties from the new FormOption data class ---
-                        Text(text = option.displayText, modifier = Modifier.weight(1f))
-                        Text(text = "${option.score}")
+                        Text(text = option.displayText,fontSize = 18.sp, modifier = Modifier.weight(1f))
+                        Text(text = "${option.score}",fontSize = 18.sp)
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
