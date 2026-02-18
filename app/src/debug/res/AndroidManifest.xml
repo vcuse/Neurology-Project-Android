@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- This application block will be merged with the main AndroidManifest.xml -->
+    <!-- It only applies to debug builds -->
+    <application
+        android:networkSecurityConfig="@xml/network_security_config" />
+</manifest>

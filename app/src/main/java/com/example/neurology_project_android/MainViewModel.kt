@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.neurology_project_android.BuildConfig.API_GET_ID_URL
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,7 +77,7 @@ class MainViewModel @Inject constructor(
     private suspend fun fetchUserId(): String {
         return withContext(Dispatchers.IO) {
             try {
-                val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+                val idUrl = API_GET_ID_URL
                 val client = OkHttpClient()
                 val request = Request.Builder().url(idUrl).build()
                 val response = client.newCall(request).execute()

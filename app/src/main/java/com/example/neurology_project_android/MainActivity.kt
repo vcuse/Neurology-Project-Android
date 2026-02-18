@@ -8,6 +8,7 @@ import android.R
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
+import com.example.neurology_project_android.BuildConfig.API_GET_ID_URL
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -62,6 +63,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -306,7 +308,7 @@ class MainActivity : ComponentActivity() {
 suspend fun fetchUserId(): String {
     return withContext(Dispatchers.IO) {
         try {
-            val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+            val idUrl = API_GET_ID_URL
             val client = OkHttpClient()
             val request = Request.Builder().url(idUrl).build()
             val response = client.newCall(request).execute()

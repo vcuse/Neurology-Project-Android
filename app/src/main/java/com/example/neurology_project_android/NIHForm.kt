@@ -29,7 +29,7 @@ data class NIHForm(
     @SerialName("patient_dob")
     val patientDob: String? = null,
 
-    @SerialName("sessionid")
+    @SerialName("session_id")
     val sessionId: String? = null,
 
     // --- NIHSS Item Scores (all nullable) ---
