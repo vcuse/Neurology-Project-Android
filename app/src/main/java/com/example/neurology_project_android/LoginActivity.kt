@@ -130,7 +130,7 @@ fun LoginScreen(sessionManager: SessionManager, onLoginSuccess: () -> Unit) {
                                 "application/json".toMediaTypeOrNull(),
                                 json
                             )
-                            val postURL = API_POST_URL
+                            val postURL = "https://meechie.techkit.xyz:444/b/key=peerjs/post"
                             Log.d("LoginActivity", "Post URL: " + postURL)
                             val request = Request.Builder()
                                 .url(postURL)

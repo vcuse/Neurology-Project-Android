@@ -2,6 +2,7 @@ package com.example.neurology_project_android
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -62,22 +63,27 @@ class NewNIHFormActivity : ComponentActivity() {
     // The `by viewModels()` delegate handles everything for you.
     private val viewModel: NewNIHFormViewModel by viewModels()
 
+    companion object {
+        const val EXTRA_IN_CALL = "extra_in_call"
+    }
+
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val inCall = intent.getBooleanExtra(EXTRA_IN_CALL, false)
         // Hilt provides the ViewModel and its dependencies automatically.
         // No manual setup needed.
         setContent {
             // 2. Simply pass the Hilt-provided ViewModel to your screen.
-            NewNIHFormScreen(viewModel = viewModel)
+            NewNIHFormScreen(viewModel = viewModel, inCall = inCall)
         }
     }
 
     // This is the Composable function your Activity is trying to call.
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun NewNIHFormScreen(viewModel: NewNIHFormViewModel) {
+    fun NewNIHFormScreen(viewModel: NewNIHFormViewModel, inCall: Boolean) {
         // 1. Observe state directly from the ViewModel
         val patientName by viewModel.patientName
         val itemScores by viewModel.itemScores
@@ -136,14 +142,18 @@ class NewNIHFormActivity : ComponentActivity() {
                 // --- FIX 2: Use the new NIHFormModel instead of StrokeScaleQuestions ---
                 itemsIndexed(NIHFormModel.questions) { index, question ->
                     QuestionCard(
+                        questionIndex = index,
                         question = question,
                         // Get the currently selected score for this question from the ViewModel's state
                         selectedScore = itemScores.getOrNull(index),
+                        inCall = inCall,
                         // When an option is clicked, notify the ViewModel with the question index and the option's score
                         onOptionClick = { score ->
                             viewModel.onScoreSelected(index, score)
                         },
-
+                        onAutomateClick = {
+                            viewModel.automateQuestion(index)
+                        }
                     )
                 }
             }
@@ -194,7 +204,7 @@ class NewNIHFormActivity : ComponentActivity() {
      * A reusable Composable for displaying a single question, its options, and highlighting the selection.
      */
     @Composable
-    fun QuestionCard(question: FormQuestion, selectedScore: Int?, onOptionClick: (Int) -> Unit) { // --- FIX 3: Use FormQuestion class ---
+    fun QuestionCard(questionIndex: Int, question: FormQuestion, selectedScore: Int?, inCall: Boolean, onOptionClick: (Int) -> Unit, onAutomateClick: () -> Unit) { // --- FIX 3: Use FormQuestion class ---
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -218,6 +228,18 @@ class NewNIHFormActivity : ComponentActivity() {
                         color = Color.Gray,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
+                }
+
+                // Show automate only for question index 6 AND only in a call
+                if (inCall && questionIndex == 6) {
+                    Button(
+                        onClick = onAutomateClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text("Automate Question")
+                    }
                 }
 
                 // Create a clickable row for each answer option

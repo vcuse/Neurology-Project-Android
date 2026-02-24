@@ -15,6 +15,7 @@ import java.util.UUID
 
 object FormManager {
 
+    private const val POST_URL = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post"
     var TAG = "FormManager"
     fun submitFormToServer(form: NIHForm, client: OkHttpClient, onResult: (Boolean) -> Unit) {
         val jsonString = Gson().toJson(form)
@@ -25,7 +26,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://meechie.techkit.xyz:444/key=peerjs/post")
+            .url(POST_URL)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "start_new_nihss_form")
@@ -55,7 +56,7 @@ object FormManager {
             "application/json; charset=utf-8".toMediaTypeOrNull(),
             json.toString())
         val request = Request.Builder()
-            .url("https://meechie.techkit.xyz:444/key=peerjs/post")
+            .url(POST_URL)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "requestSingleForm")
@@ -102,7 +103,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://meechie.techkit.xyz:444/key=peerjs/post")
+            .url(POST_URL)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "getUsersForms")
@@ -138,7 +139,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://meechie.techkit.xyz:444/key=peerjs/post")
+            .url(POST_URL)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "deleteForm")
@@ -173,7 +174,7 @@ object FormManager {
         )
 
         val request = Request.Builder()
-            .url("https://meechie.techkit.xyz:444/key=peerjs/post")
+            .url(POST_URL)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Action", "updateForm")

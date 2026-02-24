@@ -56,6 +56,11 @@ class NewNIHFormViewModel @Inject constructor(private val client: SignalingClien
         }
     }
 
+    fun automateQuestion(questionIndex: Int) {
+        // TODO: implement automation logic later
+        Log.d("NEWNIHFORMVIEWMODEL", "Automate clicked for question index = $questionIndex")
+    }
+
     /**
      * Called by the View when the "Save" button is clicked.
      * It validates the input, builds the NIHForm object, and calls the repository to submit it.

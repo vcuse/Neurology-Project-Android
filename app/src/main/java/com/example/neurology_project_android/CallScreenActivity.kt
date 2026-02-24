@@ -163,24 +163,22 @@ fun CallScreen() {
                     // Center the items horizontally within the column
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f).background(Color.Red).clickable(onClick = {
-                        val intent = Intent(
-                            context,
-                            ListNIHFormActivity::class.java
-                        )
-
+                        val intent = Intent(context, NewNIHFormActivity::class.java).apply {
+                            putExtra(NewNIHFormActivity.EXTRA_IN_CALL, true)
+                        }
                         context.startActivity(intent)
+
                         /* Open Stroke Scale Form */
                     })
 
                 ) {
                     IconButton(
                         onClick = {
-                            val intent = Intent(
-                                context,
-                                ListNIHFormActivity::class.java
-                            )
-                            // 3. Start the new Activity
+                            val intent = Intent(context, NewNIHFormActivity::class.java).apply {
+                                putExtra(NewNIHFormActivity.EXTRA_IN_CALL, true)
+                            }
                             context.startActivity(intent)
+
                             /* Open Stroke Scale Form */ },
                         modifier = Modifier
                             .size(64.dp)
