@@ -40,10 +40,11 @@ class MainViewModel @Inject constructor(
     private fun initialize() {
         viewModelScope.launch {
             _uiState.value = MainUiState.Loading
-            val userId = fetchUserId()
+//            val userId = fetchUserId()
+            val userId = "thera"
             if (userId == "unknown") {
-                _uiState.value = MainUiState.Error("Could not fetch user ID.")
-                return@launch
+//                _uiState.value = MainUiState.Error("Could not fetch user ID.")
+//                return@launch
             }
 
 

@@ -1,6 +1,7 @@
 package com.example.neurology_project_android
 
 import android.content.ContentValues.TAG
+import com.example.neurology_project_android.BuildConfig.BASE_WS_API_URL
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
@@ -108,29 +109,29 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
     }
 
 
-    @OptIn(UnstableApi::class)
-    private fun buildVideoSenders(context: Context, url: String) {
-
-
-        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        cameraManager.registerAvailabilityCallback(availabilityCallback, null)
-
-
-        val audioManager: AudioManager =
-            context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        Log.d("Cameras", cameraManager.toString())
-        val cameraList = cameraManager.cameraIdList
-        val camera01 = cameraManager.cameraIdList.first()
-        val camera02 = cameraManager.cameraIdList.last()
-
-        client = OkHttpClient().newBuilder().build()
-        httpUrl = url
-        AudioManager.ADJUST_UNMUTE
-        val audioDeviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
-        Log.d("Signaling Client", "Audio devices" + audioDeviceInfo.size)
-
-    }
+//    @OptIn(UnstableApi::class)
+//    private fun buildVideoSenders(context: Context, url: String) {
+//
+//
+//        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+//        cameraManager.registerAvailabilityCallback(availabilityCallback, null)
+//
+//
+//        val audioManager: AudioManager =
+//            context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+//
+//        Log.d("Cameras", cameraManager.toString())
+//        val cameraList = cameraManager.cameraIdList
+//        val camera01 = cameraManager.cameraIdList.first()
+//        val camera02 = cameraManager.cameraIdList.last()
+//
+//        client = OkHttpClient().newBuilder().build()
+//        httpUrl = url
+//        AudioManager.ADJUST_UNMUTE
+//        val audioDeviceInfo = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+//        Log.d("Signaling Client", "Audio devices" + audioDeviceInfo.size)
+//
+//    }
 
     fun joinRoom(room_id: String) {
         currentRoomClient = RoomClient(room_id, "thera", socket, context = this.context)
@@ -170,7 +171,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
     private var rooms: Array<String> = emptyArray()
     private var roomList = mutableListOf<String>()
-    private lateinit var socket: Socket;
+            private lateinit var socket: Socket;
 
 
     @OptIn(UnstableApi::class)
@@ -192,7 +193,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             if (responseData is JSONArray) {
                 Log.d("SIGNALING CLIENT", "SUCCESS! Room List received: $responseData")
 
-                // --- FIX IS HERE ---
+
                 // 1. Create a new list to hold the parsed room IDs.
                 val parsedRoomList = mutableListOf<String>()
 
@@ -210,7 +211,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
                     Log.d("SIGNALING CLIENT", "Emitting parsed room list to flow: $parsedRoomList")
                     _peerListFlow.emit(parsedRoomList)
                 }
-                // --- END OF FIX ---
+
 
             } else {
                 Log.e(
@@ -243,7 +244,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
 
         try {
-            socket = IO.socket("https://meechie.techkit.xyz:444", options)
+            socket = IO.socket(BASE_WS_API_URL, options)
             socket.connect()
             // The Emitter.Listener callback runs on a background thread.
             socket.on("newProducers", Emitter.Listener { args ->

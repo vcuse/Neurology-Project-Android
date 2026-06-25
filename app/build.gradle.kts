@@ -69,14 +69,14 @@ android {
 // Override BASE_API_URL to point to your local development server
             // 10.0.2.2 is the special IP for your host machine's loopback on Android Emulator
             buildConfigField("String", "BASE_API_URL", "\"https://10.0.2.2\"") // Use http for local unless you have SSL set up for this IP
-            buildConfigField("String", "BASE_WS_API_URL", "\"ws://10.0.2.2:3016\"")
-            buildConfigField("int", "PORT", "3016")
+            buildConfigField("String", "BASE_WS_API_URL", "\"ws://10.0.2.2:3000\"")
+            buildConfigField("int", "PORT", "3000")
             buildConfigField("boolean", "SECURE", "false") // It's common to use http (not https) for local IP access
-
+            buildConfigField("String", "API_GET_ID_URL", "\"https://10.0.2.2:3000/key=peerjs/id\"")
             // --- THIS IS THE FIX ---
             // Replace 127.0.0.1 with 10.0.2.2
-            buildConfigField("String", "API_POST_URL", "\"http://10.0.2.2:3016/key=peerjs/post\"")
-            buildConfigField("String", "API_GET_PEERS_URL", "\"http://10.0.2.2:3016/key=peerjs/peers\"")
+            buildConfigField("String", "API_POST_URL", "\"http://10.0.2.2:3000/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_PEERS_URL", "\"http://10.0.2.2:3000/key=peerjs/peers\"")
             // ------------------------
 
             // If using a physical device on your local network, replace with your actual local IP:

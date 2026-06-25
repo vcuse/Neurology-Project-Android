@@ -45,6 +45,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 // --- FIX 1: Import the new models ---
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
 
 // --- You can remove the old StrokeScaleQuestions import if it exists ---
  // This annotation tells Hilt to manage dependencies for this Activity
@@ -206,7 +207,14 @@ class NewSavedNIHFormActivity : ComponentActivity() {
 
                 // 2. Delete Button
                 Button(
-                    onClick = { /* TODO: Call viewModel.deleteForm() */ },
+                    onClick = {
+//                        FormManager.deleteForm(
+//                        formId = UUID.fromString(formId),
+//                        username = sessionManager.fetchUsername()!!,
+//                        client = sessionManager.client,
+//                        callback = null,
+//                    )
+                              },
                     enabled = submissionStatus != SubmissionStatus.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error), // Use error color for deletion
                     modifier = Modifier.weight(1f) // 🔑 Takes up the other half of the row space
