@@ -4,39 +4,49 @@ package com.example.neurology_project_android
 
 import androidx.compose.ui.platform.LocalContext
 import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
+import com.example.neurology_project_android.BuildConfig.API_GET_ID_URL
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.imagecapture.CameraRequest
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,41 +55,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.neurology_project_android.BuildConfig.BASE_WS_API_URL
-import com.example.neurology_project_android.BuildConfig.PORT
+import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
-import okhttp3.Call
-import okhttp3.Callback
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
-import org.webrtc.CapturerObserver
-import org.webrtc.VideoProcessor
-import org.webrtc.VideoSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
 
     @SuppressLint("RestrictedApi")
     private lateinit var cameraRequest: CameraRequest
-    private lateinit var videoProcessor: VideoProcessor
-    private lateinit var videoSource: VideoSource
-    private lateinit var capturerObserver: CapturerObserver
+//    private lateinit var videoProcessor: VideoProcessor
+//    private lateinit var videoSource: VideoSource
+//    private lateinit var capturerObserver: CapturerObserver
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
     private lateinit var signalingClient: SignalingClient
+    private lateinit var signalingRepository: SignalingRepository
+    private val viewModel: MainViewModel by viewModels()
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,66 +109,37 @@ class MainActivity : ComponentActivity() {
             ), 1
         )
 
-        
+
 
         enableEdgeToEdge()
 
         setContent {
             NeurologyProjectAndroidTheme {
-                val userIdState = remember { mutableStateOf<String?>(null) }
-                val peersState = remember { mutableStateOf<List<String>>(emptyList()) }
-
-                // Fetch user ID once
-                LaunchedEffect(Unit) {
-                    val fetchedId = fetchUserId()
-                    userIdState.value = fetchedId
-
-                    // Now safe to start SignalingClient
-                    signalingClient = SignalingClient(
-                        "$BASE_WS_API_URL:$PORT/peerjs?id=$fetchedId&token=6789&key=peerjs",
-                        this@MainActivity,
-                        fetchedId,
-                        onCallRecieved = { isInCall = true },
-                        onCallEnded = { runOnUiThread { isInCall = false } }
-                    )
-
-                    // Fetch peers
-                    GetPeers { peers ->
-                        runOnUiThread {
-                            peersState.value = peers.filter { it != fetchedId }
+                viewModel.connectSignalingClient()
+                val uiState by viewModel.uiState.collectAsState()
+                // 3. OBSERVE state from the ViewModel
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    when (val state = uiState) {
+                        is MainUiState.Loading -> {
+                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                CircularProgressIndicator()
+                            }
                         }
-                    }
-                }
-
-                val userId = userIdState.value
-
-                if (userId == null) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        containerColor = Color.Transparent,
-                        content = { innerPadding ->
-                            HomeScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                peerId = userId,
-                                peers = peersState.value
-                            )
-                            Greeting(
-                                name = "Android",
-                                modifier = Modifier.padding(innerPadding),
-                                signalingClient = signalingClient,
-                                cameraInitialized = cameraInitialized,
-                                cameraRequest = { cameraRequest },
-                                isInCall = isInCall
+                        is MainUiState.Error -> {
+                            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                Text("Error: ${state.message}")
+                            }
+                        }
+                        is MainUiState.Success -> {
+                            // Pass the state down to your UI
+                            MyApp(
+                                userId = state.userId,
+                                peers = state.peers,
+                                innerPadding = innerPadding,
+                                onJoinRoom = { targetId -> viewModel.joinRoom(targetId) }
                             )
                         }
-                    )
+                    }
                 }
             }
         }
@@ -167,7 +147,21 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun OnlineNowSection(peers: List<String>) {
+    fun OnlineNowSection(peers: List<String>,  onNavigateToOnlineScreen: () -> Unit) {
+
+
+//    LaunchedEffect(isInCall) {
+//        if (isInCall) {
+//            navController.navigate("callScreen")
+//        } else {
+//            navController.navigate("home") // Navigate back when call ends
+//        }
+//    }
+
+
+
+
+
         Text(
             text = "Online Now:",
             fontWeight = FontWeight.Bold,
@@ -179,7 +173,7 @@ class MainActivity : ComponentActivity() {
                 Text(text = "No peers online", modifier = Modifier.padding(16.dp))
             } else {
                 peers.forEach { userId ->
-                    OnlineUserCard(userId)
+                    OnlineUserCard(userId, onNavigateToOnlineScreen)
                 }
             }
         }
@@ -187,7 +181,8 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun OnlineUserCard(userId: String) {
+    fun OnlineUserCard(userId: String, onNavigateToOnlineScreen: () -> Unit) {
+        var navController = rememberNavController()
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -209,7 +204,11 @@ class MainActivity : ComponentActivity() {
                         .padding(end = 16.dp)
                 )
                 Button(
-                    onClick = { signalingClient.startCall(userId) },
+                    onClick = {
+
+                        signalingClient.joinRoom(userId)
+                        onNavigateToOnlineScreen()
+                    }, //signalingClient.startCall(userId)
                     modifier = Modifier.wrapContentWidth()
                 ) {
                     Text(text = "Call")
@@ -218,15 +217,47 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // All your other @Composable functions should be updated to accept the data and lambdas they need
+    // For example, MyApp now takes the userId, peers, and onJoinRoom lambda
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun HomeScreen(modifier: Modifier = Modifier, peerId: String, peers: List<String>) {
+    fun MyApp(
+        userId: String,
+        peers: List<String>,
+        innerPadding: PaddingValues,
+        onJoinRoom: (String) -> Unit // FIX #1: This is a simple function type, not @Composable
+    ) {
+        val navController = rememberNavController()
+        NavHost(navController, startDestination = "home") {
+            composable("home") {
+                HomeScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    userId = userId, // Pass state down
+                    peers = peers,   // Pass state down
+                    onJoinRoom = onJoinRoom, // Pass the event handler down
+                    onNavigateToCallScreen = { navController.navigate("callScreen") }
+                )
+            }
+            composable("callScreen") {
+                // Assuming CallScreen is defined elsewhere
+                CallScreen()
+            }
+        }
+    }
+
+
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Composable
+    fun HomeScreen(
+        modifier: Modifier = Modifier,
+        userId: String,
+        peers: List<String>,
+        onJoinRoom: (String) -> Unit,
+        onNavigateToCallScreen: () -> Unit
+    ) {
         val context = LocalContext.current
         val sessionManager = remember { SessionManager(context) }
-        // Refresh UI every 3 seconds
-        LaunchedEffect(peers) {
-            // This will trigger recomposition whenever peers update
-        }
 
         Column(
             modifier = modifier
@@ -234,27 +265,24 @@ class MainActivity : ComponentActivity() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = {
-                        sessionManager.logout()
-                        val intent = Intent(context, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
+            // Logout Button
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = {
+                    sessionManager.logout()
+                    val intent = Intent(context, LoginActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
-                ) {
+                    context.startActivity(intent)
+                }) {
                     Text("Log Out", color = MaterialTheme.colorScheme.primary)
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            PeerIdSection(peerId) // Displays the correct Peer ID
+            // Peer ID Section
+            PeerIdSection(peerId = userId)
 
+            // Online Now Section (Scrollable)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -262,18 +290,25 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OnlineNowSection(peers) // No need for additional state
+                OnlineNowSection(
+                    peers = peers,
+                    onJoinRoom = onJoinRoom,
+                    onNavigateToCallScreen = onNavigateToCallScreen
+                )
             }
 
+            // NIH Forms Button
             NIHFormsButton()
         }
     }
+
+
 }
 
 suspend fun fetchUserId(): String {
     return withContext(Dispatchers.IO) {
         try {
-            val idUrl = "https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/id"
+            val idUrl = API_GET_ID_URL
             val client = OkHttpClient()
             val request = Request.Builder().url(idUrl).build()
             val response = client.newCall(request).execute()
@@ -290,35 +325,62 @@ suspend fun fetchUserId(): String {
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-    signalingClient: SignalingClient,
-    cameraInitialized: Boolean,
-    @SuppressLint("RestrictedApi") cameraRequest: () -> CameraRequest,
-    isInCall: Boolean
+fun OnlineNowSection(
+    peers: List<String>,
+    onJoinRoom: (String) -> Unit,
+    onNavigateToCallScreen: () -> Unit
 ) {
-    val navController = rememberNavController()
-
-    LaunchedEffect(isInCall) {
-        if (isInCall) {
-            navController.navigate("callScreen")
-        } else {
-            navController.navigate("home") // Navigate back when call ends
-        }
-    }
-
-
-    NavHost(navController, startDestination = "home") {
-        composable("home") {
-            // A simple loading/home screen
-            //Greeting()
-        }
-        composable("callScreen") {
-            CallScreen()
+    Text(
+        text = "Online Now:",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    if (peers.isEmpty()) {
+        Text(text = "No peers online", modifier = Modifier.padding(16.dp))
+    } else {
+        peers.forEach { peerId ->
+            OnlineUserCard(
+                userId = peerId,
+                onJoinClick = {
+                    // FIX #2: Chain the events. Call ViewModel then navigate.
+                    onJoinRoom(peerId)
+                    onNavigateToCallScreen()
+                }
+            )
         }
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@Composable
+fun OnlineUserCard(userId: String, onJoinClick: () -> Unit) { // FIX #3: Simplified parameter
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = userId, modifier = Modifier.weight(1f).padding(end = 16.dp))
+            Button(
+                onClick = onJoinClick, // Use the simplified lambda
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text(text = "Call")
+            }
+        }
+    }
+}
+
+
+
 
 
 

@@ -87,16 +87,20 @@ fun ListNIHFormScreen(refreshTrigger: Int) {
         ) {
             items(savedForms) { form ->
                 SavedFormItem(
-                    form = SavedForm(form.patientName, form.date),
+                    form = SavedForm(
+                        patientName = form.patientName?.takeIf { it.isNotBlank() } ?: "Unnamed Patient",
+                        dateRecorded = form.formDate ?: "No Date" // Also handle null date for safety
+                    ),
                     onClick = {
-                        val intent = Intent(context, SavedNIHFormActivity::class.java).apply {
-                            putExtra("formId", form.id)
-                            putExtra("patientName", form.patientName)
-                            putExtra("dob", form.dob)
-                            putExtra("date", form.date)
-                            putExtra("formData", form.formData)
-                            putExtra("username", form.username)
+                        val intent = Intent(context, NewSavedNIHFormActivity::class.java).apply {
+                            putExtra("form", form.form_id)
+//                            putExtra("patientName", form.patientName)
+//                            putExtra("dob", form.dob)
+//                            putExtra("date", form.date)
+//                            putExtra("formData", form.formData)
+//                            putExtra("username", form.username)
                         }
+
                         context.startActivity(intent)
                     }
                 )

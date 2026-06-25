@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization").version("2.2.21")
     }
 
 android {
@@ -27,11 +29,12 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"https://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
-            buildConfigField("int", "PORT", "443")
+            buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/key=peerjs/id\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -43,11 +46,12 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"https://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
-            buildConfigField("int", "PORT", "443")
+            buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/post\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/key=peerjs/id\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -62,14 +66,18 @@ android {
             applicationIdSuffix = ".local" // e.g., com.example.myapp.local
             versionNameSuffix = "-local"
 
-            // Override BASE_API_URL to point to your local development server
+// Override BASE_API_URL to point to your local development server
             // 10.0.2.2 is the special IP for your host machine's loopback on Android Emulator
-            buildConfigField("String", "BASE_API_URL", "\"localhost\"")
-            buildConfigField("String", "BASE_WS_API_URL", "\"ws://localhost:9000\"")
-            buildConfigField("int", "PORT", "9000")
-            buildConfigField("boolean", "SECURE", "false") // no use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://localhost:9000/key=peerjs/post\"")
-            buildConfigField("String", "API_GET_PEERS_URL","\"http://localhost:9000/key=peerjs/peers\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://10.0.2.2\"") // Use http for local unless you have SSL set up for this IP
+            buildConfigField("String", "BASE_WS_API_URL", "\"ws://10.0.2.2:3000\"")
+            buildConfigField("int", "PORT", "3000")
+            buildConfigField("boolean", "SECURE", "false") // It's common to use http (not https) for local IP access
+            buildConfigField("String", "API_GET_ID_URL", "\"https://10.0.2.2:3000/key=peerjs/id\"")
+            // --- THIS IS THE FIX ---
+            // Replace 127.0.0.1 with 10.0.2.2
+            buildConfigField("String", "API_POST_URL", "\"http://10.0.2.2:3000/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_PEERS_URL", "\"http://10.0.2.2:3000/key=peerjs/peers\"")
+            // ------------------------
 
             // If using a physical device on your local network, replace with your actual local IP:
             // buildConfigField("String", "BASE_API_URL", "\"http://192.168.1.XX:8080\"")
@@ -100,9 +108,15 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    implementation(libs.androidx.runtime)
+    ksp("com.google.dagger:hilt-android-compiler:2.57.2")
+    implementation ("com.github.0-u-0:mediasoup-android-sdk:0.0.1")
+    implementation("com.github.0-u-0:dugon-webrtc-android:100.0.2")
+    implementation("io.socket:socket.io-client:2.1.1")
     implementation ("com.github.franmontiel:PersistentCookieJar:v1.0.1")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
-    implementation("io.github.webrtc-sdk:android:125.6422.06.1")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.room:room-runtime:2.5.0")
     implementation(libs.androidx.camera.core)

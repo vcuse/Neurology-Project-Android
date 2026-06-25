@@ -2,14 +2,12 @@ package com.example.neurology_project_android
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,8 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,57 +36,65 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 // --- FIX 1: Import the new models ---
-import com.example.neurology_project_android.NIHFormModel
-import com.example.neurology_project_android.FormQuestion
-import com.example.neurology_project_android.NewNIHFormViewModel
-import com.example.neurology_project_android.SubmissionStatus
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
 
 // --- You can remove the old StrokeScaleQuestions import if it exists ---
  // This annotation tells Hilt to manage dependencies for this Activity
 @AndroidEntryPoint
-class NewNIHFormActivity : ComponentActivity() {
+class NewSavedNIHFormActivity : ComponentActivity() {
 
     // 1. Get the ViewModel directly from Hilt.
     // The `by viewModels()` delegate handles everything for you.
-    private val viewModel: NewNIHFormViewModel by viewModels()
-
-    companion object {
-        const val EXTRA_IN_CALL = "extra_in_call"
-    }
+    private val viewModel: SavedNIHFormViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val inCall = intent.getBooleanExtra(EXTRA_IN_CALL, false)
         // Hilt provides the ViewModel and its dependencies automatically.
         // No manual setup needed.
+        val formId = intent.getStringExtra("form")
+
         setContent {
-            // 2. Simply pass the Hilt-provided ViewModel to your screen.
-            NewNIHFormScreen(viewModel = viewModel, inCall = inCall)
+
+            NewNIHFormScreen(viewModel = viewModel, formId)
         }
     }
 
     // This is the Composable function your Activity is trying to call.
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Composable
-    fun NewNIHFormScreen(viewModel: NewNIHFormViewModel, inCall: Boolean) {
-        // 1. Observe state directly from the ViewModel
+    fun NewNIHFormScreen(viewModel: SavedNIHFormViewModel, formId: String?) {
+        val context = LocalContext.current
+        val sessionManager = remember { SessionManager(context) }
+        val client = sessionManager.client
+        // 🔑 FIX: Use LaunchedEffect to manage the side effect (loading the form)
+        LaunchedEffect(key1 = formId, key2 = client) {
+            // This block runs when the Composable first enters the composition
+            // or if 'formId' or 'client' changes.
+            if (!formId.isNullOrBlank()) {
+                // Call the ViewModel function.
+                // This function is NOT suspend on the outside, but it launches
+                // a coroutine internally (viewModelScope.launch) to handle the async work.
+                viewModel.loadExistingForm(formId, client)
+            }
+        }
+        var isEditable = false
+
         val patientName by viewModel.patientName
         val itemScores by viewModel.itemScores
         val submissionStatus by viewModel.submissionStatus.collectAsState()
-        val context = LocalContext.current
+
+
 
         val totalScore by remember(itemScores) {
             derivedStateOf {
@@ -142,18 +148,14 @@ class NewNIHFormActivity : ComponentActivity() {
                 // --- FIX 2: Use the new NIHFormModel instead of StrokeScaleQuestions ---
                 itemsIndexed(NIHFormModel.questions) { index, question ->
                     QuestionCard(
-                        questionIndex = index,
                         question = question,
                         // Get the currently selected score for this question from the ViewModel's state
                         selectedScore = itemScores.getOrNull(index),
-                        inCall = inCall,
                         // When an option is clicked, notify the ViewModel with the question index and the option's score
                         onOptionClick = { score ->
                             viewModel.onScoreSelected(index, score)
                         },
-                        onAutomateClick = {
-                            viewModel.automateQuestion(index)
-                        }
+                        isEditable = isEditable,
                     )
                 }
             }
@@ -182,19 +184,46 @@ class NewNIHFormActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                // When the button is clicked, call the submitForm function on the ViewModel
-                onClick = { viewModel.submitForm() },
-                // Disable the button while the form is submitting
-                enabled = submissionStatus != SubmissionStatus.Loading,
+            // Wrap the buttons in a Row
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .fillMaxWidth() // Row takes up the full width
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // Add spacing between the buttons
             ) {
-                if (submissionStatus == SubmissionStatus.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                } else {
-                    Text("Save Form")
+                // 1. Update/Save Button
+                Button(
+                    onClick = { isEditable = true },
+                    enabled = submissionStatus != SubmissionStatus.Loading,
+                    modifier = Modifier.weight(1f) // 🔑 Takes up half the row space
+                ) {
+                    if (submissionStatus == SubmissionStatus.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        // Changed text to suggest updating
+                        Text("Update Form")
+                    }
+                }
+
+                // 2. Delete Button
+                Button(
+                    onClick = {
+//                        FormManager.deleteForm(
+//                        formId = UUID.fromString(formId),
+//                        username = sessionManager.fetchUsername()!!,
+//                        client = sessionManager.client,
+//                        callback = null,
+//                    )
+                              },
+                    enabled = submissionStatus != SubmissionStatus.Loading,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error), // Use error color for deletion
+                    modifier = Modifier.weight(1f) // 🔑 Takes up the other half of the row space
+                ) {
+                    if (submissionStatus == SubmissionStatus.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("Delete Form")
+                    }
                 }
             }
         }
@@ -204,70 +233,49 @@ class NewNIHFormActivity : ComponentActivity() {
      * A reusable Composable for displaying a single question, its options, and highlighting the selection.
      */
     @Composable
-    fun QuestionCard(questionIndex: Int, question: FormQuestion, selectedScore: Int?, inCall: Boolean, onOptionClick: (Int) -> Unit, onAutomateClick: () -> Unit) { // --- FIX 3: Use FormQuestion class ---
+    fun QuestionCard(question: FormQuestion, selectedScore: Int?, onOptionClick: (Int) -> Unit, isEditable: Boolean) { // --- FIX 3: Use FormQuestion class ---
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(
-            containerColor = Color.hsv(268.9F, saturation = .165F, value = 1.0F, alpha = 1.0F)
-            )
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
-
             ) {
                 // --- FIX 4: Use properties from the new FormQuestion data class ---
                 Text(text = question.questionText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 if (question.instructionText.isNotEmpty()) {
                     Text(
                         text = question.instructionText,
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
-                }
-
-                // Show automate only for question index 6 AND only in a call
-                if (inCall && questionIndex == 6) {
-                    Button(
-                        onClick = onAutomateClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Text("Automate Question")
-                    }
                 }
 
                 // Create a clickable row for each answer option
                 question.options.forEach { option ->
                     Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(
-                                width = 2.dp,
-                                color = Color.LightGray,
-                                shape = RoundedCornerShape(8.dp)
-                            )
                             .fillMaxWidth()
                             .background(
                                 // Highlight the row if its score matches the selected score
-                                if (selectedScore == option.score) Color.hsv(270.0F, saturation = .477F, value = .987F, alpha = 1.0F) else Color.White
+                                if (selectedScore == option.score) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                             )
-
-                            .clickable { onOptionClick(option.score) } // Pass the option's actual score up
+                            .clickable(enabled = isEditable) {
+                                onOptionClick(option.score)
+                            }
                             .padding(8.dp),
+
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // --- FIX 5: Use properties from the new FormOption data class ---
-                        Text(text = option.displayText,fontSize = 18.sp, modifier = Modifier.weight(1f))
-                        Text(text = "${option.score}",fontSize = 18.sp)
+                        Text(text = option.displayText, modifier = Modifier.weight(1f))
+                        Text(text = "${option.score}")
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -275,12 +283,12 @@ class NewNIHFormActivity : ComponentActivity() {
 }
 
 // The factory for your ViewModel
-class NewNIHFormViewModelFactory(private val neurologyRepository: SignalingClient) :
+class SavedNIHFormViewModelFactory(private val neurologyRepository: SignalingClient) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NewNIHFormViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(SavedNIHFormViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return NewNIHFormViewModel(neurologyRepository) as T
+            return SavedNIHFormViewModel(neurologyRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
