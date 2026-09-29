@@ -69,8 +69,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import com.meta.wearable.dat.camera.addCamera
+import com.meta.wearable.dat.camera.types.StreamConfiguration
+import com.meta.wearable.dat.camera.types.StreamState
+import com.meta.wearable.dat.camera.types.VideoQuality
 import com.meta.wearable.dat.core.types.PermissionStatus
 import com.meta.wearable.dat.core.Wearables
+import com.meta.wearable.dat.core.Wearables.createSession
+import com.meta.wearable.dat.core.selectors.AutoDeviceSelector
 import com.meta.wearable.dat.core.types.Permission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellableContinuation
@@ -129,7 +135,8 @@ class MainActivity : ComponentActivity() {
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.FOREGROUND_SERVICE_MICROPHONE,
-                Manifest.permission.RECORD_AUDIO
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.BLUETOOTH_CONNECT
             ), 1
         )
 
@@ -185,6 +192,10 @@ class MainActivity : ComponentActivity() {
                                             .onSuccess { status ->
                                                 if (status == PermissionStatus.Granted) {
                                                     Log.d("Wearables", "Camera streaming permission approved!")
+
+                                                    // ----> ADD THE CALL HERE <----
+                                                    startWearableSession()
+
                                                 } else {
                                                     Log.d("Wearables", "Camera streaming permission denied.")
                                                 }
@@ -215,6 +226,43 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
+    private fun startWearableSession() {
+        // Make sure AutoDeviceSelector is imported from the Meta SDK
+        val session = Wearables.createSession(AutoDeviceSelector()).getOrElse { error ->
+            Log.e("Wearables", "Failed to create session: ${error}")
+            return
+        }
+        session.start()
+        Log.d("Wearables", "Wearable session started successfully!")
+        val config = StreamConfiguration(videoQuality = VideoQuality.MEDIUM, frameRate = 24)
+        session.addCamera(config).fold(
+            onSuccess = { camera ->
+                val stream = camera.stream
+                lifecycleScope.launch {
+                    stream.videoStream.collect { frame ->
+                        //displayFrame(frame)
+                    }
+                }
+
+                lifecycleScope.launch {
+                    stream.state.collect { state ->
+                        //updateStreamUi(state)
+                        if (state == StreamState.STOPPED) {
+                            //stopStream()
+                        }
+                    }
+                }
+
+                stream.start()
+            },
+            onFailure = { error, _ ->
+                //showError(error.description)
+                Log.e("Wearables", "Failed to add camera: ${error}")
+            },
+        )
+        // TODO: Pass this session object to your WebRTC/Mediasoup video processor to stream the feed
+    }
 
 
     fun requestWearablesRegistration() {
