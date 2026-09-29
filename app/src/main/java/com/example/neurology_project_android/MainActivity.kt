@@ -14,6 +14,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -36,6 +37,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -59,18 +61,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import com.meta.wearable.dat.core.types.PermissionStatus
+import com.meta.wearable.dat.core.Wearables
+import com.meta.wearable.dat.core.types.Permission
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.concurrent.withLock
+import kotlin.coroutines.resume
 
 
 @AndroidEntryPoint
@@ -87,6 +101,16 @@ class MainActivity : ComponentActivity() {
     private lateinit var signalingClient: SignalingClient
     private lateinit var signalingRepository: SignalingRepository
     private val viewModel: MainViewModel by viewModels()
+    // 1. Define the Mutex and Continuation at the class level
+    private val permissionMutex = Mutex()
+    private var permissionContinuation: CancellableContinuation<com.meta.wearable.dat.core.types.DatResult<PermissionStatus, com.meta.wearable.dat.core.types.PermissionError>>? = null
+
+    private val permissionsResultLauncher =
+        registerForActivityResult(Wearables.RequestPermissionContract()) { result ->
+            // result here is DatResult<PermissionStatus, PermissionError>
+            permissionContinuation?.resume(result)
+            permissionContinuation = null
+        }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -114,6 +138,22 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
+            @Composable
+            fun WearableStatusSection(viewModel: MainViewModel, onRegister: () -> Unit) {
+                val regState by viewModel.registrationState.collectAsState()
+                val devices by viewModel.devices.collectAsState()
+
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Registration Status: ${regState.name}")
+                    Text("Connected Devices: ${devices.size}")
+
+                    Button(onClick = onRegister) {
+                        Text("Register with Meta App")
+                    }
+                }
+            }
+
             NeurologyProjectAndroidTheme {
                 viewModel.connectSignalingClient()
                 val uiState by viewModel.uiState.collectAsState()
@@ -121,6 +161,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when (val state = uiState) {
                         is MainUiState.Loading -> {
+                            Log.d("MainActivity", "You are currently loading")
                             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                                 CircularProgressIndicator()
                             }
@@ -130,19 +171,58 @@ class MainActivity : ComponentActivity() {
                                 Text("Error: ${state.message}")
                             }
                         }
+
+
                         is MainUiState.Success -> {
-                            // Pass the state down to your UI
                             MyApp(
                                 userId = state.userId,
                                 peers = state.peers,
                                 innerPadding = innerPadding,
-                                onJoinRoom = { targetId -> viewModel.joinRoom(targetId) }
+                                onJoinRoom = { targetId -> viewModel.joinRoom(targetId) },
+                                onRequestCameraPermission = {
+                                    lifecycleScope.launch {
+                                        requestWearablesPermission(Permission.CAMERA)
+                                            .onSuccess { status ->
+                                                if (status == PermissionStatus.Granted) {
+                                                    Log.d("Wearables", "Camera streaming permission approved!")
+                                                } else {
+                                                    Log.d("Wearables", "Camera streaming permission denied.")
+                                                }
+                                            }
+                                            .onFailure { error, _ ->
+                                                Log.d("Wearables", "Permission request failed: ${error.description}")
+                                            }
+                                    }
+                                }
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    // 4. The helper function
+    suspend fun requestWearablesPermission(
+        permission: Permission
+    ): com.meta.wearable.dat.core.types.DatResult<PermissionStatus, com.meta.wearable.dat.core.types.PermissionError> {
+        return permissionMutex.withLock {
+            suspendCancellableCoroutine { continuation ->
+                permissionContinuation = continuation
+                continuation.invokeOnCancellation { permissionContinuation = null }
+                permissionsResultLauncher.launch(permission)
+            }
+        }
+    }
+
+
+
+    fun requestWearablesRegistration() {
+        Wearables.startRegistration(this)
+    }
+
+    fun requestWearablesUnregistration() {
+        Wearables.startUnregistration(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -225,21 +305,23 @@ class MainActivity : ComponentActivity() {
         userId: String,
         peers: List<String>,
         innerPadding: PaddingValues,
-        onJoinRoom: (String) -> Unit // FIX #1: This is a simple function type, not @Composable
+        onJoinRoom: (String) -> Unit,
+        onRequestCameraPermission: () -> Unit // Pass action type down
     ) {
         val navController = rememberNavController()
         NavHost(navController, startDestination = "home") {
             composable("home") {
                 HomeScreen(
                     modifier = Modifier.padding(innerPadding),
-                    userId = userId, // Pass state down
-                    peers = peers,   // Pass state down
-                    onJoinRoom = onJoinRoom, // Pass the event handler down
-                    onNavigateToCallScreen = { navController.navigate("callScreen") }
+                    userId = userId,
+                    peers = peers,
+                    onJoinRoom = onJoinRoom,
+                    onNavigateToCallScreen = { navController.navigate("callScreen") },
+                    onRegisterWearable = { requestWearablesRegistration() },
+                    onRequestCameraPermission = onRequestCameraPermission // Pass down to UI
                 )
             }
             composable("callScreen") {
-                // Assuming CallScreen is defined elsewhere
                 CallScreen()
             }
         }
@@ -254,7 +336,9 @@ class MainActivity : ComponentActivity() {
         userId: String,
         peers: List<String>,
         onJoinRoom: (String) -> Unit,
-        onNavigateToCallScreen: () -> Unit
+        onRegisterWearable: () -> Unit,
+        onNavigateToCallScreen: () -> Unit,
+        onRequestCameraPermission: () -> Unit // Receive action here
     ) {
         val context = LocalContext.current
         val sessionManager = remember { SessionManager(context) }
@@ -262,43 +346,33 @@ class MainActivity : ComponentActivity() {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logout Button
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = {
-                    sessionManager.logout()
-                    val intent = Intent(context, LoginActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    context.startActivity(intent)
-                }) {
-                    Text("Log Out", color = MaterialTheme.colorScheme.primary)
-                }
+            Text(text = "Logged in as: $userId", fontWeight = FontWeight.Bold)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Button to register the wearable device
+            Button(onClick = onRegisterWearable, modifier = Modifier.fillMaxWidth()) {
+                Text("1. Register Meta Glasses")
             }
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Peer ID Section
-            PeerIdSection(peerId = userId)
-
-            // Online Now Section (Scrollable)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // New Button to request camera approval before launching streams
+            Button(
+                onClick = onRequestCameraPermission,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
             ) {
-                OnlineNowSection(
-                    peers = peers,
-                    onJoinRoom = onJoinRoom,
-                    onNavigateToCallScreen = onNavigateToCallScreen
-                )
+                Text("2. Request Glasses Camera Access")
             }
 
-            // NIH Forms Button
-            NIHFormsButton()
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OnlineNowSection(peers = peers, onNavigateToOnlineScreen = onNavigateToCallScreen)
         }
     }
 
@@ -368,7 +442,9 @@ fun OnlineUserCard(userId: String, onJoinClick: () -> Unit) { // FIX #3: Simplif
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = userId, modifier = Modifier.weight(1f).padding(end = 16.dp))
+            Text(text = userId, modifier = Modifier
+                .weight(1f)
+                .padding(end = 16.dp))
             Button(
                 onClick = onJoinClick, // Use the simplified lambda
                 modifier = Modifier.wrapContentWidth()
@@ -405,6 +481,8 @@ fun PeerIdSection(peerId: String) {
         }
     }
 }
+
+
 
 
 

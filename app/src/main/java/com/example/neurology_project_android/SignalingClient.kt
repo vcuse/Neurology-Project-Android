@@ -180,7 +180,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
 
         val emptyPayload = JSONObject()
 
-        socket.emit("getRoomList", emptyPayload, Ack { args ->
+        socket.emit("getRoomList", Ack { args ->
             if (args.isEmpty() || args[0] == null) {
                 Log.e("SIGNALING CLIENT", "No room list received.")
                 // It's good practice to emit an empty list on failure too
@@ -189,7 +189,7 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             }
 
             val responseData = args[0]
-
+            Log.d("SIGNALING CLIENT", "Received room list: $responseData")
             if (responseData is JSONArray) {
                 Log.d("SIGNALING CLIENT", "SUCCESS! Room List received: $responseData")
 
@@ -239,13 +239,26 @@ class SignalingClient @OptIn(UnstableApi::class) constructor
             .setReconnection(true)
             .setForceNew(true)
             .setExtraHeaders(authMap)
-
+            .setPath("/b/socket.io")
             .build()
 
 
         try {
             socket = IO.socket(BASE_WS_API_URL, options)
+            Log.d("Socket", "Socket URL: $BASE_WS_API_URL")
             socket.connect()
+            Log.d("SocketINFO", "Socket Info: ${socket}")
+            Log.d("SOCKET", "Connected")
+            socket.onAnyIncoming(Emitter.Listener { args ->
+                if (args.isNotEmpty()) {
+                    val eventName = args[0] as String
+
+                    // The remaining elements are the arguments sent with the event
+                    val eventData = args.drop(1)
+
+                    println("Received event: $eventName with data: $eventData")
+                }
+            })
             // The Emitter.Listener callback runs on a background thread.
             socket.on("newProducers", Emitter.Listener { args ->
 //                this.currentRoomClient.consume()

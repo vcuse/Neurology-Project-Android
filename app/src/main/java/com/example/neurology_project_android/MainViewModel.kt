@@ -9,6 +9,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.neurology_project_android.BuildConfig.API_GET_ID_URL
+import com.meta.wearable.dat.core.Wearables
+import com.meta.wearable.dat.core.types.DeviceIdentifier
+import com.meta.wearable.dat.core.types.RegistrationState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,9 +34,32 @@ class MainViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    // Add state for Wearables
+    private val _registrationState = MutableStateFlow<RegistrationState>(RegistrationState.AVAILABLE)
+    val registrationState = _registrationState.asStateFlow()
+
+    private val _devices = MutableStateFlow<List<DeviceIdentifier>>(emptyList())
+    val devices = _devices.asStateFlow()
+
+
     init {
         // Start the process as soon as the ViewModel is created
         initialize()
+        observeWearables()
+    }
+    private fun observeWearables() {
+        viewModelScope.launch {
+            Wearables.registrationState.collect { state ->
+                _registrationState.value = state
+                Log.d("MainViewModel", "Registration state updated: $state")
+            }
+        }
+        viewModelScope.launch {
+            Wearables.devices.collect { devices ->
+                _devices.value = devices.toList()
+                Log.d("MainViewModel", "Devices updated: $devices")
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -93,6 +119,8 @@ class MainViewModel @Inject constructor(
     fun connectSignalingClient() {
         signalingClient.connectClient()
     }
+
+
 }
 
 // Sealed interface to represent the different UI states

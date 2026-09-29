@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.neurology_project_android"
-        minSdk = 24
+        minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -29,12 +29,12 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz/b/\"")
             buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
             buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
-            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/key=peerjs/id\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/b/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/b/key=peerjs/id\"")
             buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -46,13 +46,13 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz\"")
-            buildConfigField("String", "BASE_WS_API_URL", "\"wss://videochat-signaling-app.ue.r.appspot.com\"")
+            buildConfigField("String", "BASE_API_URL", "\"https://meechie.techkit.xyz:444/b/\"")
+            buildConfigField("String", "BASE_WS_API_URL", "\"wss://meechie.techkit.xyz:444\"")
             buildConfigField("int", "PORT", "444")
             buildConfigField("boolean", "SECURE", "true") // yes use HTTPS
-            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/key=peerjs/post\"")
-            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/key=peerjs/id\"")
-            buildConfigField("String", "API_GET_PEERS_URL","\"https://videochat-signaling-app.ue.r.appspot.com/key=peerjs/peers\"")
+            buildConfigField("String", "API_POST_URL","\"https://meechie.techkit.xyz:444/b/key=peerjs/post\"")
+            buildConfigField("String", "API_GET_ID_URL", "\"https://meechie.techkit.xyz:444/b/key=peerjs/id\"")
+            buildConfigField("String", "API_GET_PEERS_URL","\"https://meechie.techkit.xyz:444/b/key=peerjs/peers\"")
             signingConfig = signingConfigs.getByName("debug")
         }
 
@@ -111,6 +111,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("com.google.dagger:hilt-android:2.57.1")
     implementation(libs.androidx.runtime)
+    implementation(libs.androidbrowserhelper)
     ksp("com.google.dagger:hilt-android-compiler:2.57.2")
     implementation ("com.github.0-u-0:mediasoup-android-sdk:0.0.1")
     implementation("com.github.0-u-0:dugon-webrtc-android:100.0.2")
@@ -138,6 +139,10 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.mwdat.core)
+    implementation(libs.mwdat.camera)
+    implementation(libs.mwdat.display)
+    implementation(libs.mwdat.mockdevice)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

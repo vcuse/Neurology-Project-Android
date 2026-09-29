@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.hardware.usb.accessory" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -28,6 +30,14 @@
         android:theme="@style/Theme.NeurologyProjectAndroid"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.meta.wearable.mwdat.APPLICATION_ID"
+            android:value="1421328176734931"
+            />
+        <meta-data
+            android:name="com.meta.wearable.mwdat.CLIENT_TOKEN"
+            android:value="AR|1421328176734931|3455b8f130d6633ff5099faabfc95755"
+            />
 
         <service
             android:name=".SignalingConnection"
@@ -40,7 +50,11 @@
             android:theme="@style/Theme.NeurologyProjectAndroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="myexampleapp" />
             </intent-filter>
         </activity>
 
