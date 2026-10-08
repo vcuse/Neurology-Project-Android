@@ -11,6 +11,7 @@ import android.content.Intent
 import com.example.neurology_project_android.BuildConfig.API_GET_ID_URL
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -69,6 +70,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.neurology_project_android.BuildConfig.API_GET_PEERS_URL
 import com.example.neurology_project_android.ui.theme.NeurologyProjectAndroidTheme
+import com.meta.wearable.dat.camera.Camera
+import com.meta.wearable.dat.camera.Stream
 import com.meta.wearable.dat.camera.addCamera
 import com.meta.wearable.dat.camera.types.StreamConfiguration
 import com.meta.wearable.dat.camera.types.StreamState
@@ -77,6 +80,8 @@ import com.meta.wearable.dat.core.types.PermissionStatus
 import com.meta.wearable.dat.core.Wearables
 import com.meta.wearable.dat.core.Wearables.createSession
 import com.meta.wearable.dat.core.selectors.AutoDeviceSelector
+import com.meta.wearable.dat.core.session.DeviceSession
+import com.meta.wearable.dat.core.session.DeviceSessionState
 import com.meta.wearable.dat.core.types.Permission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellableContinuation
@@ -89,6 +94,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.webrtc.CapturerObserver
+import org.webrtc.JavaI420Buffer
+import org.webrtc.NV21Buffer
+import org.webrtc.PeerConnectionFactory
+import org.webrtc.VideoFrame
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.withLock
 import kotlin.coroutines.resume
 
@@ -104,13 +115,11 @@ class MainActivity : ComponentActivity() {
 //    private lateinit var capturerObserver: CapturerObserver
     private var isInCall by mutableStateOf(false)
     private var cameraInitialized by mutableStateOf(false)
-    private lateinit var signalingClient: SignalingClient
-    private lateinit var signalingRepository: SignalingRepository
     private val viewModel: MainViewModel by viewModels()
     // 1. Define the Mutex and Continuation at the class level
     private val permissionMutex = Mutex()
     private var permissionContinuation: CancellableContinuation<com.meta.wearable.dat.core.types.DatResult<PermissionStatus, com.meta.wearable.dat.core.types.PermissionError>>? = null
-
+    private var capturerObserver: CapturerObserver? = null
     private val permissionsResultLauncher =
         registerForActivityResult(Wearables.RequestPermissionContract()) { result ->
             // result here is DatResult<PermissionStatus, PermissionError>
@@ -118,12 +127,22 @@ class MainActivity : ComponentActivity() {
             permissionContinuation = null
         }
 
+    private var wearableSession: DeviceSession? = null
+    private var wearableCamera: Camera? = null
+    private var cameraAttachRequested = false
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PeerConnectionFactory.initialize(
+            PeerConnectionFactory.InitializationOptions
+                .builder(applicationContext)
+                .createInitializationOptions()
+        )
 
+        Log.d("WEBRTC", "WebRTC native library initialized")
         val intent = PendingIntent.getBroadcast(
             this,
             0,
@@ -226,51 +245,265 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun metaFrameToI420(
+        frame: com.meta.wearable.dat.camera.types.VideoFrame
+    ): ByteArray {
+        val width = frame.width
+        val height = frame.height
+
+        require(width % 2 == 0 && height % 2 == 0) {
+            "Expected even YUV420 dimensions"
+        }
+
+        val expectedSize = width * height * 3 / 2
+
+        // Duplicate so we don't change the SDK buffer's position
+        val buffer = frame.buffer.duplicate()
+
+        require(buffer.remaining() == expectedSize) {
+            "Unexpected frame size: ${buffer.remaining()}, " +
+                    "expected $expectedSize"
+        }
+
+        val i420 = ByteArray(expectedSize)
+
+        // Copies Y + U + V, assuming tightly packed I420
+        buffer.get(i420)
+
+        return i420
+    }
+
     @OptIn(UnstableApi::class)
+
     private fun startWearableSession() {
-        // Make sure AutoDeviceSelector is imported from the Meta SDK
-        val session = Wearables.createSession(AutoDeviceSelector()).getOrElse { error ->
-            Log.e("Wearables", "Failed to create session: ${error}")
+
+        // Prevent creating multiple sessions.
+        if (wearableSession != null) {
+            Log.d("Wearables", "Session already exists")
             return
         }
-        session.start()
-        Log.d("Wearables", "Wearable session started successfully!")
-        val config = StreamConfiguration(videoQuality = VideoQuality.MEDIUM, frameRate = 24)
-        session.addCamera(config).fold(
-            onSuccess = { camera ->
-                val stream = camera.stream
+
+        Wearables.createSession(AutoDeviceSelector()).fold(
+            onSuccess = { session ->
+
+                // Keep a reference to the active session.
+                wearableSession = session
+
+                // Observe session errors.
                 lifecycleScope.launch {
+                    session.errors.collect { error ->
+                        Log.e(
+                            "Wearables",
+                            "Session error: ${error.description}"
+                        )
+                    }
+                }
+
+                // Wait for the session to actually start.
+                lifecycleScope.launch {
+                    session.state.collect { state ->
+
+                        Log.d(
+                            "Wearables",
+                            "Session state: $state"
+                        )
+
+                        when (state) {
+
+                            DeviceSessionState.STARTED -> {
+                                Log.d(
+                                    "Wearables",
+                                    "Session started successfully!"
+                                )
+
+                                if (!cameraAttachRequested) {
+                                    cameraAttachRequested = true
+                                    attachWearableCamera(session)
+                                }
+                            }
+
+                            DeviceSessionState.PAUSED -> {
+                                Log.d(
+                                    "Wearables",
+                                    "Session paused"
+                                )
+                            }
+
+                            DeviceSessionState.STOPPED -> {
+                                Log.e(
+                                    "Wearables",
+                                    "Session stopped"
+                                )
+
+                                if (wearableSession === session) {
+                                    wearableSession = null
+                                    wearableCamera = null
+                                    cameraAttachRequested = false
+                                }
+                            }
+
+                            else -> Unit
+                        }
+                    }
+                }
+
+                // Start AFTER registering the observers.
+                session.start()
+            },
+
+            onFailure = { error, _ ->
+                Log.e(
+                    "Wearables",
+                    "Failed to create session: ${error.description}"
+                )
+            }
+        )
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun attachWearableCamera(session: DeviceSession) {
+
+        if (wearableSession !== session ||
+            session.state.value != DeviceSessionState.STARTED) {
+            return
+        }
+
+        val config = StreamConfiguration(
+            videoQuality = VideoQuality.MEDIUM,
+            frameRate = 24,
+            compressVideo = false
+        )
+        var receivedFrames = 0
+        session.addCamera(config).fold(
+
+            onSuccess = { camera ->
+
+                wearableCamera = camera
+                val stream = camera.stream
+
+                Log.d(
+                    "Wearables",
+                    "Camera attached successfully!"
+                )
+
+                lifecycleScope.launch(Dispatchers.Default) {
                     stream.videoStream.collect { frame ->
-                        //displayFrame(frame)
+
+                        receivedFrames++
+
+                        if (receivedFrames % 60 == 0) {
+                            Log.d(
+                                "VIDEO_DEBUG",
+                                "META RECEIVED: $receivedFrames frames " +
+                                        "size=${frame.width}x${frame.height} " +
+                                        "bytes=${frame.buffer.remaining()}"
+                            )
+                        }
+
+                        try {
+                            deliverFrameToWebRTC(frame)
+                        } catch (e: Exception) {
+                            Log.e(
+                                "VIDEO_DEBUG",
+                                "FRAME CONVERSION FAILED",
+                                e
+                            )
+                        }
                     }
                 }
 
                 lifecycleScope.launch {
                     stream.state.collect { state ->
-                        //updateStreamUi(state)
-                        if (state == StreamState.STOPPED) {
-                            //stopStream()
-                        }
+                        Log.d(
+                            "Wearables",
+                            "Stream state: $state"
+                        )
                     }
                 }
 
-                stream.start()
+                lifecycleScope.launch {
+                    stream.errorStream.collect { error ->
+                        Log.e(
+                            "Wearables",
+                            "Stream error: ${error.description}"
+                        )
+                    }
+                }
+
+                stream.start().onFailure { error, _ ->
+                    Log.e(
+                        "Wearables",
+                        "Failed to start stream: ${error.description}"
+                    )
+                }
             },
+
             onFailure = { error, _ ->
-                //showError(error.description)
-                Log.e("Wearables", "Failed to add camera: ${error}")
-            },
+                Log.e(
+                    "Wearables",
+                    "Failed to add camera: ${error.description}"
+                )
+            }
         )
-        // TODO: Pass this session object to your WebRTC/Mediasoup video processor to stream the feed
     }
 
 
+    private var cameraStream: Stream? = null
     fun requestWearablesRegistration() {
         Wearables.startRegistration(this)
     }
 
     fun requestWearablesUnregistration() {
         Wearables.startUnregistration(this)
+    }
+
+
+
+    private fun deliverFrameToWebRTC(
+        frame: com.meta.wearable.dat.camera.types.VideoFrame
+    ) {
+        val width = frame.width
+        val height = frame.height
+
+        val i420Bytes = metaFrameToI420(frame)
+
+        val ySize = width * height
+        val uvSize = ySize / 4
+
+        val buffer = JavaI420Buffer.allocate(width, height)
+
+        // If conversion fails, release the buffer.
+        var ownershipTransferred = false
+
+        try {
+            buffer.dataY.put(i420Bytes, 0, ySize)
+            buffer.dataU.put(i420Bytes, ySize, uvSize)
+            buffer.dataV.put(
+                i420Bytes,
+                ySize + uvSize,
+                uvSize
+            )
+
+            val rtcFrame = VideoFrame(
+                buffer,
+                0,
+                frame.presentationTimeUs * 1000L
+            )
+
+            // VideoFrame now owns the buffer.
+            ownershipTransferred = true
+
+            try {
+                GlassesVideoBridge.submitFrame(rtcFrame)
+            } finally {
+                rtcFrame.release()
+            }
+
+        } finally {
+            if (!ownershipTransferred) {
+                buffer.release()
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -334,7 +567,7 @@ class MainActivity : ComponentActivity() {
                 Button(
                     onClick = {
 
-                        signalingClient.joinRoom(userId)
+                        //signalingClient.joinRoom(userId)
                         onNavigateToOnlineScreen()
                     }, //signalingClient.startCall(userId)
                     modifier = Modifier.wrapContentWidth()
@@ -420,7 +653,11 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OnlineNowSection(peers = peers, onNavigateToOnlineScreen = onNavigateToCallScreen)
+            OnlineNowSection(
+                peers = peers,
+                onJoinRoom = onJoinRoom,
+                onNavigateToCallScreen = onNavigateToCallScreen
+            )
         }
     }
 

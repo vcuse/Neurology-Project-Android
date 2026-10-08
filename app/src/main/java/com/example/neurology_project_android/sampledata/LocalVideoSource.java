@@ -6,6 +6,8 @@ import android.hardware.camera2.CameraManager;
 
 import androidx.annotation.Nullable;
 
+import com.example.neurology_project_android.GlassesVideoBridge;
+
 import org.webrtc.Camera2Capturer;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
@@ -21,25 +23,25 @@ public class LocalVideoSource extends LocalSource {
 
     private static final String TAG = "LocalVideoSource";
     private final Context appContext;
-    private final VideoCapturer capturer;
+
     private final VideoSource source;
-    private final SurfaceTextureHelper surfaceTextureHelper;
+
     public VideoTrack track;
 
-    public LocalVideoSource(Context context, EglBase rootEglBase, VideoSource videoSource, VideoTrack videoTrack) throws CameraAccessException {
+    public LocalVideoSource(
+            Context context,
+            EglBase rootEglBase,
+            VideoSource videoSource,
+            VideoTrack videoTrack
+    ) throws CameraAccessException {
+
         appContext = context;
         source = videoSource;
         track = videoTrack;
-        CameraManager cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        String lastCameraId = cameraManager.getCameraIdList()[cameraManager.getCameraIdList().length - 1];
-        Camera2Capturer cameraCapturer = new Camera2Capturer(context, lastCameraId, null);
 
-        CameraEnumerator enumerator = new Camera2Enumerator(appContext);
-        capturer = createCameraCapturer(enumerator);
-        surfaceTextureHelper =
-                SurfaceTextureHelper.create("CaptureThread", rootEglBase.getEglBaseContext());
-        cameraCapturer.initialize(surfaceTextureHelper, appContext, source.getCapturerObserver());
-        cameraCapturer.startCapture(1920, 1080, 30);
+        // Instead of starting Camera2, connect the
+        // WebRTC VideoSource to the Ray-Ban frame bridge.
+        GlassesVideoBridge.INSTANCE.attach(source);
     }
 
     @Override

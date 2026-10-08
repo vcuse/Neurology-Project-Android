@@ -3,6 +3,7 @@ package com.example.neurology_project_android.sampledata;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.neurology_project_android.GlassesVideoBridge;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -194,12 +195,21 @@ public class Device {
         Callable<LocalVideoSource> task = () -> {
             boolean isScreencast = false;
 
-            VideoSource videoSource = factory.createVideoSource(isScreencast);
+            // 1. Create WebRTC source with your existing factory
+            VideoSource videoSource =
+                    factory.createVideoSource(false);
 
-            VideoTrack localVideoTrack = factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
-            localVideoTrack.setEnabled(true);
+            // 2. Create WebRTC track
+            VideoTrack videoTrack =
+                    factory.createVideoTrack(
+                            "meta-glasses-video",
+                            videoSource
+                    );
 
-            return new LocalVideoSource(appContext, rootEglBase, videoSource, localVideoTrack);
+            // 3. Connect glasses frames to WebRTC
+            GlassesVideoBridge.INSTANCE.attach(videoSource);
+
+            return new LocalVideoSource(appContext, rootEglBase, videoSource, videoTrack);
         };
 
         Future<LocalVideoSource> future = executor.submit(task);
